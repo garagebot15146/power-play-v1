@@ -126,7 +126,7 @@ public class leftBlue extends LinearOpMode {
 
     }
 
-    public void extend(int ticks, double timeout) {
+    public void extend(int ticks, long duration) {
         drive.leftHorizontalSlide.setTargetPosition(ticks);
         drive.rightHorizontalSlide.setTargetPosition(ticks);
         runtime.reset();
@@ -137,18 +137,12 @@ public class leftBlue extends LinearOpMode {
         drive.leftHorizontalSlide.setVelocity(2000);
         drive.rightHorizontalSlide.setVelocity(2000);
 
-        while (opModeIsActive() && (runtime.seconds() < timeout) && drive.leftHorizontalSlide.isBusy() && drive.rightHorizontalSlide.isBusy()) {
-        }
-
-        drive.leftHorizontalSlide.setVelocity(0);
-        drive.rightHorizontalSlide.setVelocity(0);
-
+        sleep(duration);
     }
 
-    public void lift(int ticks, double timeout) {
+    public void lift(int ticks, long duration) {
         drive.leftVerticalSlide.setTargetPosition(ticks);
         drive.rightVerticalSlide.setTargetPosition(ticks);
-        runtime.reset();
 
         drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -156,14 +150,7 @@ public class leftBlue extends LinearOpMode {
         drive.leftVerticalSlide.setVelocity(3000);
         drive.rightVerticalSlide.setVelocity(3000);
 
-        while (opModeIsActive() && (runtime.seconds() < timeout) && drive.leftVerticalSlide.isBusy() && drive.rightVerticalSlide.isBusy()) {
-            telemetry.addData("Left Lift", drive.leftVerticalSlide.getCurrentPosition());
-            telemetry.addData("Right Lift", drive.rightVerticalSlide.getCurrentPosition());
-            telemetry.update();
-        }
-
-        drive.leftVerticalSlide.setVelocity(0);
-        drive.rightVerticalSlide.setVelocity(0);
+        sleep(duration);
     }
 
     public void clawOpen() {
@@ -180,7 +167,7 @@ public class leftBlue extends LinearOpMode {
                 drive.intakeAngle.setPosition(intakeAngleList[0]);
                 drive.clawAngle.setPosition(clawAngleList[0]);
                 clawOpen();
-                extend(horizontalSlideList[0], 4);
+                extend(horizontalSlideList[0], 770);
                 break;
             case 2:
                 break;
@@ -198,15 +185,15 @@ public class leftBlue extends LinearOpMode {
     }
 
     public void deposit() {
-        lift(1590, 4);
-        sleep(500);
-        lift(0, 4);
+        lift(1590, 1300);
+        lift(0, 1300);
     }
 
     public void transfer() {
+        sleep(500);
         clawClose();
         sleep(400);
-        extend(0, 4);
+        extend(0, 800);
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
         drive.clawAngle.setPosition(clawAngle2);
