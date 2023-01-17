@@ -18,21 +18,20 @@ public class leftBlue extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     // Cone Stack
-    double[] intakeAngleList = {0.95, 0.87, 0.79, 0.71, 0.63};
     double[] clawAngleList = {0.95, 0.95, 0.95, 0.94, 0.94};
-    int[] horizontalSlideList = {600, 570, 570, 570, 570};
+    int[] horizontalSlideList = {500, 500, 510, 510, 510};
 
     // Servo Positions
     double claw1 = 1;
     double claw2 = 0.7;
 
     double clawAngle1 = 0.95;
-    double clawAngle2 = 0.32;
-    double clawAngle3 = 0.78;
+    double clawAngle2 = 0.42;
+    double clawAngle3 = 0.7;
 
     double intakeAngle1 = 0.95;
-    double intakeAngle2 = 0.04;
-    double intakeAngle3 = 0.17;
+    double intakeAngle2 = 0.11;
+    double intakeAngle3 = 0.15;
 
     double clawRotate1 = 0;
     double clawRotate2 = 0.74;
@@ -46,41 +45,25 @@ public class leftBlue extends LinearOpMode {
 
         String conePos = "LEFT";
 
-//        TrajectorySequence driveZone1 = drive.trajectorySequenceBuilder(startPose)
-//                .back(54)
-//                .turn(Math.toRadians(-45))
-//                .waitSeconds(1)
-//
-//                //collect and drop cone 2
-//                .splineToLinearHeading(new Pose2d(-42, -12, Math.toRadians(180)), Math.toRadians(0))
-//                .waitSeconds(1)
-//                .splineToLinearHeading(new Pose2d(-34, -8, Math.toRadians(-140)), Math.toRadians(180))
-//                .waitSeconds(1)
-//
-//                //collect and drop cone 3
-//                .splineToLinearHeading(new Pose2d(-42, -12, Math.toRadians(180)), Math.toRadians(0))
-//                .waitSeconds(1)
-//                .splineToLinearHeading(new Pose2d(-34, -8, Math.toRadians(-140)), Math.toRadians(180))
-//                .waitSeconds(1)
-//
-//                //collect and drop cone 4
-//                .splineToLinearHeading(new Pose2d(-42, -12, Math.toRadians(180)), Math.toRadians(0))
-//                .waitSeconds(1)
-//                .splineToLinearHeading(new Pose2d(-34, -8, Math.toRadians(-140)), Math.toRadians(180))
-//                .waitSeconds(1)
-//
-//                //collect and drop cone 5
-//                .splineToLinearHeading(new Pose2d(-42, -12, Math.toRadians(180)), Math.toRadians(0))
-//                .waitSeconds(1)
-//                .splineToLinearHeading(new Pose2d(-34, -8, Math.toRadians(-140)), Math.toRadians(180))
-//                .waitSeconds(1)
-//
-//                //collect and drop cone 6
-//                .splineToLinearHeading(new Pose2d(-42, -12, Math.toRadians(180)), Math.toRadians(0))
-//                .waitSeconds(1)
-//                .splineToLinearHeading(new Pose2d(-34, -8, Math.toRadians(-140)), Math.toRadians(180))
-//                .waitSeconds(1)
-//                .build( );
+        TrajectorySequence cone0 = drive.trajectorySequenceBuilder(startPose)
+                .back(50)
+//                .turn(Math.toRadians(-57))
+//                .back(3)
+                .splineToLinearHeading(new Pose2d(-31, -8, Math.toRadians(-140)), Math.toRadians(180))
+                .build();
+
+        TrajectorySequence intake0 = drive.trajectorySequenceBuilder(cone0.end())
+				.splineToLinearHeading(new Pose2d(-45, -11, Math.toRadians(180)), Math.toRadians(0))
+                .build();
+
+        TrajectorySequence outtake = drive.trajectorySequenceBuilder(intake0.end())
+				.splineToLinearHeading(new Pose2d(-34, -8, Math.toRadians(-140)), Math.toRadians(180))
+                .build( );
+
+        TrajectorySequence intake = drive.trajectorySequenceBuilder(outtake.end())
+                .splineToLinearHeading(new Pose2d(-45, -11, Math.toRadians(180)), Math.toRadians(0))
+                .build( );
+
 
         // Horizontal Slides
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -105,8 +88,29 @@ public class leftBlue extends LinearOpMode {
         if (isStopRequested()) return;
         telemetry.update();
 
-        intake(1);
-        deposit();
+        drive.followTrajectorySequence(cone0);
+        deposit(0);
+
+        drive.followTrajectorySequence(intake0);
+        sleep(450);
+        intake(5);
+        drive.followTrajectorySequence(outtake);
+        deposit(5);
+
+        drive.followTrajectorySequence(intake);
+        sleep(450);
+        intake(4);
+        drive.followTrajectorySequence(outtake);
+        deposit(4);
+
+        drive.followTrajectorySequence(intake);
+        sleep(450);
+        intake(3);
+        drive.followTrajectorySequence(outtake);
+        deposit(3);
+
+
+
 //        switch (conePos) {
 //            case "LEFT":
 //                deposit();
@@ -126,7 +130,7 @@ public class leftBlue extends LinearOpMode {
 
     }
 
-    public void extend(int ticks, long duration) {
+    public void extend(int ticks) {
         drive.leftHorizontalSlide.setTargetPosition(ticks);
         drive.rightHorizontalSlide.setTargetPosition(ticks);
         runtime.reset();
@@ -137,20 +141,24 @@ public class leftBlue extends LinearOpMode {
         drive.leftHorizontalSlide.setVelocity(2000);
         drive.rightHorizontalSlide.setVelocity(2000);
 
-        sleep(duration);
+        while(opModeIsActive() && Math.abs(drive.leftHorizontalSlide.getCurrentPosition() - ticks) > 40){
+
+        }
     }
 
-    public void lift(int ticks, long duration) {
+    public void lift(int ticks) {
         drive.leftVerticalSlide.setTargetPosition(ticks);
         drive.rightVerticalSlide.setTargetPosition(ticks);
 
         drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        drive.leftVerticalSlide.setVelocity(3000);
-        drive.rightVerticalSlide.setVelocity(3000);
+        drive.leftVerticalSlide.setVelocity(6400);
+        drive.rightVerticalSlide.setVelocity(6400);
 
-        sleep(duration);
+        while(opModeIsActive() && Math.abs(drive.leftVerticalSlide.getCurrentPosition() - ticks) > 40){
+
+        }
     }
 
     public void clawOpen() {
@@ -164,46 +172,87 @@ public class leftBlue extends LinearOpMode {
     public void intake(int cones) {
         switch (cones) {
             case 1:
-                drive.intakeAngle.setPosition(intakeAngleList[0]);
-                drive.clawAngle.setPosition(clawAngleList[0]);
-                clawOpen();
-                extend(horizontalSlideList[0], 770);
+                extend(horizontalSlideList[0]);
+                transfer();
                 break;
             case 2:
+                extend(horizontalSlideList[1]);
+                transfer();
                 break;
             case 3:
+                extend(horizontalSlideList[2]);
+                transfer();
                 break;
             case 4:
+                extend(horizontalSlideList[3]);
+                transfer();
                 break;
             case 5:
+                drive.intakeAngle.setPosition(intakeAngleList[4]);
+                drive.clawAngle.setPosition(clawAngleList[4]);
+                drive.clawRotate.setPosition(clawRotate1);
+                clawOpen();
+                extend(horizontalSlideList[4]);
+                transfer();
                 break;
             default:
                 break;
         }
-        transfer();
         telemetry.addData("Cones:", cones);
     }
 
-    public void deposit() {
-        lift(1590, 1300);
-        lift(0, 1300);
+    public void deposit(int cones) {
+        lift(1680);
+        sleep(450);
+        lift(0);
+        if(!(cones == 0 || cones == 1)){
+            clawReset(cones - 1);
+        }
     }
 
     public void transfer() {
-        sleep(500);
         clawClose();
-        sleep(400);
-        extend(0, 800);
+        sleep(500);
         drive.intakeAngle.setPosition(intakeAngle2);
+        sleep(300);
         drive.clawRotate.setPosition(clawRotate2);
         drive.clawAngle.setPosition(clawAngle2);
-        sleep(500);
+        extend(0);
+        sleep(300);
         clawOpen();
         sleep(500);
-        drive.intakeAngle.setPosition(intakeAngle3);
-        drive.clawRotate.setPosition(clawRotate1);
-        drive.clawAngle.setPosition(clawAngle3);
-        sleep(500);
+    }
+
+    public void clawReset(int cones){
+        switch (cones) {
+            case 1:
+                drive.intakeAngle.setPosition(intakeAngleList[0]);
+                drive.clawAngle.setPosition(clawAngleList[0]);
+                drive.clawRotate.setPosition(clawRotate1);
+                break;
+            case 2:
+                drive.intakeAngle.setPosition(intakeAngleList[1]);
+                drive.clawAngle.setPosition(clawAngleList[1]);
+                drive.clawRotate.setPosition(clawRotate1);
+                break;
+            case 3:
+                drive.intakeAngle.setPosition(intakeAngleList[2]);
+                drive.clawAngle.setPosition(clawAngleList[2]);
+                drive.clawRotate.setPosition(clawRotate1);
+                break;
+            case 4:
+                drive.intakeAngle.setPosition(intakeAngleList[3]);
+                drive.clawAngle.setPosition(clawAngleList[3]);
+                drive.clawRotate.setPosition(clawRotate1);
+                break;
+            case 5:
+                drive.intakeAngle.setPosition(intakeAngleList[4]);
+                drive.clawAngle.setPosition(clawAngleList[4]);
+                drive.clawRotate.setPosition(clawRotate1);
+                break;
+            default:
+                break;
+        }
     }
 
 }
