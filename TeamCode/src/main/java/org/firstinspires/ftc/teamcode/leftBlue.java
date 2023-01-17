@@ -18,6 +18,7 @@ public class leftBlue extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     // Cone Stack
+    double[] intakeAngleList = {0.95, 0.87, 0.79, 0.71, 0.65};
     double[] clawAngleList = {0.95, 0.95, 0.95, 0.94, 0.94};
     int[] horizontalSlideList = {500, 500, 510, 510, 510};
 
