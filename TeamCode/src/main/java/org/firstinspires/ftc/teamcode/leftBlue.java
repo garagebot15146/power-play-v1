@@ -20,7 +20,7 @@ public class leftBlue extends LinearOpMode {
     // Cone Stack
     double[] intakeAngleList = {0.95, 0.87, 0.79, 0.71, 0.65};
     double[] clawAngleList = {0.95, 0.95, 0.95, 0.94, 0.94};
-    int[] horizontalSlideList = {480, 480, 485, 490, 490};
+    int[] horizontalSlideList = {470, 470, 480, 490, 490};
 
     // Servo Positions
     double claw1 = 1;
@@ -45,67 +45,82 @@ public class leftBlue extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         String conePos = "LEFT";
+        int outtakeX = -34;
+        int outtakeY = -3;
 
         TrajectorySequence outtake0 = drive.trajectorySequenceBuilder(startPose)
                 .back(50)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(1695, 1700))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(1950, 2500))
                 .splineToLinearHeading(new Pose2d(-31, -8, Math.toRadians(-140)), Math.toRadians(180))
-                .waitSeconds(0.1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(0, 6300))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(0, 2300))
                 .waitSeconds(0.3)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  clawReset(5))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> clawReset(5))
                 .build();
 
         TrajectorySequence intake5 = drive.trajectorySequenceBuilder(outtake0.end())
 				.splineToLinearHeading(new Pose2d(-45, -11, Math.toRadians(180)), Math.toRadians(0))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> intake(5))
+                .waitSeconds(0.1)
                 .build();
 
         TrajectorySequence outtake5 = drive.trajectorySequenceBuilder(intake5.end())
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(1695, 1700))
-                .splineToLinearHeading(new Pose2d(-31, -8, Math.toRadians(-140)), Math.toRadians(180))
-                .waitSeconds(0.1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(0, 6300))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(1950, 2500))
+                .splineToLinearHeading(new Pose2d(outtakeX, outtakeY, Math.toRadians(-140)), Math.toRadians(180))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(0, 2300))
                 .waitSeconds(0.3)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  clawReset(4))
-                .build( );
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> clawReset(4))
+                .build();
 
         TrajectorySequence intake4 = drive.trajectorySequenceBuilder(outtake5.end())
                 .splineToLinearHeading(new Pose2d(-45, -11, Math.toRadians(180)), Math.toRadians(0))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> intake(4))
+                .waitSeconds(0.1)
                 .build();
 
         TrajectorySequence outtake4 = drive.trajectorySequenceBuilder(intake4.end())
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(1695, 1700))
-                .splineToLinearHeading(new Pose2d(-31, -8, Math.toRadians(-140)), Math.toRadians(180))
-                .waitSeconds(0.1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(0, 6300))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(1950, 2500))
+                .splineToLinearHeading(new Pose2d(outtakeX, outtakeY, Math.toRadians(-140)), Math.toRadians(180))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(0, 2300))
                 .waitSeconds(0.3)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  clawReset(3))
-                .build( );
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> clawReset(3))
+                .build();
 
         TrajectorySequence intake3 = drive.trajectorySequenceBuilder(outtake4.end())
                 .splineToLinearHeading(new Pose2d(-45, -11, Math.toRadians(180)), Math.toRadians(0))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> intake(3))
+                .waitSeconds(0.1)
                 .build();
 
         TrajectorySequence outtake3 = drive.trajectorySequenceBuilder(intake3.end())
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(1695, 1700))
-                .splineToLinearHeading(new Pose2d(-31, -8, Math.toRadians(-140)), Math.toRadians(180))
-                .waitSeconds(0.1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(0, 6300))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(1950, 2500))
+                .splineToLinearHeading(new Pose2d(outtakeX, outtakeY, Math.toRadians(-140)), Math.toRadians(180))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(0, 2300))
                 .waitSeconds(0.3)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  clawReset(2))
-                .build( );
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> clawReset(2))
+                .build();
 
         TrajectorySequence intake2 = drive.trajectorySequenceBuilder(outtake3.end())
                 .splineToLinearHeading(new Pose2d(-45, -11, Math.toRadians(180)), Math.toRadians(0))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> intake(2))
+                .waitSeconds(0.1)
                 .build();
 
         TrajectorySequence outtake2 = drive.trajectorySequenceBuilder(intake2.end())
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(1695, 1700))
-                .splineToLinearHeading(new Pose2d(-31, -8, Math.toRadians(-140)), Math.toRadians(180))
-                .waitSeconds(0.1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () ->  liftAsync(0, 6300))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(1950, 2500))
+                .splineToLinearHeading(new Pose2d(outtakeX, outtakeY, Math.toRadians(-140)), Math.toRadians(180))
+                .waitSeconds(0.2)
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> liftAsync(0, 2300))
                 .waitSeconds(0.3)
-                .build( );
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> clawReset(1))
+                .build();
 
 
         // Horizontal Slides
@@ -135,23 +150,23 @@ public class leftBlue extends LinearOpMode {
         drive.followTrajectorySequence(outtake0);
 
         drive.followTrajectorySequence(intake5);
-        sleep(450);
-        intake(5);
+//        sleep(450);
+//        intake(5);
         drive.followTrajectorySequence(outtake5);
 
         drive.followTrajectorySequence(intake4);
-        sleep(450);
-        intake(4);
+//        sleep(450);
+//        intake(4);
         drive.followTrajectorySequence(outtake4);
 
         drive.followTrajectorySequence(intake3);
-        sleep(450);
-        intake(3);
+//        sleep(450);
+//        intake(3);
         drive.followTrajectorySequence(outtake3);
 
         drive.followTrajectorySequence(intake2);
-        sleep(450);
-        intake(2);
+//        sleep(450);
+//        intake(2);
         drive.followTrajectorySequence(outtake2);
 
 
@@ -185,7 +200,7 @@ public class leftBlue extends LinearOpMode {
         drive.leftHorizontalSlide.setVelocity(2000);
         drive.rightHorizontalSlide.setVelocity(2000);
 
-        while(opModeIsActive() && Math.abs(drive.leftHorizontalSlide.getCurrentPosition() - ticks) > 40){
+        while (opModeIsActive() && Math.abs(drive.leftHorizontalSlide.getCurrentPosition() - ticks) > 40) {
 
         }
     }
@@ -200,8 +215,9 @@ public class leftBlue extends LinearOpMode {
         drive.leftVerticalSlide.setVelocity(6400);
         drive.rightVerticalSlide.setVelocity(6400);
 
-        while(opModeIsActive() && Math.abs(drive.leftVerticalSlide.getCurrentPosition() - ticks) > 40){
-
+        while (opModeIsActive() && Math.abs(drive.leftVerticalSlide.getCurrentPosition() - ticks) > 5) {
+            telemetry.addData("Encoder", drive.leftVerticalSlide.getCurrentPosition());
+            telemetry.update();
         }
     }
 
@@ -259,7 +275,7 @@ public class leftBlue extends LinearOpMode {
         lift(1680);
         sleep(450);
         lift(0);
-        if(!(cones == 0 || cones == 1)){
+        if (!(cones == 0 || cones == 1)) {
             clawReset(cones - 1);
         }
     }
@@ -277,7 +293,7 @@ public class leftBlue extends LinearOpMode {
         sleep(500);
     }
 
-    public void clawReset(int cones){
+    public void clawReset(int cones) {
         switch (cones) {
             case 1:
                 drive.intakeAngle.setPosition(intakeAngleList[0]);
