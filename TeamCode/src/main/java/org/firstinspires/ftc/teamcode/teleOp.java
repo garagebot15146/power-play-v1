@@ -43,6 +43,9 @@ public class teleOp extends OpMode {
     String toggleIntakeAngle = "init";
     String toggleClawRotate = "init";
     String toggleIntake = "init";
+    String toggleLeftFlipper = "init";
+    String toggleRightFlipper = "init";
+
 
 
     // SERVO POS
@@ -59,6 +62,13 @@ public class teleOp extends OpMode {
 
     double clawRotate1 = 0;
     double clawRotate2 = 0.74;
+
+    double leftFlipper1 = 0.5;
+    double leftFlipper2 = 1;
+
+    double rightFlipper1 = 0;
+    double rightFlipper2 = 0.5;
+
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
@@ -343,6 +353,40 @@ public class teleOp extends OpMode {
         } else if (toggleClawRotate == "false") {
             drive.clawRotate.setPosition(clawRotate2);
             telemetry.addData("Claw Rotate", clawRotate2);
+        }
+
+        // LEFT FLIPPER
+        if (currentGamepad1.x && !previousGamepad1.x) {
+            if (toggleLeftFlipper == "false" || toggleLeftFlipper == "init") {
+                toggleLeftFlipper = "true";
+            } else {
+                toggleLeftFlipper = "false";
+            }
+        }
+        if (toggleLeftFlipper == "true") {
+            drive.leftFlipper.setPosition(leftFlipper1);
+            telemetry.addData("Left Flipper", leftFlipper1);
+
+        } else if (toggleLeftFlipper == "false") {
+            drive.leftFlipper.setPosition(leftFlipper2);
+            telemetry.addData("Left Flipper", leftFlipper2);
+        }
+
+        // RIGHT FLIPPER
+        if (currentGamepad1.y & !previousGamepad1.y) {
+            if (toggleRightFlipper == "false" || toggleRightFlipper == "init") {
+                toggleRightFlipper = "true";
+            } else {
+                toggleRightFlipper = "false";
+            }
+        }
+        if (toggleRightFlipper == "true") {
+            drive.rightFlipper.setPosition(rightFlipper1);
+            telemetry.addData("Right Flipper", rightFlipper1);
+
+        } else if (toggleRightFlipper == "false") {
+            drive.rightFlipper.setPosition(rightFlipper2);
+            telemetry.addData("Right Flipper", rightFlipper2);
         }
 
         //Low Pole
