@@ -27,7 +27,7 @@ public class teleOp extends OpMode {
 
     // VERTICAL SLIDES
     int verticalSlideTarget = 0;
-    int stabilizerVertical = 700;
+    int stabilizerVertical = 715;
     int maxVertical = 1150;
     private int liftTarget = 0;
 
@@ -54,7 +54,7 @@ public class teleOp extends OpMode {
 
     double clawAngle1 = 0.95;
     double clawAngle2 = 0.37;
-    double clawAngle3 = 0.61;
+    double clawAngle3 = 0.79;
 
     double intakeAngle1 = 0.9;
     double intakeAngle2 = 0.1;
@@ -152,7 +152,7 @@ public class teleOp extends OpMode {
         // GAMEPAD B
 
         // HORIZONTAL SLIDES
-        horizontalSlideTarget -= gamepad2.left_stick_y * 30;
+        horizontalSlideTarget -= gamepad2.left_stick_y * 15;
 
         drive.leftHorizontalSlide.setTargetPosition(horizontalSlideTarget);
         drive.rightHorizontalSlide.setTargetPosition(horizontalSlideTarget);
@@ -170,7 +170,7 @@ public class teleOp extends OpMode {
         drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 //        telemetry.addData("Horizontal Slides Target", horizontalSlideTarget);
-//        telemetry.addData("Left Horizontal Encoder", drive.leftHorizontalSlide.getCurrentPosition());
+        telemetry.addData("Horizontal Encoder", drive.leftHorizontalSlide.getCurrentPosition());
 //        telemetry.addData("Right Horizontal Encoder", drive.rightHorizontalSlide.getCurrentPosition());
 
 
@@ -233,7 +233,7 @@ public class teleOp extends OpMode {
         //Send power to lift motor
         drive.leftVerticalSlide.setPower(-liftPower);
         drive.rightVerticalSlide.setPower(-liftPower);
-        telemetry.addData("Left Lift", drive.leftVerticalSlide.getCurrentPosition());
+        telemetry.addData("Vertical Encoder", drive.leftVerticalSlide.getCurrentPosition());
 
 
         // CLAW
