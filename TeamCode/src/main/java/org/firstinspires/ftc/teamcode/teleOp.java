@@ -27,15 +27,16 @@ public class teleOp extends OpMode {
 
     // VERTICAL SLIDES
     int verticalSlideTarget = 0;
-    int maxVertical = 1800;
+    int stabilizerVertical = 700;
+    int maxVertical = 1150;
     private int liftTarget = 0;
 
     // RANGES
-    int liftSlow = 1000;
+    int liftSlow = 500;
 
     // HORIZONTAL SLIDES
     int horizontalSlideTarget = 0;
-    int maxHorizontal = 600;
+    int maxHorizontal = 1120;
 
     // TOGGLE
     String toggleClaw = "init";
@@ -43,9 +44,8 @@ public class teleOp extends OpMode {
     String toggleIntakeAngle = "init";
     String toggleClawRotate = "init";
     String toggleIntake = "init";
-    String toggleLeftFlipper = "init";
-    String toggleRightFlipper = "init";
-
+    String toggleFlipper = "init";
+    String toggleStabilizer = "init";
 
 
     // SERVO POS
@@ -53,22 +53,24 @@ public class teleOp extends OpMode {
     double claw2 = 0.7;
 
     double clawAngle1 = 0.95;
-    double clawAngle2 = 0.32;
-    double clawAngle3 = 0.78;
+    double clawAngle2 = 0.37;
+    double clawAngle3 = 0.61;
 
-    double intakeAngle1 = 0.95;
-    double intakeAngle2 = 0.04;
+    double intakeAngle1 = 0.9;
+    double intakeAngle2 = 0.1;
     double intakeAngle3 = 0.17;
 
-    double clawRotate1 = 0;
-    double clawRotate2 = 0.74;
+    double clawRotate1 = 0.74;
+    double clawRotate2 = 0;
 
-    double leftFlipper1 = 0.5;
-    double leftFlipper2 = 1;
+    double leftFlipper1 = 1;
+    double leftFlipper2 = 0.5;
 
     double rightFlipper1 = 0;
     double rightFlipper2 = 0.5;
 
+    double stabilizer1 = 0;
+    double stabilizer2 = 0.2;
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
@@ -189,7 +191,7 @@ public class teleOp extends OpMode {
 //
 //        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //Lift
+
         double liftPower = 0;
 
         //Lift (Negative spoolPower is up)
@@ -205,9 +207,9 @@ public class teleOp extends OpMode {
 
                     //Slow down when position gets close to bottom
                     if (Math.abs(drive.leftVerticalSlide.getCurrentPosition()) < liftSlow) {
-                        liftPower = gamepad2.right_stick_y * 0.5;
+                        liftPower = gamepad2.right_stick_y * 0.6;
                     } else {
-                        liftPower = gamepad2.right_stick_y * 0.7;
+                        liftPower = gamepad2.right_stick_y * 0.8;
                     }
 
                     //If at bottom, turn off power and reset position
@@ -251,148 +253,119 @@ public class teleOp extends OpMode {
             telemetry.addData("Claw", claw1);
         }
 
-        if(gamepad2.dpad_up){
+        // INTAKE
+        if (gamepad2.dpad_up) {
             drive.intakeAngle.setPosition(intakeAngle2);
-//            runtime.reset();
-//            while ((runtime.seconds() < 0.5)) {
-//                telemetry.addData("Waiting 1", runtime.seconds());
-//                telemetry.update();
-//            }
-
             drive.clawRotate.setPosition(clawRotate2);
-
-//            runtime.reset();
-//            while ((runtime.seconds() < 0.5)) {
-//                telemetry.addData("Waiting 2", runtime.seconds());
-//                telemetry.update();
-//            }
-
             drive.clawAngle.setPosition(clawAngle2);
         } else if (gamepad2.dpad_down) {
             drive.clawAngle.setPosition(clawAngle1);
-
-//            runtime.reset();
-//            while ((runtime.seconds() < 0.5)) {
-//                telemetry.addData("Waiting 3", runtime.seconds());
-//                telemetry.update();
-//            }
-
             drive.clawRotate.setPosition(clawRotate1);
-
-//            runtime.reset();
-//            while ((runtime.seconds() < 0.5)) {
-//                telemetry.addData("Waiting 4", runtime.seconds());
-//                telemetry.update();
-//            }
-
             drive.intakeAngle.setPosition(intakeAngle1);
         }
 
-        // INTAKE
-        if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
-            if (toggleIntake == "false" || toggleIntake == "init") {
-                toggleIntake = "true";
+        // FLIPPER
+        if (currentGamepad2.y && !previousGamepad2.y) {
+            if (toggleFlipper == "false" || toggleFlipper == "init") {
+                toggleFlipper = "true";
             } else {
-                toggleIntake = "false";
+                toggleFlipper = "false";
             }
         }
-        if (toggleIntake == "true") {
-            telemetry.addData("Intake", "Up");
-//            intakeUp();
-        } else if (toggleIntake == "false") {
-            telemetry.addData("Intake", "Down");
-//            intakeDown();
-        }
-
-        // CLAW ANGLE
-        if (currentGamepad2.a && !previousGamepad2.a) {
-            if (toggleClawAngle == "false" || toggleClawAngle == "init") {
-                toggleClawAngle = "true";
-            } else {
-                toggleClawAngle = "false";
-            }
-        }
-        if (toggleClawAngle == "true") {
-            drive.clawAngle.setPosition(clawAngle1);
-            telemetry.addData("Claw Angle", clawAngle1);
-
-        } else if (toggleClawAngle == "false") {
-            drive.clawAngle.setPosition(clawAngle2);
-            telemetry.addData("Claw Angle", clawAngle2);
-        }
-
-        // INTAKE ANGLE
-        if (currentGamepad2.b && !previousGamepad2.b) {
-            if (toggleIntakeAngle == "false" || toggleIntakeAngle == "init") {
-                toggleIntakeAngle = "true";
-            } else {
-                toggleIntakeAngle = "false";
-            }
-        }
-        if (toggleIntakeAngle == "true") {
-            drive.intakeAngle.setPosition(intakeAngle1);
-            telemetry.addData("Intake Angle", intakeAngle1);
-
-        } else if (toggleIntakeAngle == "false") {
-            drive.intakeAngle.setPosition(intakeAngle2);
-            telemetry.addData("Intake Angle", intakeAngle2);
-        }
-
-        // ROTATE ANGLE
-        if (currentGamepad2.x && !previousGamepad2.x) {
-            if (toggleClawRotate == "false" || toggleClawRotate == "init") {
-                toggleClawRotate = "true";
-            } else {
-                toggleClawRotate = "false";
-            }
-        }
-        if (toggleClawRotate == "true") {
-            drive.clawRotate.setPosition(clawRotate1);
-            telemetry.addData("Claw Rotate", clawRotate1);
-
-        } else if (toggleClawRotate == "false") {
-            drive.clawRotate.setPosition(clawRotate2);
-            telemetry.addData("Claw Rotate", clawRotate2);
-        }
-
-        // LEFT FLIPPER
-        if (currentGamepad1.x && !previousGamepad1.x) {
-            if (toggleLeftFlipper == "false" || toggleLeftFlipper == "init") {
-                toggleLeftFlipper = "true";
-            } else {
-                toggleLeftFlipper = "false";
-            }
-        }
-        if (toggleLeftFlipper == "true") {
-            drive.leftFlipper.setPosition(leftFlipper1);
-            telemetry.addData("Left Flipper", leftFlipper1);
-
-        } else if (toggleLeftFlipper == "false") {
+        if (toggleFlipper == "true") {
             drive.leftFlipper.setPosition(leftFlipper2);
-            telemetry.addData("Left Flipper", leftFlipper2);
-        }
-
-        // RIGHT FLIPPER
-        if (currentGamepad1.y & !previousGamepad1.y) {
-            if (toggleRightFlipper == "false" || toggleRightFlipper == "init") {
-                toggleRightFlipper = "true";
-            } else {
-                toggleRightFlipper = "false";
-            }
-        }
-        if (toggleRightFlipper == "true") {
-            drive.rightFlipper.setPosition(rightFlipper1);
-            telemetry.addData("Right Flipper", rightFlipper1);
-
-        } else if (toggleRightFlipper == "false") {
             drive.rightFlipper.setPosition(rightFlipper2);
+
+            telemetry.addData("Left Flipper", leftFlipper2);
             telemetry.addData("Right Flipper", rightFlipper2);
+        } else if (toggleFlipper == "false") {
+            drive.leftFlipper.setPosition(leftFlipper1);
+            drive.rightFlipper.setPosition(rightFlipper1);
+
+            telemetry.addData("Left Flipper", leftFlipper1);
+            telemetry.addData("Right Flipper", rightFlipper1);
         }
 
-        //Low Pole
+        // LOW POLE
         if(gamepad2.right_bumper){
             lowPole();
         }
+
+//        // CLAW ANGLE
+//        if (currentGamepad2.a && !previousGamepad2.a) {
+//            if (toggleClawAngle == "false" || toggleClawAngle == "init") {
+//                toggleClawAngle = "true";
+//            } else {
+//                toggleClawAngle = "false";
+//            }
+//        }
+//        if (toggleClawAngle == "true") {
+//            drive.clawAngle.setPosition(clawAngle1);
+//            telemetry.addData("Claw Angle", clawAngle1);
+//
+//        } else if (toggleClawAngle == "false") {
+//            drive.clawAngle.setPosition(clawAngle2);
+//            telemetry.addData("Claw Angle", clawAngle2);
+//        }
+//
+////        // INTAKE ANGLE
+//        if (currentGamepad2.b && !previousGamepad2.b) {
+//            if (toggleIntakeAngle == "false" || toggleIntakeAngle == "init") {
+//                toggleIntakeAngle = "true";
+//            } else {
+//                toggleIntakeAngle = "false";
+//            }
+//        }
+//        if (toggleIntakeAngle == "true") {
+//            drive.intakeAngle.setPosition(intakeAngle1);
+//            telemetry.addData("Intake Angle", intakeAngle1);
+//
+//        } else if (toggleIntakeAngle == "false") {
+//            drive.intakeAngle.setPosition(intakeAngle2);
+//            telemetry.addData("Intake Angle", intakeAngle2);
+//        }
+//
+//        // ROTATE ANGLE
+//        if (currentGamepad2.x && !previousGamepad2.x) {
+//            if (toggleClawRotate == "false" || toggleClawRotate == "init") {
+//                toggleClawRotate = "true";
+//            } else {
+//                toggleClawRotate = "false";
+//            }
+//        }
+//        if (toggleClawRotate == "true") {
+//            drive.clawRotate.setPosition(clawRotate1);
+//            telemetry.addData("Claw Rotate", clawRotate1);
+//
+//        } else if (toggleClawRotate == "false") {
+//            drive.clawRotate.setPosition(clawRotate2);
+//            telemetry.addData("Claw Rotate", clawRotate2);
+//        }
+
+        // STABILIZER
+
+        if (drive.leftVerticalSlide.getCurrentPosition() > stabilizerVertical) {
+            drive.stabilizer.setPosition(stabilizer1);
+        } else {
+            drive.stabilizer.setPosition(stabilizer2);
+        }
+
+
+//        if (currentGamepad2.x && !previousGamepad2.x) {
+//            if (toggleStabilizer == "false" || toggleStabilizer == "init") {
+//                toggleStabilizer = "true";
+//            } else {
+//                toggleStabilizer = "false";
+//            }
+//        }
+//        if (toggleStabilizer == "true") {
+//            drive.stabilizer.setPosition(stabilizer1);
+//            telemetry.addData("Stabilizer", stabilizer1);
+//
+//        } else if (toggleStabilizer == "false") {
+//            drive.stabilizer.setPosition(stabilizer2);
+//            telemetry.addData("Stabilizer", stabilizer2);
+//        }
 
     }
 

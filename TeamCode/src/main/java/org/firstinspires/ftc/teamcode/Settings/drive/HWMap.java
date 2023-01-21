@@ -63,7 +63,7 @@ public class HWMap extends MecanumDrive {
     private List<DcMotorEx> motors;
 
     // Servos
-    public Servo claw, clawAngle, clawRotate, intakeAngle, leftFlipper, rightFlipper;
+    public Servo claw, clawAngle, clawRotate, intakeAngle, leftFlipper, rightFlipper, stabilizer;
 
     private BNO055IMU imu;
     private VoltageSensor batteryVoltageSensor;
@@ -135,6 +135,9 @@ public class HWMap extends MecanumDrive {
         //Flipper
         leftFlipper = hardwareMap.get(Servo.class, "leftFlipper");
         rightFlipper = hardwareMap.get(Servo.class, "rightFlipper");
+
+        //Stabilizer
+        stabilizer = hardwareMap.get(Servo.class, "stabilizer");
 
 
 
