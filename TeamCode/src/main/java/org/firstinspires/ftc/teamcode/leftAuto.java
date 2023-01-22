@@ -49,7 +49,7 @@ public class leftAuto extends LinearOpMode {
 
         TrajectorySequence toPole = drive.trajectorySequenceBuilder(startPose)
                 .back(48)
-                .lineToLinearHeading(new Pose2d(-32.3, -3, Math.toRadians(188)))
+                .lineToLinearHeading(new Pose2d(-31.8, -3, Math.toRadians(188)))
                 .build();
 
 
@@ -134,8 +134,8 @@ public class leftAuto extends LinearOpMode {
     public void liftDown() {
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1.5)) {
-            drive.leftVerticalSlide.setPower(-0.9);
-            drive.rightVerticalSlide.setPower(-0.9);
+            drive.leftVerticalSlide.setPower(-0.75);
+            drive.rightVerticalSlide.setPower(-0.75);
         }
         drive.leftVerticalSlide.setPower(0);
         drive.rightVerticalSlide.setPower(0);

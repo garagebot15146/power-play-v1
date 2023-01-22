@@ -20,7 +20,7 @@ public class rightAuto extends LinearOpMode {
     // Cone Stack
     double[] intakeAngleList = {0.64, 0.64, 0.55, 0.46, 0.4};
     double[] clawAngleList = {0.92, 0.92, 0.91, 0.91, 0.91};
-    int[] horizontalSlideList = {1010, 1000, 1025, 1065, 1115};
+    int[] horizontalSlideList = {1010, 1000, 1025, 1065, 1120};
 
     // Servo Positions
     double claw1 = 1;
@@ -134,8 +134,8 @@ public class rightAuto extends LinearOpMode {
     public void liftDown() {
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1.5)) {
-            drive.leftVerticalSlide.setPower(-0.9);
-            drive.rightVerticalSlide.setPower(-0.9);
+            drive.leftVerticalSlide.setPower(-0.75);
+            drive.rightVerticalSlide.setPower(-0.75);
         }
         drive.leftVerticalSlide.setPower(0);
         drive.rightVerticalSlide.setPower(0);
