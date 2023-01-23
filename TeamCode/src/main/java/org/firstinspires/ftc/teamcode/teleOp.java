@@ -54,7 +54,7 @@ public class teleOp extends OpMode {
 
     double clawAngle1 = 0.95;
     double clawAngle2 = 0.37;
-    double clawAngle3 = 0.79;
+    double clawAngle3 = 0.7;
 
     double intakeAngle1 = 0.9;
     double intakeAngle2 = 0.1;
@@ -203,7 +203,7 @@ public class teleOp extends OpMode {
             if (gamepad2.right_stick_y > 0.05) {
 
                 //If it's not at bottom
-                if (drive.leftVerticalSlide.getCurrentPosition() > 0) {
+//                if (drive.leftVerticalSlide.getCurrentPosition() > 0) {
 
                     //Slow down when position gets close to bottom
                     if (Math.abs(drive.leftVerticalSlide.getCurrentPosition()) < liftSlow) {
@@ -213,12 +213,12 @@ public class teleOp extends OpMode {
                     }
 
                     //If at bottom, turn off power and reset position
-                } else {
-                    liftPower = 0;
-                    drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    liftTarget = 0;
-                }
+//                } else {
+//                        liftPower = 0;
+////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+////                        liftTarget = 0;
+//                }
                 //If joystick is not pressed down
             } else {
                 liftPower = gamepad2.right_stick_y * 1;
@@ -229,6 +229,7 @@ public class teleOp extends OpMode {
 
             //If no input, hold the arm up
         }
+
 
         //Send power to lift motor
         drive.leftVerticalSlide.setPower(-liftPower);

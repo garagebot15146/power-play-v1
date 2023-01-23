@@ -20,7 +20,7 @@ public class leftAuto extends LinearOpMode {
     // Cone Stack
     double[] intakeAngleList = {0.64, 0.64, 0.55, 0.46, 0.4};
     double[] clawAngleList = {0.92, 0.92, 0.91, 0.91, 0.91};
-    int[] horizontalSlideList = {1010, 1000, 1025, 1065, 1120};
+    int[] horizontalSlideList = {1010, 970, 1010, 1065, 1120};
 
     // Servo Positions
     double claw1 = 1;
@@ -49,7 +49,7 @@ public class leftAuto extends LinearOpMode {
 
         TrajectorySequence toPole = drive.trajectorySequenceBuilder(startPose)
                 .back(48)
-                .lineToLinearHeading(new Pose2d(-31.8, -3, Math.toRadians(188)))
+                .lineToLinearHeading(new Pose2d(-31.8, -4, Math.toRadians(188)))
                 .build();
 
 
@@ -90,13 +90,13 @@ public class leftAuto extends LinearOpMode {
         deposit(5);
 
         intake(4);
-        deposit(4);
+        deposit3(4);
 
         intake(3);
-        deposit(3);
+        deposit3(3);
 
         intake(2);
-        deposit(2);
+        deposit3(2);
 
 //        intake(1);
 //        deposit(1);
@@ -122,23 +122,69 @@ public class leftAuto extends LinearOpMode {
     }
 
     public void liftUp() {
+        drive.stabilizer.setPosition(0);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1.3)) {
-            drive.leftVerticalSlide.setPower(1);
-            drive.rightVerticalSlide.setPower(1);
+        while (opModeIsActive() && (runtime.seconds() < 1.4)) {
+            drive.leftVerticalSlide.setPower(0.95);
+            drive.rightVerticalSlide.setPower(0.95);
         }
         drive.leftVerticalSlide.setPower(0);
         drive.rightVerticalSlide.setPower(0);
+        drive.stabilizer.setPosition(0.2);
     }
 
     public void liftDown() {
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1.5)) {
-            drive.leftVerticalSlide.setPower(-0.75);
-            drive.rightVerticalSlide.setPower(-0.75);
+            drive.leftVerticalSlide.setPower(-0.8);
+            drive.rightVerticalSlide.setPower(-0.8);
         }
         drive.leftVerticalSlide.setPower(0);
         drive.rightVerticalSlide.setPower(0);
+    }
+
+    public void liftUp2() {
+        drive.stabilizer.setPosition(0);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 1.4)) {
+            drive.leftVerticalSlide.setPower(1);
+            drive.rightVerticalSlide.setPower(1);
+        }
+        drive.leftVerticalSlide.setPower(0);
+        drive.rightVerticalSlide.setPower(0);
+        drive.stabilizer.setPosition(0.2);
+    }
+
+    public void liftDown2() {
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 1.5)) {
+            drive.leftVerticalSlide.setPower(-1);
+            drive.rightVerticalSlide.setPower(-1);
+        }
+        drive.leftVerticalSlide.setPower(0);
+        drive.rightVerticalSlide.setPower(0);
+    }
+
+    public void liftUp3() {
+        drive.stabilizer.setPosition(0);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 1.2)) {
+            drive.leftVerticalSlide.setPower(1);
+            drive.rightVerticalSlide.setPower(1);
+        }
+        drive.leftVerticalSlide.setPower(0);
+        drive.rightVerticalSlide.setPower(0);
+        drive.stabilizer.setPosition(0.2);
+    }
+
+    public void liftDown3() {
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 1.5)) {
+            drive.leftVerticalSlide.setVelocity(-6000);
+            drive.rightVerticalSlide.setVelocity(-6000);
+        }
+        drive.leftVerticalSlide.setVelocity(0);
+        drive.rightVerticalSlide.setVelocity(0);
     }
 
     public void liftAsync(int ticks, double power) {
@@ -169,7 +215,7 @@ public class leftAuto extends LinearOpMode {
                 transfer();
                 break;
             case 2:
-                extend(horizontalSlideList[1], power);
+                extend(horizontalSlideList[1], 1);
                 sleep(130);
                 transfer();
                 break;
@@ -203,11 +249,27 @@ public class leftAuto extends LinearOpMode {
         }
     }
 
+    public void deposit2(int cones) {
+        liftUp2();
+        liftDown2();
+        if (!(cones == 0 || cones == 1 || cones == 2)) {
+            clawReset(cones - 1);
+        }
+    }
+
+    public void deposit3(int cones) {
+        liftUp3();
+        liftDown3();
+        if (!(cones == 0 || cones == 1 || cones == 2)) {
+            clawReset(cones - 1);
+        }
+    }
+
     public void transfer() {
         clawClose();
         sleep(300);
         drive.clawAngle.setPosition(clawAngle3);
-        sleep(400);
+        sleep(600);
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
         extend(0, 1);
