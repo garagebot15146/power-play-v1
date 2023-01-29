@@ -247,11 +247,11 @@ public class teleOp extends OpMode {
         }
         if (toggleClaw == "true") {
             clawOpen();
-            telemetry.addData("Claw", claw2);
+            telemetry.addData("Claw", claw1);
 
         } else if (toggleClaw == "false") {
             clawClose();
-            telemetry.addData("Claw", claw1);
+            telemetry.addData("Claw", claw2);
         }
 
         // INTAKE

@@ -23,8 +23,8 @@ public class cycleAuto extends LinearOpMode {
     int[] horizontalSlideList = {1020, 1020, 1060, 1075, 1120};
 
     // Servo Positions
-    double claw1 = 1;
-    double claw2 = 0.7;
+    double claw1 = 0.7;
+    double claw2 = 1;
 
     double clawAngle1 = 0.95;
     double clawAngle2 = 0.37;
