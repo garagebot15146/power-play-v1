@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import static java.lang.Thread.sleep;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
@@ -11,11 +15,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
+@Config
 @TeleOp(name = "teleOp", group = "Iterative Opmode")
 //@Disabled
 public class teleOp extends OpMode {
 
-    // Initialize
     static HWMap drive;
 
     // GAMEPAD
@@ -25,18 +29,8 @@ public class teleOp extends OpMode {
     Gamepad previousGamepad1 = new Gamepad();
     Gamepad previousGamepad2 = new Gamepad();
 
-    // VERTICAL SLIDES
-    int verticalSlideTarget = 0;
-    int stabilizerVertical = 715;
-    int maxVertical = 1150;
-    private int liftTarget = 0;
-
-    // RANGES
-    int liftSlow = 500;
-
-    // HORIZONTAL SLIDES
-    int horizontalSlideTarget = 0;
-    int maxHorizontal = 1120;
+    // STABILIZER
+    int stabilizerVertical = 300;
 
     // TOGGLE
     String toggleClaw = "init";
@@ -48,17 +42,17 @@ public class teleOp extends OpMode {
     String toggleStabilizer = "init";
 
 
-    // SERVO POS
+    // SERVO POSITIONS
     double claw1 = 1;
     double claw2 = 0.7;
 
-    double clawAngle1 = 0.95;
-    double clawAngle2 = 0.37;
-    double clawAngle3 = 0.7;
+    double clawAngle1 = 0.02;
+    double clawAngle2 = 0.71;
+    double clawAngle3 = 0.27;
 
-    double intakeAngle1 = 0.9;
-    double intakeAngle2 = 0.1;
-    double intakeAngle3 = 0.17;
+    double intakeAngle1 = 0.85;
+    double intakeAngle2 = 0.13;
+    double intakeAngle3 = 0.31;
 
     double clawRotate1 = 0.74;
     double clawRotate2 = 0;
@@ -75,9 +69,25 @@ public class teleOp extends OpMode {
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
 
+    //PID
+    PIDController liftController;
+    public static int liftMax = 1300;
+    public int liftTarget = 0;
+    public static double pL = 0.0144, iL = 0.001, dL = 0.0001;
+
+    PIDController extendController;
+    public static int extendMax = 1000;
+    public int extendTarget = 0;
+    public static double pE = 0.005, iE = 0, dE = 0;
+
     @Override
     public void init() {
         drive = new HWMap(hardwareMap);
+
+        //PID
+        liftController = new PIDController(pL, iL, dL);
+        extendController = new PIDController(pE, iE, dE);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         //HORIZONTAL SLIDES
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -124,8 +134,8 @@ public class teleOp extends OpMode {
         // GAMEPAD A
 
         // WHEELS
-        double normal = 0.6;
-        double slow = 0.3;
+        double normal = 1;
+        double slow = 0.6;
         double forward = -gamepad1.left_stick_y;
         double side = gamepad1.left_stick_x; //Positive means right
         double turn = gamepad1.right_stick_x; //Positive means turn right
@@ -151,90 +161,85 @@ public class teleOp extends OpMode {
 
         // GAMEPAD B
 
-        // HORIZONTAL SLIDES
-        horizontalSlideTarget -= gamepad2.left_stick_y * 15;
-
-        drive.leftHorizontalSlide.setTargetPosition(horizontalSlideTarget);
-        drive.rightHorizontalSlide.setTargetPosition(horizontalSlideTarget);
-
-        if (horizontalSlideTarget < 0) {
-            horizontalSlideTarget = 0;
-        } else if (horizontalSlideTarget > maxHorizontal) {
-            horizontalSlideTarget = maxHorizontal;
+        //LIFT
+        liftController.setPID(pL, iL, dL);
+        int liftPos = drive.leftVerticalSlide.getCurrentPosition();
+        liftTarget -= (int) (gamepad2.right_stick_y * 6);
+        if (liftTarget > liftMax){
+            liftTarget = liftMax;
+        } else if (liftTarget < 0){
+            liftTarget = 0;
         }
+        double pidLift = liftController.calculate(liftPos, liftTarget);
 
-        drive.leftHorizontalSlide.setPower(1);
-        drive.rightHorizontalSlide.setPower(1);
+        drive.leftVerticalSlide.setPower(pidLift);
+        drive.rightVerticalSlide.setPower(pidLift);
 
-        drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        telemetry.addData("Lift Pos", liftPos);
+        telemetry.addData("Lift Target", liftTarget);
+        telemetry.update();
 
-//        telemetry.addData("Horizontal Slides Target", horizontalSlideTarget);
-        telemetry.addData("Horizontal Encoder", drive.leftHorizontalSlide.getCurrentPosition());
-//        telemetry.addData("Right Horizontal Encoder", drive.rightHorizontalSlide.getCurrentPosition());
+        //EXTEND
+        extendController.setPID(pE, iE, dE);
+        int extendPos = drive.leftHorizontalSlide.getCurrentPosition();
+        extendTarget -= (int) (gamepad2.left_stick_y * 10);
+        if (extendTarget > extendMax){
+            extendTarget = extendMax;
+        } else if (extendTarget < 0){
+            extendTarget = 0;
+        }
+        double pidExtend = extendController.calculate(extendPos, extendTarget);
 
+        drive.leftHorizontalSlide.setPower(pidExtend);
+        drive.rightHorizontalSlide.setPower(pidExtend);
 
-        // VERTICAL SLIDES
-//        verticalSlideTarget -= gamepad2.right_stick_y * 35;
+        telemetry.addData("Extend Pos", extendPos);
+        telemetry.addData("Extend Target", extendTarget);
+        telemetry.update();
+
+//        double liftPower = 0;
 //
-//        drive.leftVerticalSlide.setTargetPosition(verticalSlideTarget);
-//        drive.rightVerticalSlide.setTargetPosition(verticalSlideTarget);
+//        //Lift (Negative spoolPower is up)
 //
-//        if (verticalSlideTarget < 0) {
-//            verticalSlideTarget = 0;
-//        } else if (verticalSlideTarget > maxVertical) {
-//            verticalSlideTarget = maxVertical;
+//        //Check if there's an input
+//        if (gamepad2.right_stick_y < -0.05 || gamepad2.right_stick_y > 0.05) {
+//
+//            //If down is pressed
+//            if (gamepad2.right_stick_y > 0.05) {
+//
+//                //If it's not at bottom
+////                if (drive.leftVerticalSlide.getCurrentPosition() > 0) {
+//
+//                    //Slow down when position gets close to bottom
+//                    if (Math.abs(drive.leftVerticalSlide.getCurrentPosition()) < liftSlow) {
+//                        liftPower = gamepad2.right_stick_y * 0.6;
+//                    } else {
+//                        liftPower = gamepad2.right_stick_y * 0.8;
+//                    }
+//
+//                    //If at bottom, turn off power and reset position
+////                } else {
+////                        liftPower = 0;
+//////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//////                        liftTarget = 0;
+////                }
+//                //If joystick is not pressed down
+//            } else {
+//                liftPower = gamepad2.right_stick_y * 1;
+//            }
+//
+//            //If there's a controller input, set liftTarget
+//            liftTarget = drive.leftVerticalSlide.getCurrentPosition();
+//
+//            //If no input, hold the arm up
 //        }
 //
-//        drive.leftVerticalSlide.setPower(1);
-//        drive.rightVerticalSlide.setPower(1);
 //
-//        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        double liftPower = 0;
-
-        //Lift (Negative spoolPower is up)
-
-        //Check if there's an input
-        if (gamepad2.right_stick_y < -0.05 || gamepad2.right_stick_y > 0.05) {
-
-            //If down is pressed
-            if (gamepad2.right_stick_y > 0.05) {
-
-                //If it's not at bottom
-//                if (drive.leftVerticalSlide.getCurrentPosition() > 0) {
-
-                    //Slow down when position gets close to bottom
-                    if (Math.abs(drive.leftVerticalSlide.getCurrentPosition()) < liftSlow) {
-                        liftPower = gamepad2.right_stick_y * 0.6;
-                    } else {
-                        liftPower = gamepad2.right_stick_y * 0.8;
-                    }
-
-                    //If at bottom, turn off power and reset position
-//                } else {
-//                        liftPower = 0;
-////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-////                        liftTarget = 0;
-//                }
-                //If joystick is not pressed down
-            } else {
-                liftPower = gamepad2.right_stick_y * 1;
-            }
-
-            //If there's a controller input, set liftTarget
-            liftTarget = drive.leftVerticalSlide.getCurrentPosition();
-
-            //If no input, hold the arm up
-        }
-
-
-        //Send power to lift motor
-        drive.leftVerticalSlide.setPower(-liftPower);
-        drive.rightVerticalSlide.setPower(-liftPower);
-        telemetry.addData("Vertical Encoder", drive.leftVerticalSlide.getCurrentPosition());
+//        //Send power to lift motor
+//        drive.leftVerticalSlide.setPower(-liftPower);
+//        drive.rightVerticalSlide.setPower(-liftPower);
+//        telemetry.addData("Vertical Encoder", drive.leftVerticalSlide.getCurrentPosition());
 
 
         // CLAW
@@ -292,6 +297,21 @@ public class teleOp extends OpMode {
             lowPole();
         }
 
+        // STABILIZER
+        if (drive.leftVerticalSlide.getCurrentPosition() > stabilizerVertical) {
+            drive.stabilizer.setPosition(stabilizer1);
+        } else {
+            drive.stabilizer.setPosition(stabilizer2);
+        }
+
+        if(gamepad2.a){
+            liftTarget = 10;
+        } else if(gamepad2.b){
+            liftTarget = 726;
+        } else if (gamepad2.x){
+            liftTarget = 1290;
+        }
+
 //        // CLAW ANGLE
 //        if (currentGamepad2.a && !previousGamepad2.a) {
 //            if (toggleClawAngle == "false" || toggleClawAngle == "init") {
@@ -343,15 +363,7 @@ public class teleOp extends OpMode {
 //            telemetry.addData("Claw Rotate", clawRotate2);
 //        }
 
-        // STABILIZER
-
-        if (drive.leftVerticalSlide.getCurrentPosition() > stabilizerVertical) {
-            drive.stabilizer.setPosition(stabilizer1);
-        } else {
-            drive.stabilizer.setPosition(stabilizer2);
-        }
-
-
+        //STABILIZER
 //        if (currentGamepad2.x && !previousGamepad2.x) {
 //            if (toggleStabilizer == "false" || toggleStabilizer == "init") {
 //                toggleStabilizer = "true";
