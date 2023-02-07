@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
@@ -21,6 +22,11 @@ import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 public class teleOp extends OpMode {
 
     static HWMap drive;
+
+    // VOLTAGE
+    VoltageSensor voltageSensor;
+    double voltage;
+    ElapsedTime voltageTimer;
 
     // GAMEPAD
     Gamepad currentGamepad1 = new Gamepad();
@@ -66,6 +72,15 @@ public class teleOp extends OpMode {
     double stabilizer1 = 0;
     double stabilizer2 = 0.2;
 
+    // STATE MACHINES
+    public enum LiftState {
+        LIFT_AUTO,
+        LIFT_MANUAL
+    }
+
+    LiftState liftState = LiftState.LIFT_MANUAL;
+    double pidLift = 0;
+
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -83,6 +98,12 @@ public class teleOp extends OpMode {
     @Override
     public void init() {
         drive = new HWMap(hardwareMap);
+
+        //VOLTAGE
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
+        voltage = voltageSensor.getVoltage();
+        voltageTimer = new ElapsedTime();
+        voltageTimer.reset();
 
         //PID
         liftController = new PIDController(pL, iL, dL);
@@ -102,6 +123,7 @@ public class teleOp extends OpMode {
 
         drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     /*
@@ -125,11 +147,18 @@ public class teleOp extends OpMode {
 
     @Override
     public void loop() {
+        // GAMEPADS
         previousGamepad1.copy(currentGamepad1);
         previousGamepad2.copy(currentGamepad2);
 
         currentGamepad1.copy(gamepad1);
         currentGamepad2.copy(gamepad2);
+
+        //VOLTAGE
+        if (voltageTimer.seconds() > 5) {
+            voltage = voltageSensor.getVoltage();
+            voltageTimer.reset();
+        }
 
         // GAMEPAD A
 
@@ -162,30 +191,74 @@ public class teleOp extends OpMode {
         // GAMEPAD B
 
         //LIFT
-        liftController.setPID(pL, iL, dL);
-        int liftPos = drive.leftVerticalSlide.getCurrentPosition();
-        liftTarget -= (int) (gamepad2.right_stick_y * 6);
-        if (liftTarget > liftMax){
-            liftTarget = liftMax;
-        } else if (liftTarget < 0){
-            liftTarget = 0;
+        switch (liftState) {
+            case LIFT_AUTO:
+                liftController.setPID(pL, iL, dL);
+                int liftPos = drive.leftVerticalSlide.getCurrentPosition();
+                if (liftTarget > liftMax) {
+                    liftTarget = liftMax;
+                } else if (liftTarget < 0) {
+                    liftTarget = 0;
+                }
+                pidLift = liftController.calculate(liftPos, liftTarget);
+                drive.leftVerticalSlide.setPower(pidLift);
+                drive.rightVerticalSlide.setPower(pidLift);
+//                liftController.setPID(pL, iL, dL);
+//                int liftPos = drive.leftVerticalSlide.getCurrentPosition();
+//                if (liftTarget > liftMax) {
+//                    liftTarget = liftMax;
+//                } else if (liftTarget < 0) {
+//                    liftTarget = 0;
+//                }
+//                pidLift = liftController.calculate(liftPos, liftTarget);
+//                drive.leftVerticalSlide.setPower(pidLift);
+//                drive.rightVerticalSlide.setPower(pidLift);
+//
+//                telemetry.addData("Voltage", voltage);
+//                telemetry.addData("Lift Pos", liftPos);
+//                telemetry.addData("Lift Target", liftTarget);
+//
+//                if (liftController.atSetPoint()) {
+//                    liftState = LiftState.LIFT_MANUAL;
+//                }
+
+            case LIFT_MANUAL:
+                double liftPower = -gamepad2.right_stick_y;
+                drive.leftVerticalSlide.setPower(liftPower);
+                drive.rightVerticalSlide.setPower(liftPower);
         }
-        double pidLift = liftController.calculate(liftPos, liftTarget);
 
-        drive.leftVerticalSlide.setPower(pidLift);
-        drive.rightVerticalSlide.setPower(pidLift);
+//        liftController.setPID(pL, iL, dL);
+//        int liftPos = drive.leftVerticalSlide.getCurrentPosition();
+//        if (liftTarget > liftMax) {
+//            liftTarget = liftMax;
+//        } else if (liftTarget < 0) {
+//            liftTarget = 0;
+//        }
+//        pidLift = liftController.calculate(liftPos, liftTarget);
+//        drive.leftVerticalSlide.setPower(pidLift);
+//        drive.rightVerticalSlide.setPower(pidLift);
 
-        telemetry.addData("Lift Pos", liftPos);
-        telemetry.addData("Lift Target", liftTarget);
-        telemetry.update();
+        if (gamepad2.a) {
+            liftState = LiftState.LIFT_AUTO;
+            liftTarget = 10;
+        } else if (gamepad2.b) {
+            liftState = LiftState.LIFT_AUTO;
+            liftTarget = 726;
+        } else if (gamepad2.x) {
+            liftState = LiftState.LIFT_AUTO;
+            liftTarget = 1290;
+        }
+        telemetry.addData("Lift State", liftState);
+
 
         //EXTEND
         extendController.setPID(pE, iE, dE);
         int extendPos = drive.leftHorizontalSlide.getCurrentPosition();
         extendTarget -= (int) (gamepad2.left_stick_y * 10);
-        if (extendTarget > extendMax){
+        if (extendTarget > extendMax) {
             extendTarget = extendMax;
-        } else if (extendTarget < 0){
+        } else if (extendTarget < 0) {
             extendTarget = 0;
         }
         double pidExtend = extendController.calculate(extendPos, extendTarget);
@@ -195,51 +268,6 @@ public class teleOp extends OpMode {
 
         telemetry.addData("Extend Pos", extendPos);
         telemetry.addData("Extend Target", extendTarget);
-        telemetry.update();
-
-//        double liftPower = 0;
-//
-//        //Lift (Negative spoolPower is up)
-//
-//        //Check if there's an input
-//        if (gamepad2.right_stick_y < -0.05 || gamepad2.right_stick_y > 0.05) {
-//
-//            //If down is pressed
-//            if (gamepad2.right_stick_y > 0.05) {
-//
-//                //If it's not at bottom
-////                if (drive.leftVerticalSlide.getCurrentPosition() > 0) {
-//
-//                    //Slow down when position gets close to bottom
-//                    if (Math.abs(drive.leftVerticalSlide.getCurrentPosition()) < liftSlow) {
-//                        liftPower = gamepad2.right_stick_y * 0.6;
-//                    } else {
-//                        liftPower = gamepad2.right_stick_y * 0.8;
-//                    }
-//
-//                    //If at bottom, turn off power and reset position
-////                } else {
-////                        liftPower = 0;
-//////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//////                        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//////                        liftTarget = 0;
-////                }
-//                //If joystick is not pressed down
-//            } else {
-//                liftPower = gamepad2.right_stick_y * 1;
-//            }
-//
-//            //If there's a controller input, set liftTarget
-//            liftTarget = drive.leftVerticalSlide.getCurrentPosition();
-//
-//            //If no input, hold the arm up
-//        }
-//
-//
-//        //Send power to lift motor
-//        drive.leftVerticalSlide.setPower(-liftPower);
-//        drive.rightVerticalSlide.setPower(-liftPower);
-//        telemetry.addData("Vertical Encoder", drive.leftVerticalSlide.getCurrentPosition());
 
 
         // CLAW
@@ -293,7 +321,7 @@ public class teleOp extends OpMode {
         }
 
         // LOW POLE
-        if(gamepad2.right_bumper){
+        if (gamepad2.right_bumper) {
             lowPole();
         }
 
@@ -302,14 +330,6 @@ public class teleOp extends OpMode {
             drive.stabilizer.setPosition(stabilizer1);
         } else {
             drive.stabilizer.setPosition(stabilizer2);
-        }
-
-        if(gamepad2.a){
-            liftTarget = 10;
-        } else if(gamepad2.b){
-            liftTarget = 726;
-        } else if (gamepad2.x){
-            liftTarget = 1290;
         }
 
 //        // CLAW ANGLE
