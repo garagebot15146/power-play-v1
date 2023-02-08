@@ -110,7 +110,7 @@ public class teleOp extends OpMode {
     PIDController extendController;
     public static int extendMax = 1000;
     public int extendTarget = 0;
-    public static double pE = 0.015, iE = 0, dE = 0;
+    public static double pE = 0.02, iE = 0.001, dE = 0.0001;
 
     @Override
     public void init() {
@@ -125,9 +125,6 @@ public class teleOp extends OpMode {
         //PID
         liftController = new PIDController(pL, iL, dL);
         liftController.setTolerance(5);
-
-        extendController = new PIDController(pE, iE, dE);
-        extendController.setTolerance(5);
 
         //DASHBOARD
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -212,8 +209,8 @@ public class teleOp extends OpMode {
 
         // GAMEPAD B
 
+        // STATE MACHINES
         int liftPos = drive.leftVerticalSlide.getCurrentPosition();
-        //LIFT
         switch (liftState) {
             case LIFT_AUTO:
                 liftController.setPID(pL, iL, dL);
@@ -272,7 +269,6 @@ public class teleOp extends OpMode {
 
                     case INTAKE_UP:
                         setExtension(0);
-                        telemetry.addData("Extension Pos", extensionPos);
                         if(extensionPos < 10){
                             cycleTime = getTime();
                             if(runtime.seconds() > cycleTime + 0.2){
@@ -295,7 +291,6 @@ public class teleOp extends OpMode {
                             if(extensionPos < 500){
                                 intakeDown();
                                 setExtension(cycleReset);
-                                pidLift = liftController.calculate(liftPos, cycleReset);
                             }
                         } else {
                             setLift(1290);
@@ -309,15 +304,17 @@ public class teleOp extends OpMode {
                 break;
         }
 
-        // OVERRIDE LIFT STATE
+        // Override the lift auto state
         if (gamepad2.right_trigger > 0.05) {
             liftState = LiftState.LIFT_MANUAL;
         }
 
+        // Reset cycle extension position
         if(gamepad2.left_stick_button){
             cycleReset = drive.leftHorizontalSlide.getCurrentPosition();
         }
 
+        // Cycle Command
         if(gamepad2.y){
             resetTime();
             liftState = LiftState.CYCLE;
@@ -327,15 +324,19 @@ public class teleOp extends OpMode {
             liftState = LiftState.LIFT_MANUAL;
         }
 
+        // Low Pole
         if (gamepad2.a) {
             liftState = LiftState.LIFT_AUTO;
             liftTarget = 7;
+        // Mid Pole
         } else if (gamepad2.b) {
             liftState = LiftState.LIFT_AUTO;
             liftTarget = 726;
+        // High Pole
         } else if (gamepad2.x) {
             liftState = LiftState.LIFT_AUTO;
             liftTarget = 1290;
+        // Reset Lift Zero Position
         } else if (gamepad2.left_trigger > 0.05) {
             //Reset Encoders
             drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -343,32 +344,22 @@ public class teleOp extends OpMode {
 
             drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            drive.leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            drive.rightHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-        telemetry.addData("Lift State", liftState);
-        telemetry.addData("Cycle State", cycleState);
-        telemetry.addData("Lift Position", liftPos);
 
-
-        //EXTEND
+        // EXTEND
         if(liftState != LiftState.CYCLE){
             drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-            extendController.setPID(pE, iE, dE);
-            int extendPos = drive.leftHorizontalSlide.getCurrentPosition();
-            extendTarget -= (int) (gamepad2.left_stick_y * 15);
-            if (extendTarget > extendMax) {
-                extendTarget = extendMax;
-            } else if (extendTarget < 0) {
-                extendTarget = 0;
-            }
-            pidExtend = extendController.calculate(extendPos, extendTarget);
-
-            drive.leftHorizontalSlide.setPower(pidExtend);
-            drive.rightHorizontalSlide.setPower(pidExtend);
-
-            telemetry.addData("Extend Pos", extendPos);
-            telemetry.addData("Extend Target", extendTarget);
+            
+            double extendPower = -gamepad2.left_stick_y;
+                drive.leftHorizontalSlide.setPower(extendPower);
+                drive.rightHorizontalSlide.setPower(extendPower);
         }
 
 
@@ -407,6 +398,12 @@ public class teleOp extends OpMode {
         } else {
             drive.stabilizer.setPosition(stabilizer2);
         }
+
+        // TELEMETRY
+        telemetry.addData("Lift State", liftState);
+        telemetry.addData("Cycle State", cycleState);
+        telemetry.addData("Lift Pos", drive.leftVerticalSlide.getCurrentPosition());
+        telemetry.addData("Extend Pos", drive.leftHorizontalSlide.getCurrentPosition());
 
         // FLIPPER
 //        if (currentGamepad2.y && !previousGamepad2.y) {
