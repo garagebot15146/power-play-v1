@@ -37,7 +37,7 @@ public class teleOp extends OpMode {
     Gamepad previousGamepad2 = new Gamepad();
 
     // STABILIZER
-    int stabilizerVertical = 300;
+    int stabilizerVertical = 500;
 
     // TOGGLE
     String toggleClaw = "init";
@@ -91,6 +91,7 @@ public class teleOp extends OpMode {
     CycleState cycleState = CycleState.START;
 
     int cycleReset;
+    boolean clawLock = false;
     double pidLift = 0;
     double pidExtend = 0;
     double cycleTime;
@@ -99,7 +100,7 @@ public class teleOp extends OpMode {
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
     boolean timerLock = false;
-    double time = 0;
+    double timeAmount = 0;
 
     //PID
     PIDController liftController;
@@ -263,28 +264,33 @@ public class teleOp extends OpMode {
                         break;
 
                     case INTAKE_UP:
-                        setExtension(0);
+                        cycleTime = getTime();
+                        if(!clawLock){
+                            clawClose();
+                            clawLock = true;
+                        }
                         // Bring intake up
-                        if(extensionPos < 13){
-                            cycleTime = getTime();
-                            if(runtime.seconds() > cycleTime + 0.2){
-                                intakeUp();
-                                if(runtime.seconds() > cycleTime + 0.9) {
-                                    clawOpen();
-                                    if(runtime.seconds() > cycleTime + 1.4){
-                                        cycleState = CycleState.DEPOSIT;
+                        if(runtime.seconds() > cycleTime + 0.3) {
+                            setExtension(0);
+                            if (extensionPos < 13) {
+                                if (runtime.seconds() > cycleTime + 0.45) {
+                                    intakeUp();
+                                    if (runtime.seconds() > cycleTime + 1.3) {
+                                        clawOpen();
+                                        if (runtime.seconds() > cycleTime + 1.6) {
+                                            cycleState = CycleState.DEPOSIT;
+                                        }
                                     }
                                 }
-                            } else {
-                                clawClose();
                             }
                         }
                         break;
 
                     case DEPOSIT:
-                        if(runtime.seconds() > cycleTime + 2.6){
+                        clawLock = false;
+                        if(runtime.seconds() > cycleTime + 2.8){
                             // Bring lift down
-                            setLift(5);
+                            setLift(7);
                             if(extensionPos < 500){
                                 intakeDown();
                                 setExtension(cycleReset);
@@ -293,7 +299,7 @@ public class teleOp extends OpMode {
                             // Bring lift up
                             setLift(1290);
                         }
-                        if(runtime.seconds() > cycleTime + 3.4){
+                        if(runtime.seconds() > cycleTime + 3.8){
                             cycleState = CycleState.INTAKE_UP;
                             liftState = LiftState.LIFT_MANUAL;
                         }
@@ -320,6 +326,7 @@ public class teleOp extends OpMode {
         // Voltage Check
         if (voltage < 10){
             liftState = LiftState.LIFT_MANUAL;
+            cycleState = CycleState.INTAKE_UP;
         }
 
         // Low Pole
@@ -400,11 +407,12 @@ public class teleOp extends OpMode {
         // TELEMETRY
         telemetry.addData("Lift State", liftState);
         telemetry.addData("Cycle State", cycleState);
+        telemetry.addData("Claw Lock", clawLock);
         telemetry.addData("Lift Pos", drive.leftVerticalSlide.getCurrentPosition());
         telemetry.addData("Extend Pos", drive.leftHorizontalSlide.getCurrentPosition());
 
         // FLIPPER
-        if (currentGamepad2.y && !previousGamepad2.y) {
+        if (currentGamepad1.y && !previousGamepad1.y) {
             if (toggleFlipper == "false" || toggleFlipper == "init") {
                 toggleFlipper = "true";
             } else {
@@ -484,10 +492,10 @@ public class teleOp extends OpMode {
 
     public double getTime(){
         if(!timerLock){
-            time = runtime.seconds();
+            timeAmount = runtime.seconds();
             timerLock = true;
         }
-        return time;
+        return timeAmount;
     }
 
     public void resetTime(){
