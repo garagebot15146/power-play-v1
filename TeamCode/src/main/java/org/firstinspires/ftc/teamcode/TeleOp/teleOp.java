@@ -213,30 +213,22 @@ public class teleOp extends OpMode {
         int liftPos = drive.leftVerticalSlide.getCurrentPosition();
         switch (liftState) {
             case LIFT_AUTO:
+                // Uses lift PID
                 liftController.setPID(pL, iL, dL);
-                if (liftTarget > liftMax) {
-                    liftTarget = liftMax;
-                } else if (liftTarget < 0) {
-                    liftTarget = 0;
-                }
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
                 drive.leftVerticalSlide.setPower(pidLift);
                 drive.rightVerticalSlide.setPower(pidLift);
 
                 // Switch States
-                if (liftController.atSetPoint() || gamepad2.right_trigger > 0.05) {
+                if (liftController.atSetPoint()) {
                     liftState = LiftState.LIFT_MANUAL;
                 }
                 break;
 
             case LIFT_AUTO_SLOW:
+                // Slows lift PID
                 liftController.setPID(0.009, iL, 0.0001);
-                if (liftTarget > liftMax) {
-                    liftTarget = liftMax;
-                } else if (liftTarget < 0) {
-                    liftTarget = 0;
-                }
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
                 drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.7);
@@ -249,6 +241,7 @@ public class teleOp extends OpMode {
                 break;
 
             case LIFT_MANUAL:
+                // Uses joystick no PID
                 double liftPower = -gamepad2.right_stick_y;
                 if(liftPower > 0){
                     drive.leftVerticalSlide.setPower(liftPower * 0.8);
@@ -260,16 +253,19 @@ public class teleOp extends OpMode {
                 break;
 
             case CYCLE:
+                // Starts cycle command
                 int extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
                 switch (cycleState) {
                     case START:
+                        // Saves reset pos
                         cycleReset = extensionPos;
                         cycleState = CycleState.INTAKE_UP;
                         break;
 
                     case INTAKE_UP:
                         setExtension(0);
-                        if(extensionPos < 10){
+                        // Bring intake up
+                        if(extensionPos < 13){
                             cycleTime = getTime();
                             if(runtime.seconds() > cycleTime + 0.2){
                                 intakeUp();
@@ -287,12 +283,14 @@ public class teleOp extends OpMode {
 
                     case DEPOSIT:
                         if(runtime.seconds() > cycleTime + 2.6){
+                            // Bring lift down
                             setLift(5);
                             if(extensionPos < 500){
                                 intakeDown();
                                 setExtension(cycleReset);
                             }
                         } else {
+                            // Bring lift up
                             setLift(1290);
                         }
                         if(runtime.seconds() > cycleTime + 3.4){
@@ -358,8 +356,8 @@ public class teleOp extends OpMode {
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             double extendPower = -gamepad2.left_stick_y;
-                drive.leftHorizontalSlide.setPower(extendPower);
-                drive.rightHorizontalSlide.setPower(extendPower);
+            drive.leftHorizontalSlide.setPower(extendPower);
+            drive.rightHorizontalSlide.setPower(extendPower);
         }
 
 
@@ -406,26 +404,26 @@ public class teleOp extends OpMode {
         telemetry.addData("Extend Pos", drive.leftHorizontalSlide.getCurrentPosition());
 
         // FLIPPER
-//        if (currentGamepad2.y && !previousGamepad2.y) {
-//            if (toggleFlipper == "false" || toggleFlipper == "init") {
-//                toggleFlipper = "true";
-//            } else {
-//                toggleFlipper = "false";
-//            }
-//        }
-//        if (toggleFlipper == "true") {
-//            drive.leftFlipper.setPosition(leftFlipper2);
-//            drive.rightFlipper.setPosition(rightFlipper2);
-//
-//            telemetry.addData("Left Flipper", leftFlipper2);
-//            telemetry.addData("Right Flipper", rightFlipper2);
-//        } else if (toggleFlipper == "false") {
-//            drive.leftFlipper.setPosition(leftFlipper1);
-//            drive.rightFlipper.setPosition(rightFlipper1);
-//
-//            telemetry.addData("Left Flipper", leftFlipper1);
-//            telemetry.addData("Right Flipper", rightFlipper1);
-//        }
+        if (currentGamepad2.y && !previousGamepad2.y) {
+            if (toggleFlipper == "false" || toggleFlipper == "init") {
+                toggleFlipper = "true";
+            } else {
+                toggleFlipper = "false";
+            }
+        }
+        if (toggleFlipper == "true") {
+            drive.leftFlipper.setPosition(leftFlipper2);
+            drive.rightFlipper.setPosition(rightFlipper2);
+
+            telemetry.addData("Left Flipper", leftFlipper2);
+            telemetry.addData("Right Flipper", rightFlipper2);
+        } else if (toggleFlipper == "false") {
+            drive.leftFlipper.setPosition(leftFlipper1);
+            drive.rightFlipper.setPosition(rightFlipper1);
+
+            telemetry.addData("Left Flipper", leftFlipper1);
+            telemetry.addData("Right Flipper", rightFlipper1);
+        }
 
     }
 
