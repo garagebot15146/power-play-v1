@@ -356,7 +356,7 @@ public class teleOp extends OpMode {
         if(liftState != LiftState.CYCLE){
             drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            
+
             double extendPower = -gamepad2.left_stick_y;
                 drive.leftHorizontalSlide.setPower(extendPower);
                 drive.rightHorizontalSlide.setPower(extendPower);
