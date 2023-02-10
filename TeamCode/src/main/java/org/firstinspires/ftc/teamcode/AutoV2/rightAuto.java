@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 
 @Config
 @Autonomous(name = "rightAuto", group = "auto")
-//@Disabled
+@Disabled
 public class rightAuto extends OpMode {
     HWMap drive;
 
@@ -42,32 +43,34 @@ public class rightAuto extends OpMode {
     public static double pE = 0.02, iE = 0, dE = 0.0001;
 
     // Cone Stack
-    double[] intakeAngleList = {0.69, 0.64, 0.55, 0.46, 0.4};
-    double[] clawAngleList = {0.925, 0.92, 0.91, 0.91, 0.91};
+    double base = 0.85;
+    double inc = 0.04;
+    double[] intakeAngleList = {base, base - inc, base - inc * 2, base - inc * 3, base - inc * 4};
+    double[] clawAngleList = {0.02, 0.02, 0.02, 0.02, 0.02};
 
     // Servo Positions
-    double claw1 = 1;
-    double claw2 = 0.7;
+    static double claw1 = 1;
+    static double claw2 = 0.7;
 
-    double clawAngle1 = 0.02;
-    double clawAngle2 = 0.71;
-    double clawAngle3 = 0.27;
+    static double clawAngle1 = 0.02;
+    static double clawAngle2 = 0.71;
+    static double clawAngle3 = 0.27;
 
-    double intakeAngle1 = 0.85;
-    double intakeAngle2 = 0.13;
-    double intakeAngle3 = 0.31;
+    static double intakeAngle1 = 0.85;
+    static double intakeAngle2 = 0.13;
+    static double intakeAngle3 = 0.31;
 
-    double clawRotate1 = 0.74;
-    double clawRotate2 = 0;
+    static double clawRotate1 = 1;
+    static double clawRotate2 = 0.23;
 
-    double leftFlipper1 = 1;
-    double leftFlipper2 = 0.5;
+    static double leftFlipper1 = 1;
+    static double leftFlipper2 = 0.5;
 
-    double rightFlipper1 = 0;
-    double rightFlipper2 = 0.5;
+    static double rightFlipper1 = 0;
+    static double rightFlipper2 = 0.5;
 
-    double stabilizer1 = 0;
-    double stabilizer2 = 0.2;
+    static double stabilizer1 = 0;
+    static double stabilizer2 = 0.2;
 
     public enum CycleState {
         START,
@@ -195,7 +198,7 @@ public class rightAuto extends OpMode {
                 if (totalTime.seconds() > transferTime + 0.6) {
                     setExtension(0);
                     intakeUp();
-                    if(extendPos < 10 && totalTime.seconds() > transferTime + 2){
+                    if (extendPos < 10 && totalTime.seconds() > transferTime + 2) {
                         transferState = TransferState.NOTHING;
                     }
 
@@ -222,7 +225,7 @@ public class rightAuto extends OpMode {
         drive.rightHorizontalSlide.setPower(pidExtend);
 
         if ((liftController.atSetPoint() && extendController.atSetPoint()) || totalTime.seconds() > getTime() + 2) {
-            if(totalTimeSlide.seconds() > getSlideTime() + 0.7){
+            if (totalTimeSlide.seconds() > getSlideTime() + 0.7) {
                 drive.stabilizer.setPosition(stabilizer2);
                 cycleState = CycleState.DEPOSIT_DOWN;
             }
@@ -317,13 +320,13 @@ public class rightAuto extends OpMode {
         timerSlideLock = false;
     }
 
-    public void intakeDown(){
+    public void intakeDown() {
         drive.clawAngle.setPosition(clawAngle1);
         drive.clawRotate.setPosition(clawRotate1);
         drive.intakeAngle.setPosition(intakeAngle1);
     }
 
-    public void intakeUp(){
+    public void intakeUp() {
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
         drive.clawAngle.setPosition(clawAngle2);

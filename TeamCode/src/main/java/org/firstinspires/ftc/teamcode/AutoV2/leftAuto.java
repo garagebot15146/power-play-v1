@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name = "leftAuto V2", group = "auto")
-//@Disabled
+@Disabled
 public class leftAuto extends LinearOpMode {
     HWMap drive;
 

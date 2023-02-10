@@ -46,33 +46,33 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    static int highPole = 494;
-    static int midPole = 360;
-    int stabilizerVertical = 110;
+    public static int highPole = 494;
+    public static int midPole = 360;
+    public int stabilizerVertical = 110;
 
     // SERVO POSITIONS
-    static double claw1 = 1;
-    double claw2 = 0.7;
+    public static double claw1 = 1;
+    public static double claw2 = 0.7;
 
-    static double clawAngle1 = 0.02;
-    static double clawAngle2 = 0.71;
-    static double clawAngle3 = 0.27;
+    public static double clawAngle1 = 0.02;
+    public static double clawAngle2 = 0.71;
+    public static double clawAngle3 = 0.27;
 
-    static double intakeAngle1 = 0.85;
-    static double intakeAngle2 = 0.13;
-    static double intakeAngle3 = 0.31;
+    public static double intakeAngle1 = 0.85;
+    public static double intakeAngle2 = 0.13;
+    public static double intakeAngle3 = 0.31;
 
-    static  double clawRotate1 = 1;
-    static double clawRotate2 = 0.23;
+    public static double clawRotate1 = 1;
+    public static double clawRotate2 = 0.23;
 
-    static double leftFlipper1 = 1;
-    static  double leftFlipper2 = 0.5;
+    public static double leftFlipper1 = 1;
+    public static double leftFlipper2 = 0.5;
 
-    static double rightFlipper1 = 0;
-    static double rightFlipper2 = 0.5;
+    public static double rightFlipper1 = 0;
+    public static double rightFlipper2 = 0.5;
 
-    static double stabilizer1 = 0;
-    static double stabilizer2 = 0.2;
+    public static double stabilizer1 = 0;
+    public static double stabilizer2 = 0.2;
 
     // STATE MACHINES
     public enum LiftState {
@@ -94,8 +94,6 @@ public class teleOp extends OpMode {
     int cycleReset;
     boolean clawLock = false;
     double pidLift = 0;
-    double cycleTime;
-
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
@@ -248,7 +246,7 @@ public class teleOp extends OpMode {
             case LIFT_MANUAL:
                 // Uses joystick no PID
                 double liftPower = -gamepad2.right_stick_y;
-                if(liftPower > 0){
+                if (liftPower > 0) {
                     drive.leftVerticalSlide.setPower(liftPower * 0.5);
                     drive.rightVerticalSlide.setPower(liftPower * 0.5);
                 } else {
@@ -269,13 +267,13 @@ public class teleOp extends OpMode {
 
                     case INTAKE_UP:
                         double cycleDelay = cycleReset / 1500;
-                        if(!clawLock){
+                        if (!clawLock) {
                             clawClose();
-                                telemetry.addData("Status", "Closed");
-                                clawLock = true;
+                            telemetry.addData("Status", "Closed");
+                            clawLock = true;
                         }
                         // Bring intake up
-                        if(cycletime.seconds() >= 0.3) {
+                        if (cycletime.seconds() >= 0.3) {
                             setExtension(0);
                             if (extensionPos < 10) {
                                 if (cycletime.seconds() >= 0.6 + cycleDelay) {
@@ -294,10 +292,10 @@ public class teleOp extends OpMode {
 
                     case DEPOSIT:
                         clawLock = false;
-                        if(cycletime.seconds() >= 1.1){
+                        if (cycletime.seconds() >= 1.1) {
                             // Bring lift down
                             setLiftSLow(7);
-                            if(extensionPos < 400){
+                            if (liftPos < 400) {
                                 intakeDown();
                                 setExtension(cycleReset);
                             }
@@ -305,7 +303,7 @@ public class teleOp extends OpMode {
                             // Bring lift up
                             setLift(highPole);
                         }
-                        if(cycletime.seconds() >= 2){
+                        if (cycletime.seconds() >= 2) {
                             cycletime.reset();
                             cycleState = CycleState.INTAKE_UP;
                             liftState = LiftState.LIFT_MANUAL;
@@ -321,17 +319,17 @@ public class teleOp extends OpMode {
         }
 
         // Reset cycle extension position
-        if(gamepad2.left_stick_button){
+        if (gamepad2.left_stick_button) {
             cycleReset = drive.leftHorizontalSlide.getCurrentPosition();
         }
 
         // Cycle Command
-        if(gamepad2.y){
+        if (gamepad2.y) {
             cycletime.reset();
             liftState = LiftState.CYCLE;
         }
         // Voltage Check
-        if (voltage < 10){
+        if (voltage < 10) {
             liftState = LiftState.LIFT_MANUAL;
             cycleState = CycleState.INTAKE_UP;
         }
@@ -340,15 +338,15 @@ public class teleOp extends OpMode {
         if (gamepad2.a) {
             liftState = LiftState.LIFT_AUTO_SLOW;
             liftTarget = 20;
-        // Mid Pole
+            // Mid Pole
         } else if (gamepad2.b) {
             liftState = LiftState.LIFT_AUTO;
             liftTarget = midPole;
-        // High Pole
+            // High Pole
         } else if (gamepad2.x) {
             liftState = LiftState.LIFT_AUTO;
             liftTarget = highPole;
-        // Reset Lift Zero Position
+            // Reset Lift Zero Position
         } else if (gamepad2.left_trigger > 0.05) {
             //Reset Encoders
             drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -365,7 +363,7 @@ public class teleOp extends OpMode {
         }
 
         // EXTEND
-        if(liftState != LiftState.CYCLE){
+        if (liftState != LiftState.CYCLE) {
             drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -412,7 +410,7 @@ public class teleOp extends OpMode {
         }
 
         // FLIPPER
-        if(liftPos > 250){
+        if (liftPos > 250) {
             if (currentGamepad1.y && !previousGamepad1.y) {
                 if (toggleFlipper == "false" || toggleFlipper == "init") {
                     toggleFlipper = "true";
@@ -464,19 +462,19 @@ public class teleOp extends OpMode {
 
     }
 
-    public void intakeDown(){
+    public void intakeDown() {
         drive.clawAngle.setPosition(clawAngle1);
         drive.clawRotate.setPosition(clawRotate1);
         drive.intakeAngle.setPosition(intakeAngle1);
     }
 
-    public void intakeUp(){
+    public void intakeUp() {
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
         drive.clawAngle.setPosition(clawAngle2);
     }
 
-    public void setLift(int target){
+    public void setLift(int target) {
         liftController.setPID(pL, iL, dL);
         if (liftTarget > liftMax) {
             liftTarget = liftMax;
@@ -489,7 +487,7 @@ public class teleOp extends OpMode {
         drive.rightVerticalSlide.setPower(pidLift);
     }
 
-    public void setLiftSLow(int target){
+    public void setLiftSLow(int target) {
         liftController.setPID(0.015, 0.0001, 0.0001);
         if (liftTarget > liftMax) {
             liftTarget = liftMax;
@@ -503,7 +501,7 @@ public class teleOp extends OpMode {
         drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
     }
 
-    public void setExtension(int target){
+    public void setExtension(int target) {
         drive.leftHorizontalSlide.setTargetPosition(target);
         drive.rightHorizontalSlide.setTargetPosition(target);
 
@@ -514,15 +512,15 @@ public class teleOp extends OpMode {
         drive.rightHorizontalSlide.setVelocity(3000);
     }
 
-    public double getTime(){
-        if(!timerLock){
+    public double getTime() {
+        if (!timerLock) {
             timeAmount = runtime.seconds();
             timerLock = true;
         }
         return timeAmount;
     }
 
-    public void resetTime(){
+    public void resetTime() {
         timerLock = false;
     }
 

@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
 @Config
-//@Disabled
+@Disabled
 @TeleOp(name = "liftPID", group = "Iterative Opmode")
 public class liftPID extends OpMode {
 
