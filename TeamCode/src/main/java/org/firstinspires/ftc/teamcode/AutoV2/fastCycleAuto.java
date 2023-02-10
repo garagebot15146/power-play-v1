@@ -38,10 +38,8 @@ public class fastCycleAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-//    public static double[] intakeAngleList = {base, base - inc, base - inc * 2, base - inc * 3, base - inc * 4};
-    public static double[] intakeAngleList = {0, 0.81, 0.76, 0.67, 0.63, 0.57};
+    public static double[] intakeAngles = {0, 0.81, 0.76, 0.67, 0.63, 0.57};
 
-    public static double[] clawAngleList = {0.02, 0.02, 0.02, 0.02, 0.02};
     public static int cycleReset = 670;
 
     // THRESHOLDS
@@ -88,7 +86,7 @@ public class fastCycleAuto extends OpMode {
     boolean parkLock = false;
 
     // AUTO
-    int cones = 6;
+    int cones = 5;
     TrajectorySequence toPole;
     Trajectory forward;
     Trajectory backward;
@@ -162,8 +160,8 @@ public class fastCycleAuto extends OpMode {
         // Starts cycle command
         switch (cycleState) {
             case START:
-                intakeDown();
-                clawOpen();
+//                intakeDown(cones);
+//                clawOpen();
 //                if (!startLock) {
 //                    drive.followTrajectory(forward);
 //                    runtime.reset();
@@ -179,28 +177,27 @@ public class fastCycleAuto extends OpMode {
                 break;
 
             case INTAKE:
-                if (!clawLock) {
-                    clawClose();
-                    clawLock = true;
-                }
-                if (cycletime.seconds() >= 0.2) {
-                    if (!clawAngleLock) {
-                        drive.clawAngle.setPosition(clawAngle3);
-                        clawAngleLock = true;
-                    }
-                }
                 setLiftSLow(7);
                 // Bring intake up
-                if (cycletime.seconds() >= 0.5) {
-                    setExtension(0);
-                    if (extensionPos < 10) {
+                if (cycletime.seconds() >= 0.3) {
+                    if (!clawLock) {
+                        clawClose();
+                        clawLock = true;
+                    }
+                    if (cycletime.seconds() >= 0.55) {
+                        if (!clawAngleLock) {
+                            drive.clawAngle.setPosition(clawAngle3);
+                            drive.intakeAngle.setPosition(intakeAngle3);
+                            clawAngleLock = true;
+                        }
                         if (cycletime.seconds() >= 0.9) {
+                            setExtension(0);
                             intakeUp();
-                            if (cycletime.seconds() >= 1.5) {
+                            if (cycletime.seconds() >= 1.3) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 2) {
+                                if (cycletime.seconds() >= 1.5) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 2.3) {
+                                    if (cycletime.seconds() >= 1.75) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
@@ -216,16 +213,18 @@ public class fastCycleAuto extends OpMode {
                 clawAngleLock = false;
 
                 // Change to claw reset
-                intakeDown();
+                if (cones != 0) {
+                    intakeDown(cones);
+                }
 
                 // Move Slides
-                depositUp(cycleReset, highPole);
+                depositUp(cones == 0 ? 0 : cycleReset, highPole);
 
                 // Check
-                if(cycletime.seconds() >= 1.5){
+                if (cycletime.seconds() >= 1.1) {
                     cycletime.reset();
                     cones -= 1;
-                    if (cones == 0) {
+                    if (cones == -1) {
                         cycleState = CycleState.PARK;
                     } else {
                         cycleState = CycleState.INTAKE;
@@ -234,8 +233,11 @@ public class fastCycleAuto extends OpMode {
                 break;
 
             case PARK:
-                telemetry.addData("Auto", "Parking");
-                requestOpModeStop();
+                setLiftSLow(7);
+                if (cycletime.seconds() >= 1.5) {
+                    telemetry.addData("Auto", "Parking");
+                    requestOpModeStop();
+                }
                 break;
 
             case NOTHING:
@@ -261,10 +263,10 @@ public class fastCycleAuto extends OpMode {
         drive.claw.setPosition(claw2);
     }
 
-    public void intakeDown() {
+    public void intakeDown(int cones) {
         drive.clawAngle.setPosition(clawAngle1);
         drive.clawRotate.setPosition(clawRotate1);
-        drive.intakeAngle.setPosition(intakeAngle1);
+        drive.intakeAngle.setPosition(intakeAngles[cones]);
     }
 
     public void intakeUp() {
@@ -287,8 +289,8 @@ public class fastCycleAuto extends OpMode {
         drive.leftVerticalSlide.setPower(pidLift);
         drive.rightVerticalSlide.setPower(pidLift);
 
-        drive.leftHorizontalSlide.setVelocity(3000);
-        drive.rightHorizontalSlide.setVelocity(3000);
+        drive.leftHorizontalSlide.setVelocity(3200);
+        drive.rightHorizontalSlide.setVelocity(3200);
 
     }
 
@@ -304,8 +306,8 @@ public class fastCycleAuto extends OpMode {
         liftController.setPID(0.015, 0.0001, 0.0001);
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
-        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
     }
 
     public void setExtension(int target) {
