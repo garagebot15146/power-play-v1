@@ -41,7 +41,7 @@ public class rightAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
 
-    public static int cycleReset = 1020;
+    public static int cycleReset = 1000;
 
     // THRESHOLDS
     public static int highPole = 494;
@@ -109,7 +109,7 @@ public class rightAuto extends OpMode {
                 .build();
 
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
-                .lineToLinearHeading(new Pose2d(33, -11, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(33, -13, Math.toRadians(0)))
                 .build();
 
 

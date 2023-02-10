@@ -18,9 +18,9 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
 
 @Config
-@Autonomous(name = "Left Auto", group = "auto")
+@Autonomous(name = "Right Double Auto", group = "auto")
 //@Disabled
-public class leftAuto extends OpMode {
+public class rightDoubleAuto extends OpMode {
     HWMap drive;
 
     // CLOCK
@@ -41,7 +41,7 @@ public class leftAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
 
-    public static int cycleReset = 1020;
+    public static int cycleReset = 1000;
 
     // THRESHOLDS
     public static int highPole = 494;
@@ -87,10 +87,12 @@ public class leftAuto extends OpMode {
     boolean clawAngleLock = false;
     boolean startLock = false;
     boolean parkLock = false;
+    boolean autoLock = false;
 
     // AUTO
     int cones = 5;
     TrajectorySequence toPole;
+    TrajectorySequence toOtherPole;
     TrajectorySequence parkLeft;
     TrajectorySequence parkCenter;
     TrajectorySequence parkRight;
@@ -100,16 +102,23 @@ public class leftAuto extends OpMode {
         drive = new HWMap(hardwareMap);
 
         // TRAJECTORIES
-        Pose2d startPose = new Pose2d(-34, -72 + (15.5 / 2), Math.toRadians(270));
+        Pose2d startPose = new Pose2d(34, -72 + (15.5 / 2), Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
         toPole = drive.trajectorySequenceBuilder(startPose)
                 .back(48)
+                .lineToLinearHeading(new Pose2d(34, -4, Math.toRadians(-20)))
+                .build();
+
+        toOtherPole = drive.trajectorySequenceBuilder(toPole.end())
+                .lineToLinearHeading(new Pose2d(33, -13, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(-33, -13, Math.toRadians(0)))
+                .turn(Math.toRadians(180))
                 .lineToLinearHeading(new Pose2d(-34, -4, Math.toRadians(195)))
                 .build();
 
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
-                .lineToLinearHeading(new Pose2d(-33, -13, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(33, -13, Math.toRadians(0)))
                 .build();
 
 
@@ -178,20 +187,20 @@ public class leftAuto extends OpMode {
                         clawClose();
                         clawLock = true;
                     }
-                    if (cycletime.seconds() >= 0.55) {
+                    if (cycletime.seconds() >= 0.5) {
                         if (!clawAngleLock) {
                             drive.clawAngle.setPosition(clawAngle3);
                             drive.intakeAngle.setPosition(intakeAngle3);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 1.1) {
+                        if (cycletime.seconds() >= 0.75) {
                             setExtension(0);
                             intakeUp();
-                            if (cycletime.seconds() >= 1.65) {
+                            if (cycletime.seconds() >= 1.3) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 1.85) {
+                                if (cycletime.seconds() >= 1.5) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 2.2) {
+                                    if (cycletime.seconds() >= 1.85) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
@@ -209,6 +218,11 @@ public class leftAuto extends OpMode {
                 // Change to claw reset
                 if (cones != 0) {
                     intakeDown(cones);
+                } else {
+                    drive.intakeAngle.setPosition(intakeAngle4);
+                    drive.clawRotate.setPosition(clawRotate1);
+                    drive.clawAngle.setPosition(clawAngle4);
+                    clawOpen();
                 }
 
                 // Move Slides
@@ -229,12 +243,16 @@ public class leftAuto extends OpMode {
             case PARK:
                 setLiftSLow(7);
                 if (cycletime.seconds() >= 1.1) {
-                    if (!parkLock) {
-                        drive.followTrajectorySequence(parkCenter);
-                        parkLock = true;
+                    if(autoLock){
+                       requestOpModeStop();
                     } else {
-                        telemetry.addData("Auto", "Parking");
-                        requestOpModeStop();
+                        if (!parkLock) {
+                            drive.followTrajectorySequence(toOtherPole);
+                            cones = 5;
+                            cycleState = CycleState.INTAKE;
+                            parkLock = true;
+                            autoLock = true;
+                        }
                     }
                 }
                 break;
