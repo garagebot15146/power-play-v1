@@ -247,12 +247,19 @@ public class teleOp extends OpMode {
                 // Uses joystick no PID
                 double liftPower = -gamepad2.right_stick_y;
                 if (liftPower > 0) {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.5);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.5);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.63);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.63);
                 } else {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.3);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.3);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.33);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.33);
                 }
+//                if (liftPower > 0) {
+//                    drive.leftVerticalSlide.setPower(liftPower * 1);
+//                    drive.rightVerticalSlide.setPower(liftPower * 1);
+//                } else {
+//                    drive.leftVerticalSlide.setPower(liftPower * 0.9);
+//                    drive.rightVerticalSlide.setPower(liftPower * 0.9);
+//                }
                 break;
 
             case CYCLE:

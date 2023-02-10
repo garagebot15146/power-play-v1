@@ -38,7 +38,9 @@ public class fastCycleAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-    public static double[] intakeAngleList = {base, base - inc, base - inc * 2, base - inc * 3, base - inc * 4};
+//    public static double[] intakeAngleList = {base, base - inc, base - inc * 2, base - inc * 3, base - inc * 4};
+    public static double[] intakeAngleList = {0, 0.81, 0.76, 0.67, 0.63, 0.57};
+
     public static double[] clawAngleList = {0.02, 0.02, 0.02, 0.02, 0.02};
     public static int cycleReset = 670;
 
@@ -160,16 +162,16 @@ public class fastCycleAuto extends OpMode {
         // Starts cycle command
         switch (cycleState) {
             case START:
-//                intakeDown();
-//                clawOpen();
+                intakeDown();
+                clawOpen();
 //                if (!startLock) {
-////                    drive.followTrajectory(forward);
+//                    drive.followTrajectory(forward);
 //                    runtime.reset();
 //                    startLock = true;
 //                }
 //                intakeDown();
 //                clawOpen();
-//                if(runtime.seconds() > 5){
+//                if(runtime.seconds() > 2){
 //                    cycleState = CycleState.DEPOSIT;
 //                }
                 cycletime.reset();
