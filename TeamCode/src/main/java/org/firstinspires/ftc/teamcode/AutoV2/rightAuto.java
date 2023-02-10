@@ -41,10 +41,10 @@ public class rightAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
 
-    public static int cycleReset = 1000;
+    public static int cycleReset = 990;
 
     // THRESHOLDS
-    public static int highPole = 494;
+    public static int highPole = 595;
     public static int midPole = 360;
 
     // Servo Positions
@@ -95,6 +95,15 @@ public class rightAuto extends OpMode {
     TrajectorySequence parkCenter;
     TrajectorySequence parkRight;
 
+    public static double toPoleBack = 48;
+    public static double toPoleLineX = 34;
+    public static double toPoleLineY = -4;
+    public static double toPoleLineH = -20;
+
+    public static double parkCenterLineX = 33;
+    public static double parkCenterLineY = -13;
+    public static double parkCenterLineH = 0;
+
     @Override
     public void init() {
         drive = new HWMap(hardwareMap);
@@ -104,12 +113,12 @@ public class rightAuto extends OpMode {
         drive.setPoseEstimate(startPose);
 
         toPole = drive.trajectorySequenceBuilder(startPose)
-                .back(48)
-                .lineToLinearHeading(new Pose2d(34, -4, Math.toRadians(-20)))
+                .back(toPoleBack)
+                .lineToLinearHeading(new Pose2d(toPoleLineX, toPoleLineY, Math.toRadians(toPoleLineH)))
                 .build();
 
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
-                .lineToLinearHeading(new Pose2d(33, -13, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .build();
 
 
@@ -178,20 +187,20 @@ public class rightAuto extends OpMode {
                         clawClose();
                         clawLock = true;
                     }
-                    if (cycletime.seconds() >= 0.55) {
+                    if (cycletime.seconds() >= 0.5) {
                         if (!clawAngleLock) {
                             drive.clawAngle.setPosition(clawAngle3);
                             drive.intakeAngle.setPosition(intakeAngle3);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 1.1) {
+                        if (cycletime.seconds() >= 0.75) {
                             setExtension(0);
                             intakeUp();
-                            if (cycletime.seconds() >= 1.65) {
+                            if (cycletime.seconds() >= 1.3) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 1.85) {
+                                if (cycletime.seconds() >= 1.5) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 2.2) {
+                                    if (cycletime.seconds() >= 1.85) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }

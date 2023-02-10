@@ -169,8 +169,8 @@ public class HWMap extends MecanumDrive {
         rightHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Vertical Slides
-        leftVerticalSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightVerticalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftVerticalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightVerticalSlide.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));

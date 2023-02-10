@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
 
 @Config
 @Autonomous(name = "Right Double Auto", group = "auto")
-//@Disabled
+@Disabled
 public class rightDoubleAuto extends OpMode {
     HWMap drive;
 

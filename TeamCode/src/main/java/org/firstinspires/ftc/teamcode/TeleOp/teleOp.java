@@ -46,7 +46,7 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 494;
+    public static int highPole = 595;
     public static int midPole = 360;
     public int stabilizerVertical = 110;
 
