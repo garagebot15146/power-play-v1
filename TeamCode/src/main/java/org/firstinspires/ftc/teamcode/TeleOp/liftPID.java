@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
 @Config
-@Disabled
+//@Disabled
 @TeleOp(name = "liftPID", group = "Iterative Opmode")
 public class liftPID extends OpMode {
 
@@ -19,7 +19,7 @@ public class liftPID extends OpMode {
 
     //PID
     PIDController liftController;
-    public static int liftTarget = 1300;
+    public static int liftTarget = 550;
     public static double pL = 0.01, iL = 0, dL = 0;
 
     PIDController extendController;
@@ -41,8 +41,8 @@ public class liftPID extends OpMode {
         int liftPos = drive.leftVerticalSlide.getCurrentPosition();
         double pid = liftController.calculate(liftPos, liftTarget);
 
-        drive.leftVerticalSlide.setVelocity(pid);
-        drive.rightVerticalSlide.setVelocity(pid);
+        drive.leftVerticalSlide.setPower(pid);
+        drive.rightVerticalSlide.setPower(pid);
 
         telemetry.addData("Lift Pos", liftPos);
         telemetry.addData("Lift Target", liftTarget);
@@ -53,8 +53,8 @@ public class liftPID extends OpMode {
         int extendPos = drive.leftHorizontalSlide.getCurrentPosition();
         double pidExtend = extendController.calculate(extendPos, extendTarget);
 
-        drive.leftHorizontalSlide.setVelocity(pidExtend);
-        drive.rightHorizontalSlide.setVelocity(pidExtend);
+        drive.leftHorizontalSlide.setPower(pidExtend);
+        drive.rightHorizontalSlide.setPower(pidExtend);
 
         telemetry.addData("Extend Pos", extendPos);
         telemetry.addData("Extend Target", extendTarget);

@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static java.lang.Thread.sleep;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -37,7 +34,6 @@ public class teleOp extends OpMode {
     Gamepad previousGamepad2 = new Gamepad();
 
     // STABILIZER
-    int stabilizerVertical = 500;
 
     // TOGGLE
     String toggleClaw = "init";
@@ -49,29 +45,34 @@ public class teleOp extends OpMode {
     String toggleStabilizer = "init";
 
 
+    // THRESHOLDS
+    static int highPole = 494;
+    static int midPole = 360;
+    int stabilizerVertical = 110;
+
     // SERVO POSITIONS
-    double claw1 = 1;
+    static double claw1 = 1;
     double claw2 = 0.7;
 
-    double clawAngle1 = 0.02;
-    double clawAngle2 = 0.71;
-    double clawAngle3 = 0.27;
+    static double clawAngle1 = 0.02;
+    static double clawAngle2 = 0.71;
+    static double clawAngle3 = 0.27;
 
-    double intakeAngle1 = 0.85;
-    double intakeAngle2 = 0.13;
-    double intakeAngle3 = 0.31;
+    static double intakeAngle1 = 0.85;
+    static double intakeAngle2 = 0.13;
+    static double intakeAngle3 = 0.31;
 
-    double clawRotate1 = 0.74;
-    double clawRotate2 = 0;
+    static  double clawRotate1 = 1;
+    static double clawRotate2 = 0.23;
 
-    double leftFlipper1 = 1;
-    double leftFlipper2 = 0.5;
+    static double leftFlipper1 = 1;
+    static  double leftFlipper2 = 0.5;
 
-    double rightFlipper1 = 0;
-    double rightFlipper2 = 0.5;
+    static double rightFlipper1 = 0;
+    static double rightFlipper2 = 0.5;
 
-    double stabilizer1 = 0;
-    double stabilizer2 = 0.2;
+    static double stabilizer1 = 0;
+    static double stabilizer2 = 0.2;
 
     // STATE MACHINES
     public enum LiftState {
@@ -93,18 +94,18 @@ public class teleOp extends OpMode {
     int cycleReset;
     boolean clawLock = false;
     double pidLift = 0;
-    double pidExtend = 0;
     double cycleTime;
 
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime cycletime = new ElapsedTime();
     boolean timerLock = false;
     double timeAmount = 0;
 
     //PID
     PIDController liftController;
-    public static int liftMax = 1300;
+    public int liftMax = highPole;
     public int liftTarget = 0;
     public static double pL = 0.0144, iL = 0.001, dL = 0.0001;
 
@@ -125,7 +126,7 @@ public class teleOp extends OpMode {
 
         //PID
         liftController = new PIDController(pL, iL, dL);
-        liftController.setTolerance(5);
+        liftController.setTolerance(20);
 
         //DASHBOARD
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -167,6 +168,10 @@ public class teleOp extends OpMode {
 
     @Override
     public void loop() {
+        // ENCODERS
+        int liftPos = drive.rightVerticalSlide.getCurrentPosition();
+        int extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
+
         // GAMEPADS
         previousGamepad1.copy(currentGamepad1);
         previousGamepad2.copy(currentGamepad2);
@@ -211,7 +216,6 @@ public class teleOp extends OpMode {
         // GAMEPAD B
 
         // STATE MACHINES
-        int liftPos = drive.leftVerticalSlide.getCurrentPosition();
         switch (liftState) {
             case LIFT_AUTO:
                 // Uses lift PID
@@ -229,11 +233,11 @@ public class teleOp extends OpMode {
 
             case LIFT_AUTO_SLOW:
                 // Slows lift PID
-                liftController.setPID(0.009, iL, 0.0001);
+                liftController.setPID(0.015, 0.0001, 0.0001);
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
-                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.7);
-                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.7);
+                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
+                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
 
                 // Switch States
                 if (liftController.atSetPoint()) {
@@ -245,39 +249,41 @@ public class teleOp extends OpMode {
                 // Uses joystick no PID
                 double liftPower = -gamepad2.right_stick_y;
                 if(liftPower > 0){
-                    drive.leftVerticalSlide.setPower(liftPower * 0.8);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.8);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.5);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.5);
                 } else {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.6);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.6);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.3);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.3);
                 }
                 break;
 
             case CYCLE:
                 // Starts cycle command
-                int extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
                 switch (cycleState) {
                     case START:
                         // Saves reset pos
                         cycleReset = extensionPos;
+                        cycletime.reset();
                         cycleState = CycleState.INTAKE_UP;
                         break;
 
                     case INTAKE_UP:
-                        cycleTime = getTime();
+                        double cycleDelay = cycleReset / 1500;
                         if(!clawLock){
                             clawClose();
-                            clawLock = true;
+                                telemetry.addData("Status", "Closed");
+                                clawLock = true;
                         }
                         // Bring intake up
-                        if(runtime.seconds() > cycleTime + 0.3) {
+                        if(cycletime.seconds() >= 0.3) {
                             setExtension(0);
-                            if (extensionPos < 13) {
-                                if (runtime.seconds() > cycleTime + 0.45) {
+                            if (extensionPos < 10) {
+                                if (cycletime.seconds() >= 0.6 + cycleDelay) {
                                     intakeUp();
-                                    if (runtime.seconds() > cycleTime + 1.3) {
+                                    if (cycletime.seconds() >= 1.6 + cycleDelay) {
                                         clawOpen();
-                                        if (runtime.seconds() > cycleTime + 1.6) {
+                                        if (cycletime.seconds() >= 2 + cycleDelay) {
+                                            cycletime.reset();
                                             cycleState = CycleState.DEPOSIT;
                                         }
                                     }
@@ -288,18 +294,19 @@ public class teleOp extends OpMode {
 
                     case DEPOSIT:
                         clawLock = false;
-                        if(runtime.seconds() > cycleTime + 2.8){
+                        if(cycletime.seconds() >= 1.1){
                             // Bring lift down
-                            setLift(7);
-                            if(extensionPos < 500){
+                            setLiftSLow(7);
+                            if(extensionPos < 400){
                                 intakeDown();
                                 setExtension(cycleReset);
                             }
                         } else {
                             // Bring lift up
-                            setLift(1290);
+                            setLift(highPole);
                         }
-                        if(runtime.seconds() > cycleTime + 3.8){
+                        if(cycletime.seconds() >= 2){
+                            cycletime.reset();
                             cycleState = CycleState.INTAKE_UP;
                             liftState = LiftState.LIFT_MANUAL;
                         }
@@ -320,7 +327,7 @@ public class teleOp extends OpMode {
 
         // Cycle Command
         if(gamepad2.y){
-            resetTime();
+            cycletime.reset();
             liftState = LiftState.CYCLE;
         }
         // Voltage Check
@@ -331,16 +338,16 @@ public class teleOp extends OpMode {
 
         // Low Pole
         if (gamepad2.a) {
-            liftState = LiftState.LIFT_AUTO;
-            liftTarget = 7;
+            liftState = LiftState.LIFT_AUTO_SLOW;
+            liftTarget = 20;
         // Mid Pole
         } else if (gamepad2.b) {
             liftState = LiftState.LIFT_AUTO;
-            liftTarget = 726;
+            liftTarget = midPole;
         // High Pole
         } else if (gamepad2.x) {
             liftState = LiftState.LIFT_AUTO;
-            liftTarget = 1290;
+            liftTarget = highPole;
         // Reset Lift Zero Position
         } else if (gamepad2.left_trigger > 0.05) {
             //Reset Encoders
@@ -363,8 +370,8 @@ public class teleOp extends OpMode {
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             double extendPower = -gamepad2.left_stick_y;
-            drive.leftHorizontalSlide.setPower(extendPower);
-            drive.rightHorizontalSlide.setPower(extendPower);
+            drive.leftHorizontalSlide.setPower(extendPower * 0.6);
+            drive.rightHorizontalSlide.setPower(extendPower * 0.6);
         }
 
 
@@ -398,40 +405,43 @@ public class teleOp extends OpMode {
         }
 
         // STABILIZER
-        if (drive.leftVerticalSlide.getCurrentPosition() > stabilizerVertical) {
+        if (liftPos > stabilizerVertical) {
             drive.stabilizer.setPosition(stabilizer1);
         } else {
             drive.stabilizer.setPosition(stabilizer2);
+        }
+
+        // FLIPPER
+        if(liftPos > 250){
+            if (currentGamepad1.y && !previousGamepad1.y) {
+                if (toggleFlipper == "false" || toggleFlipper == "init") {
+                    toggleFlipper = "true";
+                } else {
+                    toggleFlipper = "false";
+                }
+            }
+            if (toggleFlipper == "true") {
+                drive.leftFlipper.setPosition(leftFlipper2);
+                drive.rightFlipper.setPosition(rightFlipper2);
+
+//                telemetry.addData("Left Flipper", leftFlipper2);
+//                telemetry.addData("Right Flipper", rightFlipper2);
+            } else if (toggleFlipper == "false") {
+                drive.leftFlipper.setPosition(leftFlipper1);
+                drive.rightFlipper.setPosition(rightFlipper1);
+//
+//                telemetry.addData("Left Flipper", leftFlipper1);
+//                telemetry.addData("Right Flipper", rightFlipper1);
+            }
         }
 
         // TELEMETRY
         telemetry.addData("Lift State", liftState);
         telemetry.addData("Cycle State", cycleState);
         telemetry.addData("Claw Lock", clawLock);
-        telemetry.addData("Lift Pos", drive.leftVerticalSlide.getCurrentPosition());
-        telemetry.addData("Extend Pos", drive.leftHorizontalSlide.getCurrentPosition());
-
-        // FLIPPER
-        if (currentGamepad1.y && !previousGamepad1.y) {
-            if (toggleFlipper == "false" || toggleFlipper == "init") {
-                toggleFlipper = "true";
-            } else {
-                toggleFlipper = "false";
-            }
-        }
-        if (toggleFlipper == "true") {
-            drive.leftFlipper.setPosition(leftFlipper2);
-            drive.rightFlipper.setPosition(rightFlipper2);
-
-            telemetry.addData("Left Flipper", leftFlipper2);
-            telemetry.addData("Right Flipper", rightFlipper2);
-        } else if (toggleFlipper == "false") {
-            drive.leftFlipper.setPosition(leftFlipper1);
-            drive.rightFlipper.setPosition(rightFlipper1);
-
-            telemetry.addData("Left Flipper", leftFlipper1);
-            telemetry.addData("Right Flipper", rightFlipper1);
-        }
+        telemetry.addData("Cycle Time", cycletime.seconds());
+        telemetry.addData("Lift Pos", liftPos);
+        telemetry.addData("Extend Pos", extensionPos);
 
     }
 
@@ -473,10 +483,24 @@ public class teleOp extends OpMode {
         } else if (liftTarget < 0) {
             liftTarget = 0;
         }
-        pidLift = liftController.calculate(drive.leftVerticalSlide.getCurrentPosition(), target);
+        pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
         drive.leftVerticalSlide.setPower(pidLift);
         drive.rightVerticalSlide.setPower(pidLift);
+    }
+
+    public void setLiftSLow(int target){
+        liftController.setPID(0.015, 0.0001, 0.0001);
+        if (liftTarget > liftMax) {
+            liftTarget = liftMax;
+        } else if (liftTarget < 0) {
+            liftTarget = 0;
+        }
+
+        pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
+
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
     }
 
     public void setExtension(int target){
