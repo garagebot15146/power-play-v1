@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
 
 @Config
-@Autonomous(name = "Fast Cycle", group = "auto")
+@Autonomous(name = "Cycle", group = "auto")
 //@Disabled
 public class fastCycleAuto extends OpMode {
     HWMap drive;
@@ -38,9 +39,9 @@ public class fastCycleAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-    public static double[] intakeAngles = {0, 0.81, 0.76, 0.67, 0.63, 0.57};
+    public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
 
-    public static int cycleReset = 670;
+    public static int cycleReset = 1100;
 
     // THRESHOLDS
     public static int highPole = 494;
@@ -53,10 +54,12 @@ public class fastCycleAuto extends OpMode {
     public static double clawAngle1 = 0.02;
     public static double clawAngle2 = 0.71;
     public static double clawAngle3 = 0.3;
+    public static double clawAngle4 = 0.6;
 
     public static double intakeAngle1 = 0.85;
     public static double intakeAngle2 = 0.13;
     public static double intakeAngle3 = 0.31;
+    public static double intakeAngle4 = 0.2;
 
     public static double clawRotate1 = 1;
     public static double clawRotate2 = 0.23;
@@ -88,8 +91,9 @@ public class fastCycleAuto extends OpMode {
     // AUTO
     int cones = 5;
     TrajectorySequence toPole;
-    Trajectory forward;
-    Trajectory backward;
+    TrajectorySequence parkLeft;
+    TrajectorySequence parkCenter;
+    TrajectorySequence parkRight;
 
     @Override
     public void init() {
@@ -101,16 +105,13 @@ public class fastCycleAuto extends OpMode {
 
         toPole = drive.trajectorySequenceBuilder(startPose)
                 .back(48)
-                .lineToLinearHeading(new Pose2d(-31.8, -4, Math.toRadians(188)))
+                .lineToLinearHeading(new Pose2d(-31.8, -4, Math.toRadians(195)))
                 .build();
 
-        forward = drive.trajectoryBuilder(new Pose2d())
-                .forward(10)
+        parkCenter = drive.trajectorySequenceBuilder(toPole.end())
+                .lineToLinearHeading(new Pose2d(-30, -10, Math.toRadians(180)))
                 .build();
 
-        backward = drive.trajectoryBuilder(forward.end())
-                .back(10)
-                .build();
 
         // Horizontal Slides
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -127,9 +128,9 @@ public class fastCycleAuto extends OpMode {
         drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // SERVOS
-        drive.intakeAngle.setPosition(intakeAngle3);
+        drive.intakeAngle.setPosition(intakeAngle4);
         drive.clawRotate.setPosition(clawRotate1);
-        drive.clawAngle.setPosition(clawAngle3);
+        drive.clawAngle.setPosition(clawAngle4);
         clawOpen();
 
         // PID
@@ -143,7 +144,7 @@ public class fastCycleAuto extends OpMode {
         String conePos = "LEFT";
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        telemetry.addData("Autp", "Init");
+        telemetry.addData("Auto", "Init");
         telemetry.update();
         runtime.reset();
     }
@@ -160,19 +161,12 @@ public class fastCycleAuto extends OpMode {
         // Starts cycle command
         switch (cycleState) {
             case START:
-//                intakeDown(cones);
-//                clawOpen();
 //                if (!startLock) {
-//                    drive.followTrajectory(forward);
+//                    drive.followTrajectorySequence(toPole);
 //                    runtime.reset();
+//                    cycletime.reset();
 //                    startLock = true;
 //                }
-//                intakeDown();
-//                clawOpen();
-//                if(runtime.seconds() > 2){
-//                    cycleState = CycleState.DEPOSIT;
-//                }
-                cycletime.reset();
                 cycleState = CycleState.DEPOSIT;
                 break;
 
@@ -190,14 +184,14 @@ public class fastCycleAuto extends OpMode {
                             drive.intakeAngle.setPosition(intakeAngle3);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 0.9) {
+                        if (cycletime.seconds() >= 1.1) {
                             setExtension(0);
                             intakeUp();
-                            if (cycletime.seconds() >= 1.3) {
+                            if (cycletime.seconds() >= 1.65) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 1.5) {
+                                if (cycletime.seconds() >= 1.85) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 1.75) {
+                                    if (cycletime.seconds() >= 2.2) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
@@ -234,9 +228,14 @@ public class fastCycleAuto extends OpMode {
 
             case PARK:
                 setLiftSLow(7);
-                if (cycletime.seconds() >= 1.5) {
-                    telemetry.addData("Auto", "Parking");
-                    requestOpModeStop();
+                if (cycletime.seconds() >= 1.1) {
+//                    if (!parkLock) {
+//                        drive.followTrajectorySequence(parkCenter);
+//                        parkLock = true;
+//                    } else {
+                        telemetry.addData("Auto", "Parking");
+                        requestOpModeStop();
+//                    }
                 }
                 break;
 

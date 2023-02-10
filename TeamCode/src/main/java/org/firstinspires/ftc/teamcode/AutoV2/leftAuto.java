@@ -1,67 +1,115 @@
 package org.firstinspires.ftc.teamcode.AutoV2;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
 
-@Autonomous(name = "leftAuto V2", group = "auto")
-@Disabled
-public class leftAuto extends LinearOpMode {
+@Config
+@Autonomous(name = "Left Auto", group = "auto")
+//@Disabled
+public class leftAuto extends OpMode {
     HWMap drive;
 
-    // Runtime
+    // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime threshold = new ElapsedTime();
+    private ElapsedTime cycletime = new ElapsedTime();
 
 
-    //PID
+    // PID
     PIDController liftController;
-    public static double pL = 0.01, iL = 0, dL = 0;
+    public static double pL = 0.02, iL = 0.001, dL = 0.0001;
+    double pidLift = 0;
 
     PIDController extendController;
-    public static double pE = 0.01, iE = 0, dE = 0;
+    public static double pE = 0.02, iE = 0, dE = 0.0001;
 
     // Cone Stack
-    double[] intakeAngleList = {0.69, 0.64, 0.55, 0.46, 0.4};
-    double[] clawAngleList = {0.925, 0.92, 0.91, 0.91, 0.91};
+    public static double base = 0.85;
+    public static double inc = 0.04;
+    public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
+
+    public static int cycleReset = 1020;
+
+    // THRESHOLDS
+    public static int highPole = 494;
+    public static int midPole = 360;
 
     // Servo Positions
-    double claw1 = 1;
-    double claw2 = 0.7;
+    public static double claw1 = 1;
+    public static double claw2 = 0.7;
 
-    double clawAngle1 = 0.95;
-    double clawAngle2 = 0.37;
-    double clawAngle3 = 0.5;
+    public static double clawAngle1 = 0.02;
+    public static double clawAngle2 = 0.71;
+    public static double clawAngle3 = 0.3;
+    public static double clawAngle4 = 0.6;
 
+    public static double intakeAngle1 = 0.85;
+    public static double intakeAngle2 = 0.13;
+    public static double intakeAngle3 = 0.31;
+    public static double intakeAngle4 = 0.2;
 
-    double intakeAngle1 = 0.9;
-    double intakeAngle2 = 0.1;
-    double intakeAngle3 = 0.17;
+    public static double clawRotate1 = 1;
+    public static double clawRotate2 = 0.23;
 
-    double clawRotate1 = 0.74;
-    double clawRotate2 = 0;
+    public static double leftFlipper1 = 1;
+    public static double leftFlipper2 = 0.5;
+
+    public static double rightFlipper1 = 0;
+    public static double rightFlipper2 = 0.5;
+
+    public static double stabilizer1 = 0;
+    public static double stabilizer2 = 0.2;
+
+    // STATE MACHINES
+    public enum CycleState {
+        START,
+        INTAKE,
+        DEPOSIT,
+        PARK,
+        NOTHING
+    }
+
+    CycleState cycleState = CycleState.START;
+    boolean clawLock = false;
+    boolean clawAngleLock = false;
+    boolean startLock = false;
+    boolean parkLock = false;
+
+    // AUTO
+    int cones = 5;
+    TrajectorySequence toPole;
+    TrajectorySequence parkLeft;
+    TrajectorySequence parkCenter;
+    TrajectorySequence parkRight;
 
     @Override
-    public void runOpMode() {
+    public void init() {
         drive = new HWMap(hardwareMap);
 
+        // TRAJECTORIES
         Pose2d startPose = new Pose2d(-34, -72 + (15.5 / 2), Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
-        String conePos = "LEFT";
-
-        TrajectorySequence toPole = drive.trajectorySequenceBuilder(startPose)
+        toPole = drive.trajectorySequenceBuilder(startPose)
                 .back(48)
-                .lineToLinearHeading(new Pose2d(-31.8, -4, Math.toRadians(188)))
+                .lineToLinearHeading(new Pose2d(-32.5, -4, Math.toRadians(195)))
+                .build();
+
+        parkCenter = drive.trajectorySequenceBuilder(toPole.end())
+                .lineToLinearHeading(new Pose2d(-32, -10, Math.toRadians(180)))
                 .build();
 
 
@@ -69,191 +117,142 @@ public class leftAuto extends LinearOpMode {
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.rightHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Vertical Slides
         drive.leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.rightVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // SERVOS
-        drive.intakeAngle.setPosition(intakeAngle3);
+        drive.intakeAngle.setPosition(intakeAngle4);
         drive.clawRotate.setPosition(clawRotate1);
-        drive.clawAngle.setPosition(clawAngle3);
+        drive.clawAngle.setPosition(clawAngle4);
         clawOpen();
 
-
+        // PID
         liftController = new PIDController(pL, iL, dL);
         extendController = new PIDController(pE, iE, dE);
 
+        liftController.setTolerance(20);
+        extendController.setTolerance(20);
+
+        // Detection
+        String conePos = "LEFT";
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-        waitForStart();
-        if (isStopRequested()) return;
+        telemetry.addData("Auto", "Init");
         telemetry.update();
-
-        cycle();
+        runtime.reset();
     }
 
-    public void cycle(){
-        deposit(6);
-
-        intake();
-        deposit(5);
-        sleep(200);
-
-        intake();
-        deposit(4);
-        sleep(200);
-
-        intake();
-        deposit(3);
-        sleep(200);
-
-        intake();
-        deposit(2);
-        sleep(200);
-
-        intake();
-        deposit(1);
+    @Override
+    public void start() {
     }
 
-    public void intake(){
-        lift(0, 2.5);
-        transfer();
-    }
+    @Override
+    public void loop() {
+        double liftPos = drive.leftVerticalSlide.getCurrentPosition();
+        double extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
 
-    public void deposit(int cones){
-        drive.stabilizer.setPosition(0);
-        if(cones == 6){
-            slides(5, 1000, 1190, 3.5);
-        } else if (cones == 1){
-            lift(1190, 3);
-            drive.stabilizer.setPosition(0.2);
-            sleep(200);
-            lift(0, 3);
-        } else {
-            slides(cones - 1, 1000, 1190, 3.5);
-        }
-        drive.stabilizer.setPosition(0.2);
-    }
-
-    public void extend(int extendTarget, double timeout) {
-        threshold.reset();
-
-        extendController.setPID(pE, iE, dE);
-        extendController.setSetPoint(extendTarget);
-
-        boolean lock = false;
-        while (!extendController.atSetPoint() && (threshold.seconds() < timeout)) {
-            int extendPos = drive.leftHorizontalSlide.getCurrentPosition();
-            double pidExtend = extendController.calculate(extendPos, extendTarget);
-
-            drive.leftHorizontalSlide.setPower(pidExtend);
-            drive.rightHorizontalSlide.setPower(pidExtend);
-
-
-            telemetry.addData("Extend Pos", extendPos);
-            telemetry.addData("Extend Target", extendTarget);
-            telemetry.addData("Extend Set Point", extendController.atSetPoint());
-            telemetry.update();
-            if (Math.abs(extendTarget - extendPos) < 15) {
-                if (!lock) {
+        // Starts cycle command
+        switch (cycleState) {
+            case START:
+                if (!startLock) {
+                    drive.followTrajectorySequence(toPole);
                     runtime.reset();
-                    lock = true;
+                    cycletime.reset();
+                    startLock = true;
                 }
-                if (runtime.seconds() > 0.1) {
-                    break;
+                cycleState = CycleState.DEPOSIT;
+                break;
+
+            case INTAKE:
+                setLiftSLow(7);
+                // Bring intake up
+                if (cycletime.seconds() >= 0.3) {
+                    if (!clawLock) {
+                        clawClose();
+                        clawLock = true;
+                    }
+                    if (cycletime.seconds() >= 0.55) {
+                        if (!clawAngleLock) {
+                            drive.clawAngle.setPosition(clawAngle3);
+                            drive.intakeAngle.setPosition(intakeAngle3);
+                            clawAngleLock = true;
+                        }
+                        if (cycletime.seconds() >= 1.1) {
+                            setExtension(0);
+                            intakeUp();
+                            if (cycletime.seconds() >= 1.65) {
+                                drive.clawAngle.setPosition(clawAngle2);
+                                if (cycletime.seconds() >= 1.85) {
+                                    clawOpen();
+                                    if (cycletime.seconds() >= 2.2) {
+                                        cycletime.reset();
+                                        cycleState = CycleState.DEPOSIT;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            }
+                break;
+
+            case DEPOSIT:
+                clawLock = false;
+                clawAngleLock = false;
+
+                // Change to claw reset
+                if (cones != 0) {
+                    intakeDown(cones);
+                }
+
+                // Move Slides
+                depositUp(cones == 0 ? 0 : cycleReset, highPole);
+
+                // Check
+                if (cycletime.seconds() >= 1.1) {
+                    cycletime.reset();
+                    cones -= 1;
+                    if (cones == -1) {
+                        cycleState = CycleState.PARK;
+                    } else {
+                        cycleState = CycleState.INTAKE;
+                    }
+                }
+                break;
+
+            case PARK:
+                setLiftSLow(7);
+                if (cycletime.seconds() >= 1.1) {
+                    if (!parkLock) {
+                        drive.followTrajectorySequence(parkCenter);
+                        parkLock = true;
+                    } else {
+                        telemetry.addData("Auto", "Parking");
+                        requestOpModeStop();
+                    }
+                }
+                break;
+
+            case NOTHING:
+                telemetry.addData("Auto", "Paused");
+                break;
         }
-        drive.leftHorizontalSlide.setPower(0);
-        drive.rightHorizontalSlide.setPower(0);
+
+        // TELEMETRY
+        telemetry.addData("State", cycleState);
+        telemetry.addData("Claw Lock", clawLock);
+        telemetry.addData("Cycle Time", cycletime.seconds());
+        telemetry.addData("Run Time", runtime.seconds());
+        telemetry.addData("Lift Pos", liftPos);
+        telemetry.addData("Extend Pos", extensionPos);
     }
 
-    public void lift(int liftTarget, double timeout) {
-        threshold.reset();
-
-        liftController.setPID(pL, iL, dL);
-        liftController.setSetPoint(liftTarget);
-
-        boolean lock = false;
-        while (!liftController.atSetPoint() && (threshold.seconds() < timeout)) {
-            int liftPos = drive.leftVerticalSlide.getCurrentPosition();
-            double pidLift = liftController.calculate(liftPos, liftTarget);
-
-            drive.leftVerticalSlide.setPower(pidLift);
-            drive.rightVerticalSlide.setPower(pidLift);
-
-            telemetry.addData("Lift Pos", liftPos);
-            telemetry.addData("Lift Target", liftTarget);
-            telemetry.addData("Lift Set Point", liftController.atSetPoint());
-            telemetry.update();
-
-            if (Math.abs(liftTarget - liftPos) < 15) {
-                if (!lock) {
-                    runtime.reset();
-                    lock = true;
-                }
-                if (runtime.seconds() > 0.1) {
-                    break;
-                }
-            }
-        }
-        drive.leftVerticalSlide.setPower(0);
-        drive.rightVerticalSlide.setPower(0);
-    }
-
-    public void slides(int cones, int extendTarget, int liftTarget, double timeout) {
-        threshold.reset();
-
-        extendController.setPID(pE, iE, dE);
-        extendController.setSetPoint(extendTarget);
-
-        liftController.setPID(pL, iL, dL);
-        liftController.setSetPoint(liftTarget);
-
-        boolean lock = false;
-        while (!(extendController.atSetPoint() && liftController.atSetPoint()) && (threshold.seconds() < timeout)) {
-            int extendPos = drive.leftHorizontalSlide.getCurrentPosition();
-            int liftPos = drive.leftVerticalSlide.getCurrentPosition();
-
-            double pidExtend = extendController.calculate(extendPos, extendTarget);
-            double pidLift = liftController.calculate(liftPos, liftTarget);
-
-            drive.leftHorizontalSlide.setPower(pidExtend);
-            drive.rightHorizontalSlide.setPower(pidExtend);
-
-            drive.leftVerticalSlide.setPower(pidLift);
-            drive.rightVerticalSlide.setPower(pidLift);
-
-            clawReset(cones);
-
-            telemetry.addData("Extend Pos", extendPos);
-            telemetry.addData("Extend Target", extendTarget);
-            telemetry.addData("Lift Pos", liftPos);
-            telemetry.addData("Lift Target", liftTarget);
-            telemetry.addData("Extend Set Point", extendController.atSetPoint());
-            telemetry.addData("Lift Set Point", liftController.atSetPoint());
-            telemetry.update();
-            if (Math.abs(liftTarget - liftPos) < 15) {
-                if (!lock) {
-                    runtime.reset();
-                    lock = true;
-                }
-                if (runtime.seconds() > 0.1) {
-                    break;
-                }
-            }
-        }
-        drive.leftHorizontalSlide.setPower(0);
-        drive.rightHorizontalSlide.setPower(0);
-        drive.leftVerticalSlide.setPower(0);
-        drive.rightVerticalSlide.setPower(0);
-    }
 
     public void clawOpen() {
         drive.claw.setPosition(claw1);
@@ -263,50 +262,62 @@ public class leftAuto extends LinearOpMode {
         drive.claw.setPosition(claw2);
     }
 
-    public void transfer() {
-        clawClose();
-        sleep(300);
-        drive.clawAngle.setPosition(clawAngle3);
-        sleep(600);
-        drive.intakeAngle.setPosition(intakeAngle2);
-        drive.clawRotate.setPosition(clawRotate2);
-        extend(0, 2);
-        drive.clawAngle.setPosition(clawAngle2);
-        sleep(100);
-        clawOpen();
-        sleep(150);
+    public void intakeDown(int cones) {
+        drive.clawAngle.setPosition(clawAngle1);
+        drive.clawRotate.setPosition(clawRotate1);
+        drive.intakeAngle.setPosition(intakeAngles[cones]);
     }
 
-    public void clawReset(int cones) {
-        switch (cones) {
-            case 1:
-                drive.intakeAngle.setPosition(intakeAngleList[0]);
-                drive.clawAngle.setPosition(clawAngleList[0]);
-                drive.clawRotate.setPosition(clawRotate1);
-                break;
-            case 2:
-                drive.intakeAngle.setPosition(intakeAngleList[1]);
-                drive.clawAngle.setPosition(clawAngleList[1]);
-                drive.clawRotate.setPosition(clawRotate1);
-                break;
-            case 3:
-                drive.intakeAngle.setPosition(intakeAngleList[2]);
-                drive.clawAngle.setPosition(clawAngleList[2]);
-                drive.clawRotate.setPosition(clawRotate1);
-                break;
-            case 4:
-                drive.intakeAngle.setPosition(intakeAngleList[3]);
-                drive.clawAngle.setPosition(clawAngleList[3]);
-                drive.clawRotate.setPosition(clawRotate1);
-                break;
-            case 5:
-                drive.intakeAngle.setPosition(intakeAngleList[4]);
-                drive.clawAngle.setPosition(clawAngleList[4]);
-                drive.clawRotate.setPosition(clawRotate1);
-                break;
-            default:
-                break;
-        }
+    public void intakeUp() {
+        drive.intakeAngle.setPosition(intakeAngle2);
+        drive.clawRotate.setPosition(clawRotate2);
+    }
+
+    public void depositUp(int extendTarget, int liftTarget) {
+        // INIT
+        liftController.setPID(pL, iL, dL);
+        pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), liftTarget);
+
+        drive.leftHorizontalSlide.setTargetPosition(extendTarget);
+        drive.rightHorizontalSlide.setTargetPosition(extendTarget);
+
+        drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // RUN
+        drive.leftVerticalSlide.setPower(pidLift);
+        drive.rightVerticalSlide.setPower(pidLift);
+
+        drive.leftHorizontalSlide.setVelocity(3200);
+        drive.rightHorizontalSlide.setVelocity(3200);
+
+    }
+
+    public void setLift(int target) {
+        liftController.setPID(pL, iL, dL);
+        pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
+
+        drive.leftVerticalSlide.setPower(pidLift);
+        drive.rightVerticalSlide.setPower(pidLift);
+    }
+
+    public void setLiftSLow(int target) {
+        liftController.setPID(0.015, 0.0001, 0.0001);
+        pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
+
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+    }
+
+    public void setExtension(int target) {
+        drive.leftHorizontalSlide.setTargetPosition(target);
+        drive.rightHorizontalSlide.setTargetPosition(target);
+
+        drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        drive.leftHorizontalSlide.setVelocity(4000);
+        drive.rightHorizontalSlide.setVelocity(4000);
     }
 
 }

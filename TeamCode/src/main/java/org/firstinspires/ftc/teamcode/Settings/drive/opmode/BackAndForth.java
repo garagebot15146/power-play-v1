@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 @Disabled
 public class BackAndForth extends LinearOpMode {
 
-    public static double DISTANCE = 50;
+    public static double DISTANCE = 10;
 
     @Override
     public void runOpMode() throws InterruptedException {
