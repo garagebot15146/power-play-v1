@@ -34,7 +34,7 @@ public class rightAuto extends OpMode {
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime autotime = new ElapsedTime();
+    private ElapsedTime visiontime = new ElapsedTime();
     private ElapsedTime cycletime = new ElapsedTime();
 
 
@@ -51,7 +51,7 @@ public class rightAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.585, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static int[] extensions = {970, 970, 970, 1000, 1000, 1110};
+    public static int[] extensions = {970, 970, 970, 970, 1000, 1110};
 
     public static int cycleReset = 1010;
 
@@ -317,7 +317,6 @@ public class rightAuto extends OpMode {
                     drive.followTrajectorySequence(toPole);
                     runtime.reset();
                     cycletime.reset();
-                    autotime.reset();
                     startLock = true;
                 }
                 cycleState = CycleState.DEPOSIT;
@@ -364,7 +363,7 @@ public class rightAuto extends OpMode {
                                         colorFail = true;
                                         colorLock = true;
                                         cycletime.reset();
-                                        cycleState = CycleState.LIFT_AGAIN;
+                                        cycleState = CycleState.PARK;
                                     }
                                 }
                             }
@@ -452,28 +451,6 @@ public class rightAuto extends OpMode {
                     }
                 }
                 break;
-
-            case LIFT_AGAIN:
-                setLift(highPole);
-                if(cycletime.seconds() > 1.2){
-                    setLiftSLow(0);
-                    if(cycletime.seconds() > 2){
-                        if (colorBlue > 500 || colorRed > 500) {
-                            cycletime.reset();
-                            cycleState = CycleState.LIFT_AGAIN;
-                        } else {
-                            cycleState = CycleState.DEPOSIT;
-                        }
-                    }
-                } else {
-                    setLift(highPole);
-                }
-                telemetry.addData("Auto", "Paused");
-                break;
-        }
-
-        if(autotime.seconds() > 27 && !(cycleState == CycleState.PARK)){
-            cycleState = CycleState.PARK;
         }
 
         // TELEMETRY
