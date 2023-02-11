@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
 
 @Config
 @Autonomous(name = "Cycle Auto", group = "auto")
-//@Disabled
+@Disabled
 public class fastCycleAuto extends OpMode {
     HWMap drive;
 

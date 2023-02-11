@@ -236,8 +236,8 @@ public class rightAuto extends OpMode {
 
         extendController = new PIDController(pE, iE, dE);
 
-        liftController.setTolerance(20);
-        extendController.setTolerance(20);
+        liftController.setTolerance(17);
+        extendController.setTolerance(17);
 
         // Detection
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -326,7 +326,7 @@ public class rightAuto extends OpMode {
                     timeLock = true;
                 }
                 drive.stabilizer.setPosition(stabilizer2);
-                setLiftSLow(3);
+                setLiftSLow(0);
                 // Bring intake up
                 if (cycletime.seconds() >= 0.4) {
                     if (!clawLock) {
@@ -418,7 +418,7 @@ public class rightAuto extends OpMode {
                         }
                     }
                 } else {
-                    setLiftSLow(3);
+                    setLiftSLow(0);
                     drive.intakeAngle.setPosition(intakeAngle3);
                     drive.stabilizer.setPosition(stabilizer2);
                     if (cycletime.seconds() >= 1) {
