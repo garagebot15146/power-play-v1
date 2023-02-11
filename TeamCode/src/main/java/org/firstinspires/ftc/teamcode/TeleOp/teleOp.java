@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
 @Config
@@ -46,8 +47,8 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 595;
-    public static int midPole = 360;
+    public static int highPole = 605;
+    public static int midPole = 380;
     public int stabilizerVertical = 300;
 
     // SERVO POSITIONS
@@ -55,12 +56,13 @@ public class teleOp extends OpMode {
     public static double claw2 = 0.7;
 
     public static double clawAngle1 = 0.02;
-    public static double clawAngle2 = 0.67;
+    public static double clawAngle2 = 0.66;
     public static double clawAngle3 = 0.27;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.22;
+    public static double intakeAngle2 = 0.18;
     public static double intakeAngle3 = 0.31;
+
 
     public static double clawRotate1 = 1;
     public static double clawRotate2 = 0.23;
@@ -72,7 +74,7 @@ public class teleOp extends OpMode {
     public static double rightFlipper2 = 0.5;
 
     public static double stabilizer1 = 0;
-    public static double stabilizer2 = 0.2;
+    public static double stabilizer2 = 0.37;
 
     // STATE MACHINES
     public enum LiftState {
@@ -91,7 +93,7 @@ public class teleOp extends OpMode {
     LiftState liftState = LiftState.LIFT_MANUAL;
     CycleState cycleState = CycleState.START;
 
-    public static int cycleReset;
+    public static int cycleReset = 200;
     boolean clawLock = false;
     boolean intakeLock = false;
     double pidLift = 0;
@@ -190,8 +192,9 @@ public class teleOp extends OpMode {
         // GAMEPAD A
 
         // WHEELS
-        double normal = 0.8;
-        double slow = 0.6;
+        double normal = 0.7;
+        double slow = 0.2;
+        double fast = 1;
         double forward = -gamepad1.left_stick_y;
         double side = gamepad1.left_stick_x; //Positive means right
         double turn = gamepad1.right_stick_x; //Positive means turn right
@@ -204,15 +207,38 @@ public class teleOp extends OpMode {
 
         // Send power to wheel motors
         if (gamepad1.right_trigger > 0.2) {
-            drive.leftFront.setPower(leftFrontPower * slow);
-            drive.leftRear.setPower(leftRearPower * slow);
-            drive.rightRear.setPower(rightRearPower * slow);
-            drive.rightFront.setPower(rightFrontPower * slow);
+            drive.leftFront.setPower(leftFrontPower * fast);
+            drive.leftRear.setPower(leftRearPower * fast);
+            drive.rightRear.setPower(rightRearPower * fast);
+            drive.rightFront.setPower(rightFrontPower * fast);
         } else {
             drive.leftFront.setPower(leftFrontPower * normal);
             drive.leftRear.setPower(leftRearPower * normal);
             drive.rightRear.setPower(rightRearPower * normal);
             drive.rightFront.setPower(rightFrontPower * normal);
+        }
+
+        // Fine Tune
+        if (gamepad1.dpad_up) {
+            drive.leftFront.setPower(slow);
+            drive.leftRear.setPower(slow);
+            drive.rightRear.setPower(slow);
+            drive.rightFront.setPower(slow);
+        } else if (gamepad1.dpad_down) {
+            drive.leftFront.setPower(-slow);
+            drive.leftRear.setPower(-slow);
+            drive.rightRear.setPower(-slow);
+            drive.rightFront.setPower(-slow);
+        } else if (gamepad1.dpad_right) {
+            drive.leftFront.setPower(slow);
+            drive.leftRear.setPower(slow);
+            drive.rightRear.setPower(-slow);
+            drive.rightFront.setPower(-slow);
+        } else if (gamepad1.dpad_left) {
+            drive.leftFront.setPower(-slow);
+            drive.leftRear.setPower(-slow);
+            drive.rightRear.setPower(slow);
+            drive.rightFront.setPower(slow);
         }
 
         // GAMEPAD B
@@ -271,14 +297,14 @@ public class teleOp extends OpMode {
                 switch (cycleState) {
                     case START:
                         // Saves reset pos
-                        cycleReset = extensionPos;
+//                        cycleReset = extensionPos;
                         cycletime.reset();
                         intakeLock = false;
                         cycleState = CycleState.INTAKE_UP;
                         break;
 
                     case INTAKE_UP:
-                        double cycleDelay = cycleReset / 1400;
+                        double cycleDelay = cycleReset / 1000;
                         if (!clawLock) {
                             clawClose();
                             telemetry.addData("Status", "Closed");
@@ -290,7 +316,7 @@ public class teleOp extends OpMode {
                             intakeUp();
                             if (cycletime.seconds() >= 1 + cycleDelay) {
                                 clawOpen();
-                                if (cycletime.seconds() >= 1.4 + cycleDelay) {
+                                if (cycletime.seconds() >= 1.3 + cycleDelay) {
                                     cycletime.reset();
                                     intakeLock = false;
                                     cycleState = CycleState.DEPOSIT;
@@ -315,6 +341,7 @@ public class teleOp extends OpMode {
                                 drive.intakeAngle.setPosition(intakeAngle1);
                             }
                         } else {
+                            drive.intakeAngle.setPosition(intakeAngle3);
                             drive.stabilizer.setPosition(stabilizer1);
                             // Bring lift up
                             setLift(highPole);
@@ -353,16 +380,19 @@ public class teleOp extends OpMode {
 
         // Low Pole
         if (gamepad2.a) {
+            drive.intakeAngle.setPosition(intakeAngle3);
             drive.stabilizer.setPosition(stabilizer2);
             liftState = LiftState.LIFT_AUTO_SLOW;
             liftTarget = 10;
             // Mid Pole
         } else if (gamepad2.b) {
+            drive.intakeAngle.setPosition(intakeAngle3);
             drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = midPole;
             // High Pole
         } else if (gamepad2.x) {
+            drive.intakeAngle.setPosition(intakeAngle3);
             drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = highPole;
@@ -460,6 +490,7 @@ public class teleOp extends OpMode {
         // TELEMETRY
         telemetry.addData("Red", drive.colorSensor.red());
         telemetry.addData("Blue", drive.colorSensor.blue());
+        telemetry.addData("Distance", drive.distanceSensor.getDistance(DistanceUnit.CM));
         telemetry.addData("Lift State", liftState);
         telemetry.addData("Cycle State", cycleState);
         telemetry.addData("Claw Lock", clawLock);

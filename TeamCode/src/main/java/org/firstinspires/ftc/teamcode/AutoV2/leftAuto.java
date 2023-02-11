@@ -72,7 +72,7 @@ public class leftAuto extends OpMode {
     public static double rightFlipper2 = 0.5;
 
     public static double stabilizer1 = 0;
-    public static double stabilizer2 = 0.2;
+    public static double stabilizer2 = 0.37;
 
     // STATE MACHINES
     public enum CycleState {

@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -69,6 +70,7 @@ public class HWMap extends MecanumDrive {
 
     // Sensors
     public ColorRangeSensor colorSensor;
+    public DistanceSensor distanceSensor;
 
     private BNO055IMU imu;
     private VoltageSensor batteryVoltageSensor;
@@ -146,6 +148,7 @@ public class HWMap extends MecanumDrive {
 
         //Color Sensor
         colorSensor = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -173,6 +176,8 @@ public class HWMap extends MecanumDrive {
         //Horizontal Slides
         leftHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        leftHorizontalSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightHorizontalSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Vertical Slides

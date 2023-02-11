@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
@@ -39,13 +40,14 @@ public class rightAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-    public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
-    public static int[] extensions = {960, 960, 960, 960, 1010, 1010};
+    public static double[] intakeAngles = {0, 0.73, 0.67, 0.6, 0.5, 0.4};
+    public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
+    public static int[] extensions = {970, 970, 970, 1000, 1150, 1150};
 
     public static int cycleReset = 1010;
 
     // THRESHOLDS
-    public static int highPole = 595;
+    public static int highPole = 600;
     public static int midPole = 360;
     public int stabilizerVertical = 350;
 
@@ -54,12 +56,12 @@ public class rightAuto extends OpMode {
     public static double claw2 = 0.7;
 
     public static double clawAngle1 = 0.02;
-    public static double clawAngle2 = 0.67;
+    public static double clawAngle2 = 0.66;
     public static double clawAngle3 = 0.3;
     public static double clawAngle4 = 0.6;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.22;
+    public static double intakeAngle2 = 0.25;
     public static double intakeAngle3 = 0.31;
     public static double intakeAngle4 = 0.2;
 
@@ -73,7 +75,7 @@ public class rightAuto extends OpMode {
     public static double rightFlipper2 = 0.5;
 
     public static double stabilizer1 = 0;
-    public static double stabilizer2 = 0.2;
+    public static double stabilizer2 = 0.37;
 
     // STATE MACHINES
     public enum CycleState {
@@ -90,9 +92,12 @@ public class rightAuto extends OpMode {
     boolean startLock = false;
     boolean parkLock = false;
     boolean timeLock = false;
+    boolean distanceLock = false;
 
     // AUTO
     int cones = 5;
+    public static String signal;
+
     TrajectorySequence toPole;
     TrajectorySequence parkLeft;
     TrajectorySequence parkCenter;
@@ -101,7 +106,7 @@ public class rightAuto extends OpMode {
     public static double toPoleBack = 48;
     public static double toPoleLineX = 34;
     public static double toPoleLineY = -4;
-    public static double toPoleLineH = -20;
+    public static double toPoleLineH = -22;
 
     public static double parkCenterLineX = 33;
     public static double parkCenterLineY = -13;
@@ -120,11 +125,22 @@ public class rightAuto extends OpMode {
                 .lineToLinearHeading(new Pose2d(toPoleLineX, toPoleLineY, Math.toRadians(toPoleLineH)))
                 .build();
 
+        parkLeft = drive.trajectorySequenceBuilder(toPole.end())
+                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
+                .back(15)
+                .turn(Math.toRadians(90))
+                .build();
+
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .turn(Math.toRadians(90))
                 .build();
 
+        parkLeft = drive.trajectorySequenceBuilder(toPole.end())
+                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
+                .forward(15)
+                .turn(Math.toRadians(90))
+                .build();
 
         // Horizontal Slides
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -154,7 +170,7 @@ public class rightAuto extends OpMode {
         extendController.setTolerance(20);
 
         // Detection
-        String conePos = "LEFT";
+        signal = "CENTER";
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.addData("Auto", "Init");
@@ -170,6 +186,7 @@ public class rightAuto extends OpMode {
     public void loop() {
         double liftPos = drive.leftVerticalSlide.getCurrentPosition();
         double extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
+        double distance = drive.distanceSensor.getDistance(DistanceUnit.CM);
 
         // Starts cycle command
         switch (cycleState) {
@@ -196,20 +213,20 @@ public class rightAuto extends OpMode {
                         drive.stabilizer.setPosition(stabilizer2);
                         clawLock = true;
                     }
-                    if (cycletime.seconds() >= 0.7) {
+                    if (cycletime.seconds() >= 0.65) {
                         if (!clawAngleLock) {
                             drive.clawAngle.setPosition(clawAngle3);
                             drive.intakeAngle.setPosition(intakeAngle2);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 1.6) {
+                        if (cycletime.seconds() >= 1) {
                             setExtension(0);
                             drive.clawRotate.setPosition(clawRotate2);
-                            if (cycletime.seconds() >= 2.5) {
+                            if (cycletime.seconds() >= 1.7) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 3) {
+                                if (cycletime.seconds() >= 2.1) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 3.4) {
+                                    if (cycletime.seconds() >= 2.4) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
@@ -238,10 +255,15 @@ public class rightAuto extends OpMode {
                 // Check
                 if (cycletime.seconds() >= 1.4) {
                     cones -= 1;
+                    unflip();
                     if (cones == -1) {
                         cycleState = CycleState.PARK;
                     } else {
                         cycleState = CycleState.INTAKE;
+                    }
+                } else {
+                    if (liftPos > 250) {
+                        flip();
                     }
                 }
                 break;
@@ -250,8 +272,20 @@ public class rightAuto extends OpMode {
                 setLiftSLow(7);
                 if (cycletime.seconds() >= 1.3) {
                     if (!parkLock) {
-                        drive.followTrajectorySequence(parkCenter);
-                        parkLock = true;
+                        switch (signal){
+                            case "LEFT":
+                                drive.followTrajectorySequence(parkLeft);
+                                parkLock = true;
+                                break;
+                            case "CENTER":
+                                drive.followTrajectorySequence(parkCenter);
+                                parkLock = true;
+                                break;
+                            case "RIGHT":
+                                drive.followTrajectorySequence(parkRight);
+                                parkLock = true;
+                                break;
+                        }
                     } else {
                         telemetry.addData("Auto", "Parking");
                         requestOpModeStop();
@@ -284,7 +318,7 @@ public class rightAuto extends OpMode {
     }
 
     public void intakeDown(int cones) {
-        drive.clawAngle.setPosition(clawAngle1);
+        drive.clawAngle.setPosition(clawAngles[cones]);
         drive.clawRotate.setPosition(clawRotate1);
         drive.intakeAngle.setPosition(intakeAngles[cones]);
     }
@@ -326,8 +360,8 @@ public class rightAuto extends OpMode {
         liftController.setPID(0.015, 0.0001, 0.0001);
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
-        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.3);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.3);
     }
 
     public void setExtension(int target) {
@@ -339,6 +373,16 @@ public class rightAuto extends OpMode {
 
         drive.leftHorizontalSlide.setVelocity(4000);
         drive.rightHorizontalSlide.setVelocity(4000);
+    }
+
+    public void flip(){
+        drive.leftFlipper.setPosition(leftFlipper2);
+        drive.rightFlipper.setPosition(rightFlipper2);
+    }
+
+    public void unflip(){
+        drive.leftFlipper.setPosition(leftFlipper1);
+        drive.rightFlipper.setPosition(rightFlipper1);
     }
 
 }
