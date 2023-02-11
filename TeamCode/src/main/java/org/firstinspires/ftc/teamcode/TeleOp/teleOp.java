@@ -47,7 +47,7 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 605;
+    public static int highPole = 615;
     public static int midPole = 380;
     public int stabilizerVertical = 300;
 
@@ -314,9 +314,9 @@ public class teleOp extends OpMode {
                         if (cycletime.seconds() >= 0.3) {
                             setExtension(0);
                             intakeUp();
-                            if (cycletime.seconds() >= 1 + cycleDelay) {
+                            if (cycletime.seconds() >= 1.5 + cycleDelay) {
                                 clawOpen();
-                                if (cycletime.seconds() >= 1.3 + cycleDelay) {
+                                if (cycletime.seconds() >= 1.83 + cycleDelay) {
                                     cycletime.reset();
                                     intakeLock = false;
                                     cycleState = CycleState.DEPOSIT;
@@ -328,7 +328,7 @@ public class teleOp extends OpMode {
 
                     case DEPOSIT:
                         clawLock = false;
-                        if (cycletime.seconds() >= 1.1) {
+                        if (cycletime.seconds() >= 1.25) {
                             // Bring lift down
                             setLiftSLow(7);
                             if (!intakeLock) {
@@ -348,7 +348,7 @@ public class teleOp extends OpMode {
                             // Bring lift up
                             setLift(highPole);
                         }
-                        if (cycletime.seconds() >= 2) {
+                        if (cycletime.seconds() >= 1.7) {
                             cycletime.reset();
                             cycleState = CycleState.INTAKE_UP;
                             liftState = LiftState.LIFT_MANUAL;
@@ -548,8 +548,8 @@ public class teleOp extends OpMode {
         }
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(pidLift);
-        drive.rightVerticalSlide.setPower(pidLift);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.85);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.85);
     }
 
     public void setLiftSLow(int target) {

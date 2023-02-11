@@ -34,7 +34,7 @@ public class rightAuto extends OpMode {
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime visiontime = new ElapsedTime();
+    private ElapsedTime autotime = new ElapsedTime();
     private ElapsedTime cycletime = new ElapsedTime();
 
 
@@ -51,7 +51,7 @@ public class rightAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.585, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static int[] extensions = {950, 950, 950, 950, 990, 1100};
+    public static int[] extensions = {970, 970, 970, 1000, 1000, 1110};
 
     public static int cycleReset = 1010;
 
@@ -92,7 +92,7 @@ public class rightAuto extends OpMode {
         INTAKE,
         DEPOSIT,
         PARK,
-        NOTHING
+        LIFT_AGAIN
     }
 
     CycleState cycleState = CycleState.START;
@@ -244,56 +244,58 @@ public class rightAuto extends OpMode {
         telemetry.addData("Auto", "Init");
         telemetry.update();
 
-        while (visiontime.seconds() <= 6) {
-            if (!pipelineLock) {
-                runtime.reset();
-                pipelineLock = true;
-            }
-
-            if (runtime.seconds() <= 0.3) {
-                // Start Auto
-                camera.setPipeline(visionPipeline);
-                CVconePos = visionPipeline.getPosition().name();
-                telemetry.addData("CV Position", visionPipeline.getPosition());
-                telemetry.addData("CV Analysis", visionPipeline.getAnalysis());
-            } else if (runtime.seconds() <= 0.6 && runtime.seconds() > 0.3) {
-                camera.setPipeline(aprilTagDetectionPipeline);
-                ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
-                if (ATLock) {
-                    if (detections != null) {
-                        if (detections.size() != 0) {
-                            int aprilTagID = detections.get(0).id;
-                            switch (aprilTagID) {
-                                case 1:
-                                    ATconePos = "LEFT";
-                                    break;
-                                case 2:
-                                    ATconePos = "CENTER";
-                                    break;
-                                default:
-                                    ATconePos = "RIGHT";
-                                    break;
-                            }
-                            ATLock = false;
-                        }
-                    }
-                }
-                telemetry.addData("AT Position", ATconePos);
-                telemetry.update();
-            } else {
-                pipelineLock = false;
-            }
-
-            if (ATconePos == "NOT_SET") {
-                signal = CVconePos;
-            } else {
-                signal = ATconePos;
-            }
-
-            telemetry.addData("Signal", signal);
-            telemetry.addData("Analysis", visionPipeline.getAnalysis());
-            telemetry.update();
-        }
+//        while (visiontime.seconds() <= 40) {
+//            if (!pipelineLock) {
+//                runtime.reset();
+//                pipelineLock = true;
+//            }
+//
+//            if (runtime.seconds() <= 0.3) {
+//                // Start Auto
+//                camera.setPipeline(visionPipeline);
+//                CVconePos = visionPipeline.getPosition().name();
+//                telemetry.addData("CV Position", visionPipeline.getPosition());
+//                telemetry.addData("CV Analysis", visionPipeline.getAnalysis());
+//            } else if (runtime.seconds() <= 0.6 && runtime.seconds() > 0.3) {
+//                camera.setPipeline(aprilTagDetectionPipeline);
+//                ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
+//                if (ATLock) {
+//                    if (detections != null) {
+//                        if (detections.size() != 0) {
+//                            int aprilTagID = detections.get(0).id;
+//                            switch (aprilTagID) {
+//                                case 1:
+//                                    ATconePos = "LEFT";
+//                                    break;
+//                                case 2:
+//                                    ATconePos = "CENTER";
+//                                    break;
+//                                default:
+//                                    ATconePos = "RIGHT";
+//                                    break;
+//                            }
+////                            ATLock = false;
+//                        }
+//                    }
+//                }
+//                telemetry.addData("AT Position", ATconePos);
+//                telemetry.update();
+//            } else {
+//                pipelineLock = false;
+//            }
+//
+//            if (ATconePos == "NOT_SET") {
+//                signal = CVconePos;
+//            } else {
+//                signal = ATconePos;
+//            }
+//
+//            telemetry.addData("Signal", signal);
+//            telemetry.addData("Analysis", visionPipeline.getAnalysis());
+//            telemetry.update();
+//        }
+//        telemetry.addData("Loop Done", "Yes");
+//        telemetry.update();
     }
 
     @Override
@@ -315,6 +317,7 @@ public class rightAuto extends OpMode {
                     drive.followTrajectorySequence(toPole);
                     runtime.reset();
                     cycletime.reset();
+                    autotime.reset();
                     startLock = true;
                 }
                 cycleState = CycleState.DEPOSIT;
@@ -345,14 +348,6 @@ public class rightAuto extends OpMode {
                         if (cycletime.seconds() >= 1) {
                             setExtension(-5);
                             drive.clawRotate.setPosition(clawRotate2);
-//                            if(!colorLock){
-//                                if (colorBlue > 1000 || colorRed > 1000) {
-//                                    colorFail = true;
-//                                    colorLock = true;
-//                                    cycletime.reset();
-//                                    cycleState = CycleState.PARK;
-//                                }
-//                            }
                             if (cycletime.seconds() >= 1.6) {
                                 drive.clawAngle.setPosition(clawAngle2);
                                 drive.intakeAngle.setPosition(intakeAngle2);
@@ -361,6 +356,15 @@ public class rightAuto extends OpMode {
                                     if (cycletime.seconds() >= 2.3) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
+                                    }
+                                }
+                            } else {
+                                if(!colorLock){
+                                    if (colorBlue > 500 || colorRed > 500) {
+                                        colorFail = true;
+                                        colorLock = true;
+                                        cycletime.reset();
+                                        cycleState = CycleState.LIFT_AGAIN;
                                     }
                                 }
                             }
@@ -449,9 +453,27 @@ public class rightAuto extends OpMode {
                 }
                 break;
 
-            case NOTHING:
+            case LIFT_AGAIN:
+                setLift(highPole);
+                if(cycletime.seconds() > 1.2){
+                    setLiftSLow(0);
+                    if(cycletime.seconds() > 2){
+                        if (colorBlue > 500 || colorRed > 500) {
+                            cycletime.reset();
+                            cycleState = CycleState.LIFT_AGAIN;
+                        } else {
+                            cycleState = CycleState.DEPOSIT;
+                        }
+                    }
+                } else {
+                    setLift(highPole);
+                }
                 telemetry.addData("Auto", "Paused");
                 break;
+        }
+
+        if(autotime.seconds() > 27 && !(cycleState == CycleState.PARK)){
+            cycleState = CycleState.PARK;
         }
 
         // TELEMETRY
