@@ -49,7 +49,7 @@ public class rightAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-    public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.55, 0.45};
+    public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.562, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
     public static int[] extensions = {970, 970, 970, 1000, 1150, 1170};
 
@@ -101,7 +101,8 @@ public class rightAuto extends OpMode {
     boolean startLock = false;
     boolean parkLock = false;
     boolean timeLock = false;
-    boolean distanceLock = false;
+    boolean colorFail = false;
+    boolean colorLock = false;
     boolean pipelineLock = false;
 
     // VISION
@@ -138,6 +139,9 @@ public class rightAuto extends OpMode {
     @Override
     public void init() {
         drive = new HWMap(hardwareMap);
+
+        //COLOR SENSOR
+        drive.colorSensor.enableLed(true);
 
         // Camera Init
         int cameraMonitorViewId = this
@@ -190,19 +194,20 @@ public class rightAuto extends OpMode {
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .back(parkLeftMove)
                 .turn(Math.toRadians(parkLeftTurn))
-                .back(6)
+                .back(10)
                 .build();
 
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .turn(Math.toRadians(90))
+                .back(10)
                 .build();
 
         parkRight = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .forward(parkRightMove)
                 .turn(Math.toRadians(parkRightTurn))
-                .back(6)
+                .back(10)
                 .build();
 
         // Horizontal Slides
@@ -239,19 +244,19 @@ public class rightAuto extends OpMode {
         telemetry.addData("Auto", "Init");
         telemetry.update();
 
-        while(visiontime.seconds() <= 6){
-            if(!pipelineLock){
+        while (visiontime.seconds() <= 6) {
+            if (!pipelineLock) {
                 runtime.reset();
                 pipelineLock = true;
             }
 
-            if(runtime.seconds() <= 0.3){
+            if (runtime.seconds() <= 0.3) {
                 // Start Auto
                 camera.setPipeline(visionPipeline);
                 CVconePos = visionPipeline.getPosition().name();
                 telemetry.addData("CV Position", visionPipeline.getPosition());
                 telemetry.addData("CV Analysis", visionPipeline.getAnalysis());
-            } else if (runtime.seconds() <= 0.6 && runtime.seconds() > 0.3){
+            } else if (runtime.seconds() <= 0.6 && runtime.seconds() > 0.3) {
                 camera.setPipeline(aprilTagDetectionPipeline);
                 ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
                 if (ATLock) {
@@ -269,7 +274,7 @@ public class rightAuto extends OpMode {
                                     ATconePos = "RIGHT";
                                     break;
                             }
-                        ATLock = false;
+                            ATLock = false;
                         }
                     }
                 }
@@ -299,7 +304,8 @@ public class rightAuto extends OpMode {
     public void loop() {
         double liftPos = drive.leftVerticalSlide.getCurrentPosition();
         double extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
-        double distance = drive.distanceSensor.getDistance(DistanceUnit.CM);
+        double colorBlue = drive.colorSensor.blue();
+        double colorRed = drive.colorSensor.red();
 
         // Starts cycle command
         switch (cycleState) {
@@ -336,6 +342,14 @@ public class rightAuto extends OpMode {
                         if (cycletime.seconds() >= 1.1) {
                             setExtension(0);
                             drive.clawRotate.setPosition(clawRotate2);
+                            if(!colorLock){
+                                if (colorBlue > 1000 || colorRed > 1000) {
+                                    colorFail = true;
+                                    colorLock = true;
+                                    cycletime.reset();
+                                    cycleState = CycleState.PARK;
+                                }
+                            }
                             if (cycletime.seconds() >= 1.85) {
                                 drive.clawAngle.setPosition(clawAngle2);
                                 if (cycletime.seconds() >= 2.15) {
@@ -379,28 +393,54 @@ public class rightAuto extends OpMode {
                 break;
 
             case PARK:
-                setLiftSLow(3);
-                drive.intakeAngle.setPosition(intakeAngle3);
-                drive.stabilizer.setPosition(stabilizer2);
-                if (cycletime.seconds() >= 1) {
-                    if (!parkLock) {
-                        switch (signal) {
-                            case "LEFT":
-                                drive.followTrajectorySequence(parkLeft);
-                                parkLock = true;
-                                break;
-                            case "CENTER":
-                                drive.followTrajectorySequence(parkCenter);
-                                parkLock = true;
-                                break;
-                            case "RIGHT":
-                                drive.followTrajectorySequence(parkRight);
-                                parkLock = true;
-                                break;
+                if(colorFail == true) {
+                    drive.intakeAngle.setPosition(intakeAngle3);
+                    drive.intakeAngle.setPosition(clawAngle2);
+                    if (cycletime.seconds() >= 1) {
+                        if (!parkLock) {
+                            switch (signal) {
+                                case "LEFT":
+                                    drive.followTrajectorySequence(parkLeft);
+                                    parkLock = true;
+                                    break;
+                                case "CENTER":
+                                    drive.followTrajectorySequence(parkCenter);
+                                    parkLock = true;
+                                    break;
+                                case "RIGHT":
+                                    drive.followTrajectorySequence(parkRight);
+                                    parkLock = true;
+                                    break;
+                            }
+                        } else {
+                            telemetry.addData("Auto", "Parking");
+                            requestOpModeStop();
                         }
-                    } else {
-                        telemetry.addData("Auto", "Parking");
-                        requestOpModeStop();
+                    }
+                } else {
+                    setLiftSLow(3);
+                    drive.intakeAngle.setPosition(intakeAngle3);
+                    drive.stabilizer.setPosition(stabilizer2);
+                    if (cycletime.seconds() >= 1) {
+                        if (!parkLock) {
+                            switch (signal) {
+                                case "LEFT":
+                                    drive.followTrajectorySequence(parkLeft);
+                                    parkLock = true;
+                                    break;
+                                case "CENTER":
+                                    drive.followTrajectorySequence(parkCenter);
+                                    parkLock = true;
+                                    break;
+                                case "RIGHT":
+                                    drive.followTrajectorySequence(parkRight);
+                                    parkLock = true;
+                                    break;
+                            }
+                        } else {
+                            telemetry.addData("Auto", "Parking");
+                            requestOpModeStop();
+                        }
                     }
                 }
                 break;
@@ -418,6 +458,8 @@ public class rightAuto extends OpMode {
         telemetry.addData("Run Time", runtime.seconds());
         telemetry.addData("Lift Pos", liftPos);
         telemetry.addData("Extend Pos", extensionPos);
+        telemetry.addData("Red", drive.colorSensor.red());
+        telemetry.addData("Blue", drive.colorSensor.blue());
     }
 
 
