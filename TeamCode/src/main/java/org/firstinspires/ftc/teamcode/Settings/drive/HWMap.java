@@ -69,7 +69,7 @@ public class HWMap extends MecanumDrive {
     public Servo claw, clawAngle, clawRotate, intakeAngle, leftFlipper, rightFlipper, stabilizer;
 
     // Sensors
-    public ColorRangeSensor colorSensor;
+//    public ColorRangeSensor colorSensor;
     public DistanceSensor distanceSensor;
 
     private BNO055IMU imu;
@@ -147,7 +147,7 @@ public class HWMap extends MecanumDrive {
         stabilizer = hardwareMap.get(Servo.class, "stabilizer");
 
         //Color Sensor
-        colorSensor = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
+//        colorSensor = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
         for (DcMotorEx motor : motors) {

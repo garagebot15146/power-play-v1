@@ -60,7 +60,7 @@ public class teleOp extends OpMode {
     public static double clawAngle3 = 0.27;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.2;
+    public static double intakeAngle2 = 0.1;
     public static double intakeAngle3 = 0.31;
 
 
@@ -126,7 +126,7 @@ public class teleOp extends OpMode {
         voltageTimer.reset();
 
         //COLOR SENSOR
-        drive.colorSensor.enableLed(true);
+//        drive.colorSensor.enableLed(true);
 
         //PID
         liftController = new PIDController(pL, iL, dL);
@@ -490,8 +490,8 @@ public class teleOp extends OpMode {
         }
 
         // TELEMETRY
-        telemetry.addData("Red", drive.colorSensor.red());
-        telemetry.addData("Blue", drive.colorSensor.blue());
+//        telemetry.addData("Red", drive.colorSensor.red());
+//        telemetry.addData("Blue", drive.colorSensor.blue());
         telemetry.addData("Distance", drive.distanceSensor.getDistance(DistanceUnit.CM));
         telemetry.addData("Lift State", liftState);
         telemetry.addData("Cycle State", cycleState);

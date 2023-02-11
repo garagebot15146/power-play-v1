@@ -141,7 +141,7 @@ public class rightAuto extends OpMode {
         drive = new HWMap(hardwareMap);
 
         //COLOR SENSOR
-        drive.colorSensor.enableLed(true);
+//        drive.colorSensor.enableLed(true);
 
         // Camera Init
         int cameraMonitorViewId = this
@@ -306,8 +306,8 @@ public class rightAuto extends OpMode {
     public void loop() {
         double liftPos = drive.leftVerticalSlide.getCurrentPosition();
         double extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
-        double colorBlue = drive.colorSensor.blue();
-        double colorRed = drive.colorSensor.red();
+//        double colorBlue = drive.colorSensor.blue();
+//        double colorRed = drive.colorSensor.red();
 
         // Starts cycle command
         switch (cycleState) {
@@ -358,14 +358,14 @@ public class rightAuto extends OpMode {
                                     }
                                 }
                             } else {
-                                if(!colorLock){
-                                    if (colorBlue > 500 || colorRed > 500) {
-                                        colorFail = true;
-                                        colorLock = true;
-                                        cycletime.reset();
-                                        cycleState = CycleState.PARK;
-                                    }
-                                }
+//                                if(!colorLock){
+//                                    if (colorBlue > 500 || colorRed > 500) {
+//                                        colorFail = true;
+//                                        colorLock = true;
+//                                        cycletime.reset();
+//                                        cycleState = CycleState.PARK;
+//                                    }
+//                                }
                             }
                         }
                     }
@@ -461,8 +461,8 @@ public class rightAuto extends OpMode {
         telemetry.addData("Run Time", runtime.seconds());
         telemetry.addData("Lift Pos", liftPos);
         telemetry.addData("Extend Pos", extensionPos);
-        telemetry.addData("Red", drive.colorSensor.red());
-        telemetry.addData("Blue", drive.colorSensor.blue());
+//        telemetry.addData("Red", drive.colorSensor.red());
+//        telemetry.addData("Blue", drive.colorSensor.blue());
     }
 
 
