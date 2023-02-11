@@ -40,24 +40,26 @@ public class rightAuto extends OpMode {
     public static double base = 0.85;
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.77, 0.72, 0.65, 0.6, 0.52};
+    public static int[] extensions = {960, 960, 960, 960, 1010, 1010};
 
-    public static int cycleReset = 990;
+    public static int cycleReset = 1010;
 
     // THRESHOLDS
     public static int highPole = 595;
     public static int midPole = 360;
+    public int stabilizerVertical = 350;
 
     // Servo Positions
     public static double claw1 = 1;
     public static double claw2 = 0.7;
 
     public static double clawAngle1 = 0.02;
-    public static double clawAngle2 = 0.71;
+    public static double clawAngle2 = 0.67;
     public static double clawAngle3 = 0.3;
     public static double clawAngle4 = 0.6;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.13;
+    public static double intakeAngle2 = 0.22;
     public static double intakeAngle3 = 0.31;
     public static double intakeAngle4 = 0.2;
 
@@ -87,6 +89,7 @@ public class rightAuto extends OpMode {
     boolean clawAngleLock = false;
     boolean startLock = false;
     boolean parkLock = false;
+    boolean timeLock = false;
 
     // AUTO
     int cones = 5;
@@ -119,6 +122,7 @@ public class rightAuto extends OpMode {
 
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
+                .turn(Math.toRadians(90))
                 .build();
 
 
@@ -180,27 +184,32 @@ public class rightAuto extends OpMode {
                 break;
 
             case INTAKE:
+                if(!timeLock){
+                    cycletime.reset();
+                    timeLock = true;
+                }
                 setLiftSLow(7);
                 // Bring intake up
-                if (cycletime.seconds() >= 0.3) {
+                if (cycletime.seconds() >= 0.4) {
                     if (!clawLock) {
                         clawClose();
+                        drive.stabilizer.setPosition(stabilizer2);
                         clawLock = true;
                     }
-                    if (cycletime.seconds() >= 0.5) {
+                    if (cycletime.seconds() >= 0.7) {
                         if (!clawAngleLock) {
                             drive.clawAngle.setPosition(clawAngle3);
-                            drive.intakeAngle.setPosition(intakeAngle3);
+                            drive.intakeAngle.setPosition(intakeAngle2);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 0.75) {
+                        if (cycletime.seconds() >= 1.6) {
                             setExtension(0);
-                            intakeUp();
-                            if (cycletime.seconds() >= 1.3) {
+                            drive.clawRotate.setPosition(clawRotate2);
+                            if (cycletime.seconds() >= 2.5) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 1.5) {
+                                if (cycletime.seconds() >= 3) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 1.85) {
+                                    if (cycletime.seconds() >= 3.4) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
@@ -214,18 +223,20 @@ public class rightAuto extends OpMode {
             case DEPOSIT:
                 clawLock = false;
                 clawAngleLock = false;
+                timeLock = false;
 
                 // Change to claw reset
                 if (cones != 0) {
                     intakeDown(cones);
                 }
 
+                drive.stabilizer.setPosition(stabilizer1);
+
                 // Move Slides
-                depositUp(cones == 0 ? 0 : cycleReset, highPole);
+                depositUp(cones == 0 ? 0 : extensions[cones], highPole);
 
                 // Check
-                if (cycletime.seconds() >= 1.1) {
-                    cycletime.reset();
+                if (cycletime.seconds() >= 1.4) {
                     cones -= 1;
                     if (cones == -1) {
                         cycleState = CycleState.PARK;
@@ -237,7 +248,7 @@ public class rightAuto extends OpMode {
 
             case PARK:
                 setLiftSLow(7);
-                if (cycletime.seconds() >= 1.1) {
+                if (cycletime.seconds() >= 1.3) {
                     if (!parkLock) {
                         drive.followTrajectorySequence(parkCenter);
                         parkLock = true;
@@ -256,6 +267,7 @@ public class rightAuto extends OpMode {
         // TELEMETRY
         telemetry.addData("State", cycleState);
         telemetry.addData("Claw Lock", clawLock);
+        telemetry.addData("Claw Angle Lock", clawAngleLock);
         telemetry.addData("Cycle Time", cycletime.seconds());
         telemetry.addData("Run Time", runtime.seconds());
         telemetry.addData("Lift Pos", liftPos);
@@ -277,10 +289,10 @@ public class rightAuto extends OpMode {
         drive.intakeAngle.setPosition(intakeAngles[cones]);
     }
 
-    public void intakeUp() {
-        drive.intakeAngle.setPosition(intakeAngle2);
-        drive.clawRotate.setPosition(clawRotate2);
-    }
+//    public void intakeUp() {
+//        drive.intakeAngle.setPosition(intakeAngle2);
+//        drive.clawRotate.setPosition(clawRotate2);
+//    }
 
     public void depositUp(int extendTarget, int liftTarget) {
         // INIT

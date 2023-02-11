@@ -46,6 +46,7 @@ public class leftAuto extends OpMode {
     // THRESHOLDS
     public static int highPole = 595;
     public static int midPole = 360;
+    public int stabilizerVertical = 350;
 
     // Servo Positions
     public static double claw1 = 1;
@@ -186,7 +187,10 @@ public class leftAuto extends OpMode {
                 if (cycletime.seconds() >= 0.3) {
                     if (!clawLock) {
                         clawClose();
-                        clawLock = true;
+                        drive.stabilizer.setPosition(stabilizer2);
+                        if (cycletime.seconds() >= 0.4) {
+                            clawLock = true;
+                        }
                     }
                     if (cycletime.seconds() >= 0.5) {
                         if (!clawAngleLock) {
@@ -220,6 +224,8 @@ public class leftAuto extends OpMode {
                 if (cones != 0) {
                     intakeDown(cones);
                 }
+
+                drive.stabilizer.setPosition(stabilizer1);
 
                 // Move Slides
                 depositUp(cones == 0 ? 0 : cycleReset, highPole);

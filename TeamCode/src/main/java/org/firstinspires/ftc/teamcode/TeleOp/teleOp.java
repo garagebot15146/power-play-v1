@@ -48,18 +48,18 @@ public class teleOp extends OpMode {
     // THRESHOLDS
     public static int highPole = 595;
     public static int midPole = 360;
-    public int stabilizerVertical = 110;
+    public int stabilizerVertical = 300;
 
     // SERVO POSITIONS
     public static double claw1 = 1;
     public static double claw2 = 0.7;
 
     public static double clawAngle1 = 0.02;
-    public static double clawAngle2 = 0.71;
+    public static double clawAngle2 = 0.67;
     public static double clawAngle3 = 0.27;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.13;
+    public static double intakeAngle2 = 0.22;
     public static double intakeAngle3 = 0.31;
 
     public static double clawRotate1 = 1;
@@ -91,8 +91,9 @@ public class teleOp extends OpMode {
     LiftState liftState = LiftState.LIFT_MANUAL;
     CycleState cycleState = CycleState.START;
 
-    int cycleReset;
+    public static int cycleReset;
     boolean clawLock = false;
+    boolean intakeLock = false;
     double pidLift = 0;
 
     // CLOCK
@@ -121,6 +122,9 @@ public class teleOp extends OpMode {
         voltage = voltageSensor.getVoltage();
         voltageTimer = new ElapsedTime();
         voltageTimer.reset();
+
+        //COLOR SENSOR
+        drive.colorSensor.enableLed(true);
 
         //PID
         liftController = new PIDController(pL, iL, dL);
@@ -186,7 +190,7 @@ public class teleOp extends OpMode {
         // GAMEPAD A
 
         // WHEELS
-        double normal = 1;
+        double normal = 0.8;
         double slow = 0.6;
         double forward = -gamepad1.left_stick_y;
         double side = gamepad1.left_stick_x; //Positive means right
@@ -234,8 +238,8 @@ public class teleOp extends OpMode {
                 liftController.setPID(0.015, 0.0001, 0.0001);
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
-                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
-                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
+                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.43);
+                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.43);
 
                 // Switch States
                 if (liftController.atSetPoint()) {
@@ -247,11 +251,11 @@ public class teleOp extends OpMode {
                 // Uses joystick no PID
                 double liftPower = -gamepad2.right_stick_y;
                 if (liftPower > 0) {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.63);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.63);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.7);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.7);
                 } else {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.33);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.33);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.5);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.5);
                 }
 //                if (liftPower > 0) {
 //                    drive.leftVerticalSlide.setPower(liftPower * 1);
@@ -269,11 +273,12 @@ public class teleOp extends OpMode {
                         // Saves reset pos
                         cycleReset = extensionPos;
                         cycletime.reset();
+                        intakeLock = false;
                         cycleState = CycleState.INTAKE_UP;
                         break;
 
                     case INTAKE_UP:
-                        double cycleDelay = cycleReset / 1500;
+                        double cycleDelay = cycleReset / 1400;
                         if (!clawLock) {
                             clawClose();
                             telemetry.addData("Status", "Closed");
@@ -282,18 +287,16 @@ public class teleOp extends OpMode {
                         // Bring intake up
                         if (cycletime.seconds() >= 0.3) {
                             setExtension(0);
-                            if (extensionPos < 10) {
-                                if (cycletime.seconds() >= 0.6 + cycleDelay) {
-                                    intakeUp();
-                                    if (cycletime.seconds() >= 1.6 + cycleDelay) {
-                                        clawOpen();
-                                        if (cycletime.seconds() >= 2 + cycleDelay) {
-                                            cycletime.reset();
-                                            cycleState = CycleState.DEPOSIT;
-                                        }
-                                    }
+                            intakeUp();
+                            if (cycletime.seconds() >= 1 + cycleDelay) {
+                                clawOpen();
+                                if (cycletime.seconds() >= 1.4 + cycleDelay) {
+                                    cycletime.reset();
+                                    intakeLock = false;
+                                    cycleState = CycleState.DEPOSIT;
                                 }
                             }
+
                         }
                         break;
 
@@ -302,11 +305,17 @@ public class teleOp extends OpMode {
                         if (cycletime.seconds() >= 1.1) {
                             // Bring lift down
                             setLiftSLow(7);
-                            if (liftPos < 400) {
+                            if (!intakeLock) {
                                 intakeDown();
-                                setExtension(cycleReset);
+                                intakeLock = true;
+                            }
+                            drive.stabilizer.setPosition(stabilizer2);
+                            setExtension(cycleReset);
+                            if (extensionPos > 325){
+                                drive.intakeAngle.setPosition(intakeAngle1);
                             }
                         } else {
+                            drive.stabilizer.setPosition(stabilizer1);
                             // Bring lift up
                             setLift(highPole);
                         }
@@ -332,6 +341,7 @@ public class teleOp extends OpMode {
 
         // Cycle Command
         if (gamepad2.y) {
+            clawLock = false;
             cycletime.reset();
             liftState = LiftState.CYCLE;
         }
@@ -343,14 +353,17 @@ public class teleOp extends OpMode {
 
         // Low Pole
         if (gamepad2.a) {
+            drive.stabilizer.setPosition(stabilizer2);
             liftState = LiftState.LIFT_AUTO_SLOW;
-            liftTarget = 20;
+            liftTarget = 10;
             // Mid Pole
         } else if (gamepad2.b) {
+            drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = midPole;
             // High Pole
         } else if (gamepad2.x) {
+            drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = highPole;
             // Reset Lift Zero Position
@@ -375,8 +388,8 @@ public class teleOp extends OpMode {
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             double extendPower = -gamepad2.left_stick_y;
-            drive.leftHorizontalSlide.setPower(extendPower * 0.6);
-            drive.rightHorizontalSlide.setPower(extendPower * 0.6);
+            drive.leftHorizontalSlide.setPower(extendPower * 0.5);
+            drive.rightHorizontalSlide.setPower(extendPower * 0.5);
         }
 
 
@@ -388,13 +401,15 @@ public class teleOp extends OpMode {
                 toggleClaw = "false";
             }
         }
-        if (toggleClaw == "true") {
-            clawOpen();
-            telemetry.addData("Claw", claw1);
+        if (liftState != LiftState.CYCLE) {
+            if (toggleClaw == "true") {
+                clawOpen();
+                telemetry.addData("Claw", claw1);
 
-        } else if (toggleClaw == "false") {
-            clawClose();
-            telemetry.addData("Claw", claw2);
+            } else if (toggleClaw == "false") {
+                clawClose();
+                telemetry.addData("Claw", claw2);
+            }
         }
 
         // INTAKE
@@ -410,10 +425,12 @@ public class teleOp extends OpMode {
         }
 
         // STABILIZER
-        if (liftPos > stabilizerVertical) {
-            drive.stabilizer.setPosition(stabilizer1);
-        } else {
-            drive.stabilizer.setPosition(stabilizer2);
+        if (liftState == LiftState.LIFT_MANUAL) {
+            if (liftPos > stabilizerVertical) {
+                drive.stabilizer.setPosition(stabilizer1);
+            } else {
+                drive.stabilizer.setPosition(stabilizer2);
+            }
         }
 
         // FLIPPER
@@ -441,6 +458,8 @@ public class teleOp extends OpMode {
         }
 
         // TELEMETRY
+        telemetry.addData("Red", drive.colorSensor.red());
+        telemetry.addData("Blue", drive.colorSensor.blue());
         telemetry.addData("Lift State", liftState);
         telemetry.addData("Cycle State", cycleState);
         telemetry.addData("Claw Lock", clawLock);
@@ -475,6 +494,12 @@ public class teleOp extends OpMode {
         drive.intakeAngle.setPosition(intakeAngle1);
     }
 
+    public void intakeHalfDown() {
+        drive.clawAngle.setPosition(clawAngle1);
+        drive.clawRotate.setPosition(clawRotate1);
+        drive.intakeAngle.setPosition(intakeAngle3);
+    }
+
     public void intakeUp() {
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
@@ -504,8 +529,8 @@ public class teleOp extends OpMode {
 
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
-        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.35);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
     }
 
     public void setExtension(int target) {

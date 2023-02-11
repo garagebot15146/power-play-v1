@@ -19,6 +19,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -64,6 +66,9 @@ public class HWMap extends MecanumDrive {
 
     // Servos
     public Servo claw, clawAngle, clawRotate, intakeAngle, leftFlipper, rightFlipper, stabilizer;
+
+    // Sensors
+    public ColorRangeSensor colorSensor;
 
     private BNO055IMU imu;
     private VoltageSensor batteryVoltageSensor;
@@ -139,7 +144,8 @@ public class HWMap extends MecanumDrive {
         //Stabilizer
         stabilizer = hardwareMap.get(Servo.class, "stabilizer");
 
-
+        //Color Sensor
+        colorSensor = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -167,10 +173,11 @@ public class HWMap extends MecanumDrive {
         //Horizontal Slides
         leftHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightHorizontalSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Vertical Slides
-        leftVerticalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightVerticalSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftVerticalSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightVerticalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
