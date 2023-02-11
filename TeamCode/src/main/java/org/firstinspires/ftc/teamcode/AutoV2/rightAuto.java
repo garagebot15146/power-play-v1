@@ -51,7 +51,7 @@ public class rightAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.562, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static int[] extensions = {970, 970, 970, 1000, 1150, 1170};
+    public static int[] extensions = {970, 970, 970, 1000, 1100, 1170};
 
     public static int cycleReset = 1010;
 
