@@ -49,16 +49,16 @@ public class rightAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-    public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.562, 0.45};
+    public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.585, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static int[] extensions = {970, 970, 970, 1000, 1100, 1170};
+    public static int[] extensions = {950, 950, 950, 950, 990, 1100};
 
     public static int cycleReset = 1010;
 
     // THRESHOLDS
     public static int highPole = 610;
     public static int midPole = 360;
-    public int stabilizerVertical = 350;
+    public static int stabilizerVertical = 550;
 
     // Servo Positions
     public static double claw1 = 1;
@@ -66,12 +66,12 @@ public class rightAuto extends OpMode {
 
     public static double clawAngle1 = 0.02;
     public static double clawAngle2 = 0.66;
-    public static double clawAngle3 = 0.4;
+    public static double clawAngle3 = 0.3;
     public static double clawAngle4 = 0.6;
 
     public static double intakeAngle1 = 0.85;
     public static double intakeAngle2 = 0.25;
-    public static double intakeAngle3 = 0.31;
+    public static double intakeAngle3 = 0.34;
     public static double intakeAngle4 = 0.2;
 
     public static double clawRotate1 = 1;
@@ -127,7 +127,7 @@ public class rightAuto extends OpMode {
     public static double toPoleLineH = -22;
 
     public static double parkCenterLineX = 33;
-    public static double parkCenterLineY = -13;
+    public static double parkCenterLineY = -15;
     public static double parkCenterLineH = 0;
 
     public static double parkLeftMove = 23;
@@ -236,8 +236,8 @@ public class rightAuto extends OpMode {
 
         extendController = new PIDController(pE, iE, dE);
 
-        liftController.setTolerance(17);
-        extendController.setTolerance(17);
+        liftController.setTolerance(7);
+        extendController.setTolerance(7);
 
         // Detection
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -325,7 +325,9 @@ public class rightAuto extends OpMode {
                     cycletime.reset();
                     timeLock = true;
                 }
-                drive.stabilizer.setPosition(stabilizer2);
+                if (liftPos < stabilizerVertical) {
+                    drive.stabilizer.setPosition(stabilizer2);
+                }
                 setLiftSLow(0);
                 // Bring intake up
                 if (cycletime.seconds() >= 0.4) {
@@ -333,28 +335,30 @@ public class rightAuto extends OpMode {
                         clawClose();
                         clawLock = true;
                     }
-                    if (cycletime.seconds() >= 0.65) {
+                    if (cycletime.seconds() >= 0.62) {
                         if (!clawAngleLock) {
-                            drive.clawAngle.setPosition(clawAngle3);
-                            drive.intakeAngle.setPosition(intakeAngle2);
+                            //clawangle3, intakeangle3
+                            drive.clawAngle.setPosition(0.27);
+                            drive.intakeAngle.setPosition(0.31);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 1.1) {
-                            setExtension(0);
+                        if (cycletime.seconds() >= 1) {
+                            setExtension(-5);
                             drive.clawRotate.setPosition(clawRotate2);
-                            if(!colorLock){
-                                if (colorBlue > 1000 || colorRed > 1000) {
-                                    colorFail = true;
-                                    colorLock = true;
-                                    cycletime.reset();
-                                    cycleState = CycleState.PARK;
-                                }
-                            }
-                            if (cycletime.seconds() >= 1.85) {
+//                            if(!colorLock){
+//                                if (colorBlue > 1000 || colorRed > 1000) {
+//                                    colorFail = true;
+//                                    colorLock = true;
+//                                    cycletime.reset();
+//                                    cycleState = CycleState.PARK;
+//                                }
+//                            }
+                            if (cycletime.seconds() >= 1.6) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 2.15) {
+                                drive.intakeAngle.setPosition(intakeAngle2);
+                                if (cycletime.seconds() >= 2) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 2.4) {
+                                    if (cycletime.seconds() >= 2.3) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
@@ -381,7 +385,7 @@ public class rightAuto extends OpMode {
                 depositUp(cones == 0 ? 0 : extensions[cones], highPole);
 
                 // Check
-                if (cycletime.seconds() >= 1.4) {
+                if (cycletime.seconds() >= 1.1) {
                     cones -= 1;
                     if (cones == -1) {
                         cycletime.reset();
@@ -514,8 +518,8 @@ public class rightAuto extends OpMode {
         liftController.setPID(0.015, 0.0001, 0.0001);
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.33);
-        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.33);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.4);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.4);
     }
 
     public void setExtension(int target) {

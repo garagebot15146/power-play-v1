@@ -60,7 +60,7 @@ public class teleOp extends OpMode {
     public static double clawAngle3 = 0.27;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.18;
+    public static double intakeAngle2 = 0.2;
     public static double intakeAngle3 = 0.31;
 
 
@@ -304,7 +304,7 @@ public class teleOp extends OpMode {
                         break;
 
                     case INTAKE_UP:
-                        double cycleDelay = cycleReset / 1000;
+                        double cycleDelay = cycleReset / 600;
                         if (!clawLock) {
                             clawClose();
                             telemetry.addData("Status", "Closed");
@@ -335,7 +335,9 @@ public class teleOp extends OpMode {
                                 intakeDown();
                                 intakeLock = true;
                             }
-                            drive.stabilizer.setPosition(stabilizer2);
+                            if(liftPos < 560){
+                                drive.stabilizer.setPosition(stabilizer2);
+                            }
                             setExtension(cycleReset);
                             if (extensionPos > 325){
                                 drive.intakeAngle.setPosition(intakeAngle1);
