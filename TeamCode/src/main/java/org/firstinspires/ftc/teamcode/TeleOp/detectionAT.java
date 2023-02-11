@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @TeleOp(name="detectionAT", group="Tests")
-@Disabled
+//@Disabled
 public class detectionAT extends LinearOpMode
 {
     OpenCvCamera camera;
@@ -42,7 +42,7 @@ public class detectionAT extends LinearOpMode
             @Override
             public void onOpened()
             {
-                camera.startStreaming(1920,1080, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override

@@ -16,7 +16,15 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.TeleOp.teleOp;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Settings.AprilTagPipeline;
+import org.firstinspires.ftc.teamcode.Settings.OpenCVPipeline;
+import org.openftc.apriltag.AprilTagDetection;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.ArrayList;
 
 @Config
 @Autonomous(name = "Right Auto", group = "auto")
@@ -26,6 +34,7 @@ public class rightAuto extends OpMode {
 
     // CLOCK
     private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime visiontime = new ElapsedTime();
     private ElapsedTime cycletime = new ElapsedTime();
 
 
@@ -40,14 +49,14 @@ public class rightAuto extends OpMode {
     // Cone Stack
     public static double base = 0.85;
     public static double inc = 0.04;
-    public static double[] intakeAngles = {0, 0.73, 0.67, 0.6, 0.5, 0.4};
+    public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.55, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static int[] extensions = {970, 970, 970, 1000, 1150, 1150};
+    public static int[] extensions = {970, 970, 970, 1000, 1150, 1170};
 
     public static int cycleReset = 1010;
 
     // THRESHOLDS
-    public static int highPole = 600;
+    public static int highPole = 610;
     public static int midPole = 360;
     public int stabilizerVertical = 350;
 
@@ -57,7 +66,7 @@ public class rightAuto extends OpMode {
 
     public static double clawAngle1 = 0.02;
     public static double clawAngle2 = 0.66;
-    public static double clawAngle3 = 0.3;
+    public static double clawAngle3 = 0.4;
     public static double clawAngle4 = 0.6;
 
     public static double intakeAngle1 = 0.85;
@@ -93,10 +102,18 @@ public class rightAuto extends OpMode {
     boolean parkLock = false;
     boolean timeLock = false;
     boolean distanceLock = false;
+    boolean pipelineLock = false;
+
+    // VISION
+    OpenCvCamera camera;
+    String CVconePos = "CENTER";
+    String ATconePos = "NOT_SET";
+    String signal = "CENTER";
+    //    public static String signal;
+    boolean ATLock = true;
 
     // AUTO
     int cones = 5;
-    public static String signal;
 
     TrajectorySequence toPole;
     TrajectorySequence parkLeft;
@@ -112,9 +129,53 @@ public class rightAuto extends OpMode {
     public static double parkCenterLineY = -13;
     public static double parkCenterLineH = 0;
 
+    public static double parkLeftMove = 23;
+    public static double parkLeftTurn = 90;
+
+    public static double parkRightMove = 23;
+    public static double parkRightTurn = 90;
+
     @Override
     public void init() {
         drive = new HWMap(hardwareMap);
+
+        // Camera Init
+        int cameraMonitorViewId = this
+                .hardwareMap
+                .appContext
+                .getResources().getIdentifier(
+                        "cameraMonitorViewId",
+                        "id",
+                        hardwareMap.appContext.getPackageName()
+                );
+
+        camera = OpenCvCameraFactory
+                .getInstance()
+                .createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+        // Loading Pipeline
+        OpenCVPipeline visionPipeline = new OpenCVPipeline();
+        AprilTagPipeline aprilTagDetectionPipeline = new AprilTagPipeline();
+
+        // Start Streaming
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+
+        // Stream Camera Onto Dash
+        FtcDashboard.getInstance().startCameraStream(camera, 30);
+
+        // Output Log
+        telemetry.addData("Status", "Pipeline Initializing");
+        telemetry.update();
 
         // TRAJECTORIES
         Pose2d startPose = new Pose2d(34, -72 + (15.5 / 2), Math.toRadians(270));
@@ -127,8 +188,9 @@ public class rightAuto extends OpMode {
 
         parkLeft = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .back(15)
-                .turn(Math.toRadians(90))
+                .back(parkLeftMove)
+                .turn(Math.toRadians(parkLeftTurn))
+                .back(6)
                 .build();
 
         parkCenter = drive.trajectorySequenceBuilder(toPole.end())
@@ -136,10 +198,11 @@ public class rightAuto extends OpMode {
                 .turn(Math.toRadians(90))
                 .build();
 
-        parkLeft = drive.trajectorySequenceBuilder(toPole.end())
+        parkRight = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .forward(15)
-                .turn(Math.toRadians(90))
+                .forward(parkRightMove)
+                .turn(Math.toRadians(parkRightTurn))
+                .back(6)
                 .build();
 
         // Horizontal Slides
@@ -160,22 +223,72 @@ public class rightAuto extends OpMode {
         drive.intakeAngle.setPosition(intakeAngle4);
         drive.clawRotate.setPosition(clawRotate1);
         drive.clawAngle.setPosition(clawAngle4);
+
         clawOpen();
 
         // PID
         liftController = new PIDController(pL, iL, dL);
+
         extendController = new PIDController(pE, iE, dE);
 
         liftController.setTolerance(20);
         extendController.setTolerance(20);
 
         // Detection
-        signal = "CENTER";
-
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetry.addData("Auto", "Init");
         telemetry.update();
-        runtime.reset();
+
+        while(visiontime.seconds() <= 6){
+            if(!pipelineLock){
+                runtime.reset();
+                pipelineLock = true;
+            }
+
+            if(runtime.seconds() <= 0.3){
+                // Start Auto
+                camera.setPipeline(visionPipeline);
+                CVconePos = visionPipeline.getPosition().name();
+                telemetry.addData("CV Position", visionPipeline.getPosition());
+                telemetry.addData("CV Analysis", visionPipeline.getAnalysis());
+            } else if (runtime.seconds() <= 0.6 && runtime.seconds() > 0.3){
+                camera.setPipeline(aprilTagDetectionPipeline);
+                ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
+                if (ATLock) {
+                    if (detections != null) {
+                        if (detections.size() != 0) {
+                            int aprilTagID = detections.get(0).id;
+                            switch (aprilTagID) {
+                                case 1:
+                                    ATconePos = "LEFT";
+                                    break;
+                                case 2:
+                                    ATconePos = "CENTER";
+                                    break;
+                                default:
+                                    ATconePos = "RIGHT";
+                                    break;
+                            }
+                        ATLock = false;
+                        }
+                    }
+                }
+                telemetry.addData("AT Position", ATconePos);
+                telemetry.update();
+            } else {
+                pipelineLock = false;
+            }
+
+            if (ATconePos == "NOT_SET") {
+                signal = CVconePos;
+            } else {
+                signal = ATconePos;
+            }
+
+            telemetry.addData("Signal", signal);
+            telemetry.addData("Analysis", visionPipeline.getAnalysis());
+            telemetry.update();
+        }
     }
 
     @Override
@@ -191,6 +304,7 @@ public class rightAuto extends OpMode {
         // Starts cycle command
         switch (cycleState) {
             case START:
+                FtcDashboard.getInstance().stopCameraStream();
                 if (!startLock) {
                     drive.followTrajectorySequence(toPole);
                     runtime.reset();
@@ -201,16 +315,16 @@ public class rightAuto extends OpMode {
                 break;
 
             case INTAKE:
-                if(!timeLock){
+                if (!timeLock) {
                     cycletime.reset();
                     timeLock = true;
                 }
-                setLiftSLow(7);
+                drive.stabilizer.setPosition(stabilizer2);
+                setLiftSLow(3);
                 // Bring intake up
                 if (cycletime.seconds() >= 0.4) {
                     if (!clawLock) {
                         clawClose();
-                        drive.stabilizer.setPosition(stabilizer2);
                         clawLock = true;
                     }
                     if (cycletime.seconds() >= 0.65) {
@@ -219,12 +333,12 @@ public class rightAuto extends OpMode {
                             drive.intakeAngle.setPosition(intakeAngle2);
                             clawAngleLock = true;
                         }
-                        if (cycletime.seconds() >= 1) {
+                        if (cycletime.seconds() >= 1.1) {
                             setExtension(0);
                             drive.clawRotate.setPosition(clawRotate2);
-                            if (cycletime.seconds() >= 1.7) {
+                            if (cycletime.seconds() >= 1.85) {
                                 drive.clawAngle.setPosition(clawAngle2);
-                                if (cycletime.seconds() >= 2.1) {
+                                if (cycletime.seconds() >= 2.15) {
                                     clawOpen();
                                     if (cycletime.seconds() >= 2.4) {
                                         cycletime.reset();
@@ -255,24 +369,22 @@ public class rightAuto extends OpMode {
                 // Check
                 if (cycletime.seconds() >= 1.4) {
                     cones -= 1;
-                    unflip();
                     if (cones == -1) {
+                        cycletime.reset();
                         cycleState = CycleState.PARK;
                     } else {
                         cycleState = CycleState.INTAKE;
-                    }
-                } else {
-                    if (liftPos > 250) {
-                        flip();
                     }
                 }
                 break;
 
             case PARK:
-                setLiftSLow(7);
-                if (cycletime.seconds() >= 1.3) {
+                setLiftSLow(3);
+                drive.intakeAngle.setPosition(intakeAngle3);
+                drive.stabilizer.setPosition(stabilizer2);
+                if (cycletime.seconds() >= 1) {
                     if (!parkLock) {
-                        switch (signal){
+                        switch (signal) {
                             case "LEFT":
                                 drive.followTrajectorySequence(parkLeft);
                                 parkLock = true;
@@ -352,16 +464,16 @@ public class rightAuto extends OpMode {
         liftController.setPID(pL, iL, dL);
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(pidLift);
-        drive.rightVerticalSlide.setPower(pidLift);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.84);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.84);
     }
 
     public void setLiftSLow(int target) {
         liftController.setPID(0.015, 0.0001, 0.0001);
         pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
 
-        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.3);
-        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.3);
+        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.33);
+        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.33);
     }
 
     public void setExtension(int target) {
@@ -373,16 +485,6 @@ public class rightAuto extends OpMode {
 
         drive.leftHorizontalSlide.setVelocity(4000);
         drive.rightHorizontalSlide.setVelocity(4000);
-    }
-
-    public void flip(){
-        drive.leftFlipper.setPosition(leftFlipper2);
-        drive.rightFlipper.setPosition(rightFlipper2);
-    }
-
-    public void unflip(){
-        drive.leftFlipper.setPosition(leftFlipper1);
-        drive.rightFlipper.setPosition(rightFlipper1);
     }
 
 }
