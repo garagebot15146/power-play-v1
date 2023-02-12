@@ -47,7 +47,7 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 615;
+    public static int highPole = 625;
     public static int midPole = 380;
     public int stabilizerVertical = 300;
 
@@ -55,12 +55,12 @@ public class teleOp extends OpMode {
     public static double claw1 = 1;
     public static double claw2 = 0.7;
 
-    public static double clawAngle1 = 0.02;
-    public static double clawAngle2 = 0.66;
+    public static double clawAngle1 = 0.1;
+    public static double clawAngle2 = 0.75;
     public static double clawAngle3 = 0.27;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.1;
+    public static double intakeAngle2 = 0.2;
     public static double intakeAngle3 = 0.31;
 
 
@@ -375,10 +375,10 @@ public class teleOp extends OpMode {
             liftState = LiftState.CYCLE;
         }
         // Voltage Check
-        if (voltage < 10) {
-            liftState = LiftState.LIFT_MANUAL;
-            cycleState = CycleState.INTAKE_UP;
-        }
+//        if (voltage < 10) {
+//            liftState = LiftState.LIFT_MANUAL;
+//            cycleState = CycleState.INTAKE_UP;
+//        }
 
         // Low Pole
         if (gamepad2.a) {
@@ -466,7 +466,7 @@ public class teleOp extends OpMode {
         }
 
         // FLIPPER
-        if (liftPos > 250) {
+//        if (liftPos > 250) {
             if (currentGamepad1.y && !previousGamepad1.y) {
                 if (toggleFlipper == "false" || toggleFlipper == "init") {
                     toggleFlipper = "true";
@@ -487,12 +487,9 @@ public class teleOp extends OpMode {
 //                telemetry.addData("Left Flipper", leftFlipper1);
 //                telemetry.addData("Right Flipper", rightFlipper1);
             }
-        }
+//        }
 
         // TELEMETRY
-//        telemetry.addData("Red", drive.colorSensor.red());
-//        telemetry.addData("Blue", drive.colorSensor.blue());
-        telemetry.addData("Distance", drive.distanceSensor.getDistance(DistanceUnit.CM));
         telemetry.addData("Lift State", liftState);
         telemetry.addData("Cycle State", cycleState);
         telemetry.addData("Claw Lock", clawLock);

@@ -51,7 +51,7 @@ public class rightAuto extends OpMode {
     public static double inc = 0.04;
     public static double[] intakeAngles = {0, 0.715, 0.67, 0.6, 0.585, 0.45};
     public static double[] clawAngles = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static int[] extensions = {970, 970, 970, 970, 1000, 1110};
+    public static int[] extensions = {990, 990, 990, 990, 1000, 1110};
 
     public static int cycleReset = 1010;
 
@@ -65,12 +65,12 @@ public class rightAuto extends OpMode {
     public static double claw2 = 0.7;
 
     public static double clawAngle1 = 0.02;
-    public static double clawAngle2 = 0.66;
+    public static double clawAngle2 = 0.77;
     public static double clawAngle3 = 0.3;
     public static double clawAngle4 = 0.6;
 
     public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.25;
+    public static double intakeAngle2 = 0.22;
     public static double intakeAngle3 = 0.34;
     public static double intakeAngle4 = 0.2;
 
@@ -350,9 +350,9 @@ public class rightAuto extends OpMode {
                             if (cycletime.seconds() >= 1.6) {
                                 drive.clawAngle.setPosition(clawAngle2);
                                 drive.intakeAngle.setPosition(intakeAngle2);
-                                if (cycletime.seconds() >= 2) {
+                                if (cycletime.seconds() >= 2.2) {
                                     clawOpen();
-                                    if (cycletime.seconds() >= 2.3) {
+                                    if (cycletime.seconds() >= 2.5) {
                                         cycletime.reset();
                                         cycleState = CycleState.DEPOSIT;
                                     }
