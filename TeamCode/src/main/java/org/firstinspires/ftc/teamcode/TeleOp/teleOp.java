@@ -47,20 +47,20 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 625;
-    public static int midPole = 380;
-    public int stabilizerVertical = 300;
+    public static int highPole = 645;
+    public static int midPole = 348;
+    public static int stabilizerVertical = 250;
 
     // SERVO POSITIONS
     public static double claw1 = 1;
     public static double claw2 = 0.7;
 
-    public static double clawAngle1 = 0.1;
-    public static double clawAngle2 = 0.75;
-    public static double clawAngle3 = 0.27;
+    public static double clawAngle1 = 0;
+    public static double clawAngle2 = 0.6;
+    public static double clawAngle3 = 0.22;
 
-    public static double intakeAngle1 = 0.85;
-    public static double intakeAngle2 = 0.2;
+    public static double intakeAngle1 = 0.8;
+    public static double intakeAngle2 = 0.17;
     public static double intakeAngle3 = 0.31;
 
 
@@ -113,6 +113,7 @@ public class teleOp extends OpMode {
     PIDController extendController;
     public static int extendMax = 1000;
     public int extendTarget = 0;
+    public static int extendPower = 1;
     public static double pE = 0.02, iE = 0.001, dE = 0.0001;
 
     @Override
@@ -173,7 +174,7 @@ public class teleOp extends OpMode {
     @Override
     public void loop() {
         // ENCODERS
-        int liftPos = drive.rightVerticalSlide.getCurrentPosition();
+        int liftPos = drive.leftVerticalSlide.getCurrentPosition();
         int extensionPos = drive.leftHorizontalSlide.getCurrentPosition();
 
         // GAMEPADS
@@ -277,19 +278,12 @@ public class teleOp extends OpMode {
                 // Uses joystick no PID
                 double liftPower = -gamepad2.right_stick_y;
                 if (liftPower > 0) {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.7);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.7);
+                    drive.leftVerticalSlide.setPower(liftPower * 1);
+                    drive.rightVerticalSlide.setPower(liftPower * 1);
                 } else {
-                    drive.leftVerticalSlide.setPower(liftPower * 0.5);
-                    drive.rightVerticalSlide.setPower(liftPower * 0.5);
+                    drive.leftVerticalSlide.setPower(liftPower * 0.6);
+                    drive.rightVerticalSlide.setPower(liftPower * 0.6);
                 }
-//                if (liftPower > 0) {
-//                    drive.leftVerticalSlide.setPower(liftPower * 1);
-//                    drive.rightVerticalSlide.setPower(liftPower * 1);
-//                } else {
-//                    drive.leftVerticalSlide.setPower(liftPower * 0.9);
-//                    drive.rightVerticalSlide.setPower(liftPower * 0.9);
-//                }
                 break;
 
             case CYCLE:
@@ -385,7 +379,7 @@ public class teleOp extends OpMode {
             drive.intakeAngle.setPosition(intakeAngle3);
             drive.stabilizer.setPosition(stabilizer2);
             liftState = LiftState.LIFT_AUTO_SLOW;
-            liftTarget = 10;
+            liftTarget = 0;
             // Mid Pole
         } else if (gamepad2.b) {
             drive.intakeAngle.setPosition(intakeAngle3);
@@ -458,10 +452,14 @@ public class teleOp extends OpMode {
 
         // STABILIZER
         if (liftState == LiftState.LIFT_MANUAL) {
-            if (liftPos > stabilizerVertical) {
-                drive.stabilizer.setPosition(stabilizer1);
-            } else {
+            if(-gamepad2.right_stick_y < 0.6){
                 drive.stabilizer.setPosition(stabilizer2);
+            } else {
+                if (liftPos > stabilizerVertical) {
+                    drive.stabilizer.setPosition(stabilizer1);
+                } else {
+                    drive.stabilizer.setPosition(stabilizer2);
+                }
             }
         }
 
@@ -570,8 +568,8 @@ public class teleOp extends OpMode {
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        drive.leftHorizontalSlide.setVelocity(3000);
-        drive.rightHorizontalSlide.setVelocity(3000);
+        drive.leftHorizontalSlide.setPower(extendPower);
+        drive.rightHorizontalSlide.setPower(extendPower);
     }
 
     public double getTime() {
