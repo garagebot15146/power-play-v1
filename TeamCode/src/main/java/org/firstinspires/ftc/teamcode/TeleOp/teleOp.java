@@ -69,7 +69,7 @@ public class teleOp extends OpMode {
     public static double rightFlipper2 = 0.5;
 
     public static double stabilizer1 = 0;
-    public static double stabilizer2 = 0.37;
+    public static double stabilizer2 = 0.1;
 
     // STATE MACHINES
     public enum LiftState {
@@ -82,6 +82,7 @@ public class teleOp extends OpMode {
     public enum ExtendState {
         EXTEND_MANUAL,
         TRANSFER,
+        LOW_POLE
     }
 
     public enum CycleState {
@@ -142,6 +143,8 @@ public class teleOp extends OpMode {
 
         drive.leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         drive.rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        drive.stabilizer.setPosition(stabilizer2);
 
     }
 
@@ -346,22 +349,36 @@ public class teleOp extends OpMode {
                     drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     double extendPower = -gamepad2.left_stick_y;
-                    drive.leftHorizontalSlide.setPower(extendPower);
-                    drive.rightHorizontalSlide.setPower(extendPower);
+                    drive.leftHorizontalSlide.setPower(extendPower * 0.5);
+                    drive.rightHorizontalSlide.setPower(extendPower * 0.5);
                     break;
                 case TRANSFER:
+                    toggleClaw = "false";
                     setExtension(0);
-                    if (extensionPos < 50) {
+                    if (extensionPos < 40) {
                         intakeUp();
-                        if (transfertime.seconds() > 1.3) {
+                        if (transfertime.seconds() > 0.6) {
+                            toggleClaw = "true";
                             clawOpen();
+                            if (transfertime.seconds() > 0.8) {
+                                extendState = ExtendState.EXTEND_MANUAL;
+                            }
+                        }
+                    } else {
+                        transfertime.reset();
+                    }
+                    break;
+                case LOW_POLE:
+                    setExtension(0);
+                    if (extensionPos < 40) {
+                        lowPole();
+                        if (transfertime.seconds() > 0.5) {
                             extendState = ExtendState.EXTEND_MANUAL;
                         }
                     } else {
                         transfertime.reset();
                     }
                     break;
-
             }
         }
         // Override the lift auto state
@@ -383,8 +400,8 @@ public class teleOp extends OpMode {
 
         // INTAKE
         if (gamepad2.dpad_up) {
+            transfertime.reset();
             extendState = ExtendState.TRANSFER;
-//            intakeUp();
         } else if (gamepad2.dpad_down) {
             intakeDown();
             extendState = ExtendState.EXTEND_MANUAL;
@@ -445,7 +462,7 @@ public class teleOp extends OpMode {
 
         // LOW POLE
         if (gamepad2.right_bumper) {
-            lowPole();
+            extendState = ExtendState.LOW_POLE;
         }
 
         // STABILIZER
@@ -551,8 +568,8 @@ public class teleOp extends OpMode {
         drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        drive.leftHorizontalSlide.setVelocity(5000);
-        drive.rightHorizontalSlide.setVelocity(5000);
+        drive.leftHorizontalSlide.setVelocity(7000);
+        drive.rightHorizontalSlide.setVelocity(7000);
     }
 
 }
