@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.AutoV2;
+package org.firstinspires.ftc.teamcode.Auto.AutoV2;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
