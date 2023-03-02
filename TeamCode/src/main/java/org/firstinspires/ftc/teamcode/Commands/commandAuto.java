@@ -7,8 +7,10 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Commands.commandBase.commands.clawPosCommand;
-import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.ClawSubsystem;
+import org.firstinspires.ftc.teamcode.Commands.commandBase.commands.extendCommand;
+import org.firstinspires.ftc.teamcode.Commands.commandBase.commands.intakeCommand;
+import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.ExtendSubsystem;
+import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.commandBase.commands.liftCommand;
 import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.LiftSubsystem;
 
@@ -17,26 +19,33 @@ import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.LiftSubsyst
 public class commandAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
-        ClawSubsystem clawSubsystem = new ClawSubsystem(hardwareMap);
+        IntakeSubsystem clawSubsystem = new IntakeSubsystem(hardwareMap);
         LiftSubsystem liftSubsystem = new LiftSubsystem(hardwareMap);
+        ExtendSubsystem extendSubsystem = new ExtendSubsystem(hardwareMap);
 
         CommandScheduler.getInstance().reset();
 
         waitForStart();
         CommandScheduler.getInstance().schedule(
-                new clawPosCommand(clawSubsystem),
+                new intakeCommand(clawSubsystem),
                 new SequentialCommandGroup(
                         new liftCommand(liftSubsystem, 500),
                         new WaitCommand(500),
-                        new liftCommand(liftSubsystem, 5),
-                        new InstantCommand(this::requestOpModeStop)
+                        new liftCommand(liftSubsystem, 5)
+                ),
+                new SequentialCommandGroup(
+                        new extendCommand(extendSubsystem, 500),
+                        new WaitCommand(500),
+                        new extendCommand(extendSubsystem, 5)
                 )
         );
 
         while (opModeIsActive()) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
+            extendSubsystem.loop();
             telemetry.addData("Lift", liftSubsystem.position());
+            telemetry.addData("Extend", extendSubsystem.position());
             telemetry.update();
         }
     }

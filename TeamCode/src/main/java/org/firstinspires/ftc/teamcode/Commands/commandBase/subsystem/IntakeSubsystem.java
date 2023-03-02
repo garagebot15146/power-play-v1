@@ -4,7 +4,7 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class ClawSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
 
     // Servos in the claw subsystem
     private Servo elbowServo;
@@ -14,7 +14,7 @@ public class ClawSubsystem extends SubsystemBase {
 
 
     //Servo angles for Elbow Joint of the claw subsystem
-    private static double[] elbowServoPickPos = {0, 0.715, 0.67, 0.6, 0.585, 0.45};
+    private static double[] elbowServoPickPos = {0.17, 0.715, 0.67, 0.6, 0.585, 0.45};
     private static double elbowServoDropPos = 0.17;
 
     //States for Elbow Joint of the claw subsystem
@@ -28,7 +28,7 @@ public class ClawSubsystem extends SubsystemBase {
         DROP_CONE
     }
 
-    public static double[] wristServoPickPos = {0, 0.02, 0.02, 0.02, 0.04, 0.04};
+    public static double[] wristServoPickPos = {0.6, 0.02, 0.02, 0.02, 0.04, 0.04};
     public static double wristServoDropPos = 0.6;
 
     public enum WristPos {
@@ -57,7 +57,7 @@ public class ClawSubsystem extends SubsystemBase {
         CLOSED,
     }
 
-    public ClawSubsystem(HardwareMap hardwareMap) {
+    public IntakeSubsystem(HardwareMap hardwareMap) {
 
         elbowServo = hardwareMap.get(Servo.class, "intakeAngle");  //rename this to elbow
         wristServo = hardwareMap.get(Servo.class, "clawAngle");    //rename this to wrist
@@ -70,6 +70,35 @@ public class ClawSubsystem extends SubsystemBase {
         update(RotatorState.DROP);
         update(ClawState.CLOSED);
 
+    }
+
+    public void down(int cones) {
+        update(ClawState.OPEN);
+        switch (cones) {
+            case 1:
+                update(ElbowPos.PICK_CONE_1);
+                update(WristPos.PICK_CONE_1);
+                break;
+
+            case 2:
+                update(ElbowPos.PICK_CONE_2);
+                update(WristPos.PICK_CONE_2);
+                break;
+
+            case 3:
+                update(ElbowPos.PICK_CONE_3);
+                update(WristPos.PICK_CONE_3);
+                break;
+            case 4:
+                update(ElbowPos.PICK_CONE_4);
+                update(WristPos.PICK_CONE_4);
+                break;
+
+            case 5:
+                update(ElbowPos.PICK_CONE_5);
+                update(WristPos.PICK_CONE_5);
+                break;
+        }
     }
 
     public void update(ElbowPos state) {
