@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem;
+package org.firstinspires.ftc.teamcode.Commands.subsystem;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,8 +14,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     //Servo angles for Elbow Joint of the claw subsystem
-    private static double[] elbowServoPickPos = {0.17, 0.715, 0.67, 0.6, 0.585, 0.45};
-    private static double elbowServoDropPos = 0.17;
+    private static double[] elbowServoPickPos = {0.27, 0.77, 0.71, 0.64, 0.587, 0.52};
+    private static double elbowServoDropPos = 0.2;
+    private static double elbowServoLiftPos = 0.3;
 
     //States for Elbow Joint of the claw subsystem
     public enum ElbowPos {
@@ -25,11 +26,13 @@ public class IntakeSubsystem extends SubsystemBase {
         PICK_CONE_3,
         PICK_CONE_4,
         PICK_CONE_5,
-        DROP_CONE
+        DROP_CONE,
+        LIFT_CONE
     }
 
-    public static double[] wristServoPickPos = {0.6, 0.02, 0.02, 0.02, 0.04, 0.04};
-    public static double wristServoDropPos = 0.6;
+    public static double[] wristServoPickPos = {0.6, 0.03, 0.02, 0.02, 0.04, 0.03};
+    public static double wristServoDropPos = 0.63;
+    public static double wristServoLiftPos = 0.15;
 
     public enum WristPos {
         INIT_POS,
@@ -38,7 +41,8 @@ public class IntakeSubsystem extends SubsystemBase {
         PICK_CONE_3,
         PICK_CONE_4,
         PICK_CONE_5,
-        DROP_CONE
+        DROP_CONE,
+        LIFT_CONE
     }
 
     private static double claw_rotator_pick = 1;
@@ -65,42 +69,63 @@ public class IntakeSubsystem extends SubsystemBase {
         clawServo = hardwareMap.get(Servo.class, "claw");         //
 
         //Initialize the claw subsystem to a default state
+        update(RotatorState.DROP);
         update(ElbowPos.INIT_POS);
         update(WristPos.INIT_POS);
-        update(RotatorState.DROP);
-        update(ClawState.CLOSED);
 
     }
 
     public void down(int cones) {
-        update(ClawState.OPEN);
         switch (cones) {
+            case 0:
+                update(ElbowPos.INIT_POS);
+                update(WristPos.INIT_POS);
+                break;
+
             case 1:
+                update(ClawState.OPEN);
+                update(RotatorState.PICK);
                 update(ElbowPos.PICK_CONE_1);
                 update(WristPos.PICK_CONE_1);
                 break;
 
             case 2:
+                update(ClawState.OPEN);
+                update(RotatorState.PICK);
                 update(ElbowPos.PICK_CONE_2);
                 update(WristPos.PICK_CONE_2);
                 break;
 
             case 3:
+                update(ClawState.OPEN);
+                update(RotatorState.PICK);
                 update(ElbowPos.PICK_CONE_3);
                 update(WristPos.PICK_CONE_3);
                 break;
             case 4:
+                update(ClawState.OPEN);
+                update(RotatorState.PICK);
                 update(ElbowPos.PICK_CONE_4);
                 update(WristPos.PICK_CONE_4);
                 break;
 
             case 5:
+                update(ClawState.OPEN);
+                update(RotatorState.PICK);
                 update(ElbowPos.PICK_CONE_5);
                 update(WristPos.PICK_CONE_5);
+                break;
+            case 6:
+                update(ElbowPos.DROP_CONE);
+                update(WristPos.DROP_CONE);
                 break;
         }
     }
 
+    public void lift(){
+        update(WristPos.LIFT_CONE);
+        update(ElbowPos.LIFT_CONE);
+    }
     public void update(ElbowPos state) {
         switch (state) {
             case INIT_POS:
@@ -123,6 +148,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
             case DROP_CONE:
                 elbowServo.setPosition(elbowServoDropPos);
+                break;
+            case LIFT_CONE:
+                elbowServo.setPosition(elbowServoLiftPos);
                 break;
         }
     }
@@ -149,6 +177,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
             case DROP_CONE:
                 wristServo.setPosition(wristServoDropPos);
+                break;
+            case LIFT_CONE:
+                wristServo.setPosition(wristServoLiftPos);
                 break;
         }
     }

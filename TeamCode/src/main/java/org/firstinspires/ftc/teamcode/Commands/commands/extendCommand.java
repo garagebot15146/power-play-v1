@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.Commands.commandBase.commands;
+package org.firstinspires.ftc.teamcode.Commands.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.ExtendSubsystem;
+import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 
 public class extendCommand extends CommandBase {
 

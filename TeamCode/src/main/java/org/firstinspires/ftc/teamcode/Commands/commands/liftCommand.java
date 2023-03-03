@@ -1,16 +1,16 @@
-package org.firstinspires.ftc.teamcode.Commands.commandBase.commands;
+package org.firstinspires.ftc.teamcode.Commands.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.Commands.commandBase.subsystem.LiftSubsystem;
+import org.firstinspires.ftc.teamcode.Commands.subsystem.LiftSubsystem;
 
 public class liftCommand extends CommandBase {
 
     private final LiftSubsystem liftSubsystem;
-    private int target;
+    private String pole;
 
-    public liftCommand(LiftSubsystem subsystem, int target) {
-        this.target = target;
+    public liftCommand(LiftSubsystem subsystem, String pole) {
+        this.pole = pole;
         liftSubsystem = subsystem;
         addRequirements(liftSubsystem);
     }
@@ -18,7 +18,7 @@ public class liftCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        liftSubsystem.setTarget(target);
+        liftSubsystem.setTarget(pole);
     }
 
     @Override
