@@ -14,9 +14,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     //Servo angles for Elbow Joint of the claw subsystem
-    private static double[] elbowServoPickPos = {0.27, 0.77, 0.685, 0.64, 0.587, 0.52};
+    private static double[] elbowServoPickPos = {0.27, 0.9, 0.75, 0.675, 0.62, 0.55};
     private static double elbowServoDropPos = 0.2;
-    private static double elbowServoLiftPos = 0.3;
+    private static double elbowServoLiftPos = 0.28;
 
     //States for Elbow Joint of the claw subsystem
     public enum ElbowPos {
@@ -30,10 +30,10 @@ public class IntakeSubsystem extends SubsystemBase {
         LIFT_CONE
     }
 
-    public static double[] wristServoPickPos = {0.6, 0.03, 0.02, 0.02, 0.04, 0.03};
+    public static double[] wristServoPickPos = {0.6, 0.01, 0.03, 0.01, 0.04, 0};
     public static double wristServoDropPos = 0.63;
-    public static double wristServoMidPos = 0.5;
-    public static double wristServoLiftPos = 0.15;
+    public static double wristServoMidPos = 0.54;
+    public static double wristServoLiftPos = 0.4;
 
     public enum WristPos {
         INIT_POS,

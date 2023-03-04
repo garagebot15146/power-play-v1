@@ -23,9 +23,9 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 public class cycleHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
-    public static double toPoleLineX = 36;
-    public static double toPoleLineY = -6;
-    public static double toPoleLineH = -14;
+    public static double toPoleLineX = 34;
+    public static double toPoleLineY = -4;
+    public static double toPoleLineH = -16;
 
     public static double parkCenterLineX = 35;
     public static double parkCenterLineY = -16.5;
@@ -94,7 +94,7 @@ public class cycleHighAuto extends LinearOpMode {
                         )
         );
 
-        while (opModeIsActive() && timer.seconds() < 25) {
+        while (opModeIsActive() && timer.seconds() < 26) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();
