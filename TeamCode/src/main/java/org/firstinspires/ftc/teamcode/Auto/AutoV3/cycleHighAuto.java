@@ -24,7 +24,7 @@ public class cycleHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
     public static double toPoleLineX = 34;
-    public static double toPoleLineY = -4;
+    public static double toPoleLineY = -6;
     public static double toPoleLineH = -16;
 
     public static double parkCenterLineX = 35;
@@ -94,7 +94,7 @@ public class cycleHighAuto extends LinearOpMode {
                         )
         );
 
-        while (opModeIsActive() && timer.seconds() < 26) {
+        while (opModeIsActive() && timer.seconds() < 25) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();

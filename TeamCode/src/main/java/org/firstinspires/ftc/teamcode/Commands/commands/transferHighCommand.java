@@ -16,6 +16,8 @@ public class transferHighCommand extends ParallelCommandGroup {
                 new SequentialCommandGroup(
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.ClawState.CLOSED)),
                         new WaitCommand(300),
+                        new extendCommand(extendSubsystem, 6, 1000),
+                        new WaitCommand(1000),
                         new InstantCommand(() -> intakeSubsystem.lift()),
                         new WaitCommand(1000),
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.RotatorState.DROP)),
