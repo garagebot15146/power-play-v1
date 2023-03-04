@@ -94,7 +94,7 @@ public class cycleHighAuto extends LinearOpMode {
                         )
         );
 
-        while (opModeIsActive() && timer.seconds() < 25) {
+        while (opModeIsActive() && timer.seconds() < 25.5) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();
