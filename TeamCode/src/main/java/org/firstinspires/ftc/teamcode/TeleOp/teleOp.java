@@ -48,7 +48,7 @@ public class teleOp extends OpMode {
 
     // SERVO POSITIONS
     public static double claw1 = 1;
-    public static double claw2 = 0.7;
+    public static double claw2 = 0.4;
 
     public static double clawAngle1 = 0;
     public static double clawAngle2 = 0.6;
@@ -355,12 +355,12 @@ public class teleOp extends OpMode {
                 case TRANSFER:
                     toggleClaw = "false";
                     setExtension(0);
-                    if (extensionPos < 40) {
+                    if (extensionPos < 20) {
                         intakeUp();
-                        if (transfertime.seconds() > 0.6) {
+                        if (transfertime.seconds() > 0.7) {
                             toggleClaw = "true";
                             clawOpen();
-                            if (transfertime.seconds() > 0.8) {
+                            if (transfertime.seconds() > 0.83) {
                                 extendState = ExtendState.EXTEND_MANUAL;
                             }
                         }

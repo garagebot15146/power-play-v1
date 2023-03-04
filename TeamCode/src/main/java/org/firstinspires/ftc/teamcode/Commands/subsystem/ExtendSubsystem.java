@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Commands.subsystem;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,13 +17,18 @@ public class ExtendSubsystem extends SubsystemBase {
     private final double iL = 0;
     private final double dL = 0.0001;
 
-
     public ExtendSubsystem(HardwareMap hardwareMap) {
         leftHorizontalSlide = hardwareMap.get(DcMotorEx.class, "leftHorizontalSlide");
         rightHorizontalSlide = hardwareMap.get(DcMotorEx.class, "rightHorizontalSlide");
 
         leftHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        leftHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightHorizontalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void loop() {

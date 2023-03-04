@@ -14,7 +14,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     //Servo angles for Elbow Joint of the claw subsystem
-    private static double[] elbowServoPickPos = {0.27, 0.77, 0.71, 0.64, 0.587, 0.52};
+    private static double[] elbowServoPickPos = {0.27, 0.77, 0.685, 0.64, 0.587, 0.52};
     private static double elbowServoDropPos = 0.2;
     private static double elbowServoLiftPos = 0.3;
 
@@ -32,6 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public static double[] wristServoPickPos = {0.6, 0.03, 0.02, 0.02, 0.04, 0.03};
     public static double wristServoDropPos = 0.63;
+    public static double wristServoMidPos = 0.5;
     public static double wristServoLiftPos = 0.15;
 
     public enum WristPos {
@@ -42,7 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
         PICK_CONE_4,
         PICK_CONE_5,
         DROP_CONE,
-        LIFT_CONE
+        LIFT_CONE,
+        MID_CONE
     }
 
     private static double claw_rotator_pick = 1;
@@ -54,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private static double claw_pos_open = 1;
-    private static double claw_pos_closed = 0.7;
+    private static double claw_pos_closed = 0.4;
 
     public enum ClawState {
         OPEN,
@@ -102,6 +104,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 update(ElbowPos.PICK_CONE_3);
                 update(WristPos.PICK_CONE_3);
                 break;
+
             case 4:
                 update(ClawState.OPEN);
                 update(RotatorState.PICK);
@@ -115,6 +118,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 update(ElbowPos.PICK_CONE_5);
                 update(WristPos.PICK_CONE_5);
                 break;
+
             case 6:
                 update(ElbowPos.DROP_CONE);
                 update(WristPos.DROP_CONE);
@@ -180,6 +184,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
             case LIFT_CONE:
                 wristServo.setPosition(wristServoLiftPos);
+                break;
+            case MID_CONE:
+                wristServo.setPosition(wristServoMidPos);
                 break;
         }
     }

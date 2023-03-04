@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Commands.subsystem;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -27,6 +28,12 @@ public class LiftSubsystem extends SubsystemBase {
 
         leftVerticalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightVerticalSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        leftVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightVerticalSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void loop() {
@@ -46,7 +53,7 @@ public class LiftSubsystem extends SubsystemBase {
         switch (pole) {
             case "BOTTOM":
                 stabilizer.setPosition(0.1);
-                position = 4;
+                position = 6;
                 break;
             case "MEDIUM":
                 stabilizer.setPosition(0);
@@ -54,7 +61,7 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 615;
+                position = 610;
                 break;
         }
     }
@@ -65,6 +72,6 @@ public class LiftSubsystem extends SubsystemBase {
 
 
     public boolean isReached() {
-        return Math.abs(position - leftVerticalSlide.getCurrentPosition()) < 5;
+        return Math.abs(position - leftVerticalSlide.getCurrentPosition()) < 10;
     }
 }

@@ -9,9 +9,9 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 public class depositCommand extends ParallelCommandGroup {
     public depositCommand(IntakeSubsystem intakeSubsystem , LiftSubsystem liftSubsystem, ExtendSubsystem extendSubsystem, int cones) {
         super(
-                new liftCommand(liftSubsystem, "HIGH"),
+                new liftCommand(liftSubsystem, "HIGH", 1000),
                 new intakeCommand(intakeSubsystem, cones),
-                new extendCommand(extendSubsystem, 960)
+                new extendCommand(extendSubsystem, cones, 1000)
         );
     }
 }
