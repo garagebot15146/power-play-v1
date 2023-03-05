@@ -27,7 +27,7 @@ public class extendCommand extends CommandBase {
                 extendSubsystem.setTarget(0);
                 break;
             case 1:
-                extendSubsystem.setTarget(1000);
+                extendSubsystem.setTarget(1010);
                 break;
             case 2:
                 extendSubsystem.setTarget(970);

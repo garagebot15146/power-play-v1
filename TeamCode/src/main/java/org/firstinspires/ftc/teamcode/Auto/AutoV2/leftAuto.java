@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 @Config
 @Autonomous(name = "Left Auto", group = "auto")
-//@Disabled
+@Disabled
 public class leftAuto extends OpMode {
     HWMap drive;
 

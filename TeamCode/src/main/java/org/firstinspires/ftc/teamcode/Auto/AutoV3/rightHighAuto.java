@@ -17,10 +17,10 @@ import org.firstinspires.ftc.teamcode.Commands.subsystem.LiftSubsystem;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "cycleHighAuto", group = "auto")
+@Autonomous(name = "rightHighAuto", group = "auto")
 @Config
 //@Disabled
-public class cycleHighAuto extends LinearOpMode {
+public class rightHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
     public static double toPoleLineX = 34;
@@ -102,7 +102,7 @@ public class cycleHighAuto extends LinearOpMode {
             telemetry.addData("Extend", extendSubsystem.position());
             telemetry.update();
         }
-        drive.followTrajectorySequence(parkCenter);
+//        drive.followTrajectorySequence(parkCenter);
 
     }
 

@@ -51,11 +51,11 @@ public class teleOp extends OpMode {
     public static double claw2 = 0.4;
 
     public static double clawAngle1 = 0;
-    public static double clawAngle2 = 0.6;
+    public static double clawAngle2 = 0.63;
     public static double clawAngle3 = 0.22;
 
-    public static double intakeAngle1 = 0.8;
-    public static double intakeAngle2 = 0.17;
+    public static double intakeAngle1 = 0.89;
+    public static double intakeAngle2 = 0.14;
     public static double intakeAngle3 = 0.31;
 
 
@@ -399,7 +399,7 @@ public class teleOp extends OpMode {
         }
 
         // INTAKE
-        if (gamepad2.dpad_up) {
+        if (gamepad1.right_bumper) {
             transfertime.reset();
             extendState = ExtendState.TRANSFER;
         } else if (gamepad2.dpad_down) {
@@ -415,13 +415,13 @@ public class teleOp extends OpMode {
             liftTarget = 0;
             // Mid Pole
         } else if (gamepad2.b) {
-            drive.intakeAngle.setPosition(intakeAngle3);
+            lowPole();
             drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = midPole;
             // High Pole
         } else if (gamepad2.x) {
-            drive.intakeAngle.setPosition(intakeAngle3);
+            lowPole();
             drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = highPole;
@@ -442,7 +442,7 @@ public class teleOp extends OpMode {
         }
 
         // CLAW
-        if ((currentGamepad2.left_bumper && !previousGamepad2.left_bumper) || (currentGamepad1.left_bumper && !previousGamepad1.left_bumper)) {
+        if ((currentGamepad1.left_bumper && !previousGamepad1.left_bumper)) {
             if (toggleClaw == "false" || toggleClaw == "init") {
                 toggleClaw = "true";
             } else {
