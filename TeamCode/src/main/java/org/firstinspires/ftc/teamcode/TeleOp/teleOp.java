@@ -50,17 +50,17 @@ public class teleOp extends OpMode {
     public static double claw1 = 1;
     public static double claw2 = 0.5;
 
-    public static double clawAngle1 = 0;
-    public static double clawAngle2 = 0.7;
+    public static double clawAngle1 = 0.1;
+    public static double clawAngle2 = 0.59;
     public static double clawAngle3 = 0.22;
 
-    public static double intakeAngle1 = 0.89;
-    public static double intakeAngle2 = 0.25;
-    public static double intakeAngle3 = 0.31;
+    public static double intakeAngle1 = 1;
+    public static double intakeAngle2 = 0.41;
+    public static double intakeAngle3 = 0.5;
 
 
-    public static double clawRotate1 = 1;
-    public static double clawRotate2 = 0;
+    public static double clawRotate1 = 0;
+    public static double clawRotate2 = 1;
 
     public static double leftFlipper1 = 1;
     public static double leftFlipper2 = 0.5;
@@ -184,7 +184,7 @@ public class teleOp extends OpMode {
 
         // WHEELS
         double normal = 0.7;
-        double slow = 0.2;
+        double slow = 0.35;
         double fast = 1;
         double forward = -gamepad1.left_stick_y;
         double side = gamepad1.left_stick_x; //Positive means right
@@ -366,12 +366,15 @@ public class teleOp extends OpMode {
                 case TRANSFER:
                     toggleClaw = "false";
                     setExtension(0);
-                    if (extensionPos < 20) {
+                    if (extensionPos < 10) {
                         intakeUp();
-                        if (transfertime.seconds() > 0.7) {
+                        if (transfertime.seconds() > 0.3) {
+                            drive.clawAngle.setPosition(clawAngle2);
+                        }
+                        if (transfertime.seconds() > 1.1) {
                             toggleClaw = "true";
                             clawOpen();
-                            if (transfertime.seconds() > 0.83) {
+                            if (transfertime.seconds() > 1.3) {
                                 extendState = ExtendState.EXTEND_MANUAL;
                             }
                         }
@@ -505,12 +508,52 @@ public class teleOp extends OpMode {
             drive.rightFlipper.setPosition(rightFlipper1);
         }
 
+        // DELETE SOON
+
+        // CLAW ANGLE
+        if ((currentGamepad1.a && !previousGamepad1.a) || (currentGamepad1.a && !previousGamepad1.a)) {
+            if (toggleClawAngle == "false" || toggleClawAngle == "init") {
+                toggleClawAngle = "true";
+            } else {
+                toggleClawAngle = "false";
+            }
+        }
+        if (liftState != LiftState.CYCLE) {
+            if (toggleClawAngle == "true") {
+                drive.clawAngle.setPosition(clawAngle1);
+                telemetry.addData("Claw Angle", clawAngle1);
+
+            } else if (toggleClawAngle == "false") {
+                drive.clawAngle.setPosition(clawAngle2);
+                telemetry.addData("Claw Angle", clawAngle2);
+            }
+        }
+
+        // INTAKE ANGLE
+        if ((currentGamepad1.b && !previousGamepad1.b) || (currentGamepad1.b && !previousGamepad1.b)) {
+            if (toggleIntakeAngle == "false" || toggleIntakeAngle == "init") {
+                toggleIntakeAngle = "true";
+            } else {
+                toggleIntakeAngle = "false";
+            }
+        }
+        if (liftState != LiftState.CYCLE) {
+            if (toggleIntakeAngle == "true") {
+                drive.intakeAngle.setPosition(intakeAngle1);
+                telemetry.addData("Intake Angle", intakeAngle1);
+
+            } else if (toggleIntakeAngle == "false") {
+                drive.intakeAngle.setPosition(intakeAngle2);
+                telemetry.addData("Intake Angle", intakeAngle2);
+            }
+        }
+
         // TELEMETRY
-        telemetry.addData("Lift State", liftState);
-        telemetry.addData("Cycle State", cycleState);
-        telemetry.addData("Extend State", extendState);
-        telemetry.addData("Lift Pos", liftPos);
-        telemetry.addData("Extend Pos", extensionPos);
+//        telemetry.addData("Lift State", liftState);
+//        telemetry.addData("Cycle State", cycleState);
+//        telemetry.addData("Extend State", extendState);
+//        telemetry.addData("Lift Pos", liftPos);
+//        telemetry.addData("Extend Pos", extensionPos);
 
     }
 
@@ -542,7 +585,6 @@ public class teleOp extends OpMode {
     public void intakeUp() {
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
-        drive.clawAngle.setPosition(clawAngle2);
     }
 
     public void setLift(int target) {
