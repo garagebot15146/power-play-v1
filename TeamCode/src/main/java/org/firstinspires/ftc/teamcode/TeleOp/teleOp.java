@@ -48,19 +48,19 @@ public class teleOp extends OpMode {
 
     // SERVO POSITIONS
     public static double claw1 = 1;
-    public static double claw2 = 0.4;
+    public static double claw2 = 0.5;
 
     public static double clawAngle1 = 0;
-    public static double clawAngle2 = 0.63;
+    public static double clawAngle2 = 0.7;
     public static double clawAngle3 = 0.22;
 
     public static double intakeAngle1 = 0.89;
-    public static double intakeAngle2 = 0.14;
+    public static double intakeAngle2 = 0.25;
     public static double intakeAngle3 = 0.31;
 
 
     public static double clawRotate1 = 1;
-    public static double clawRotate2 = 0.23;
+    public static double clawRotate2 = 0;
 
     public static double leftFlipper1 = 1;
     public static double leftFlipper2 = 0.5;
@@ -348,9 +348,20 @@ public class teleOp extends OpMode {
                     drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-                    double extendPower = -gamepad2.left_stick_y;
-                    drive.leftHorizontalSlide.setPower(extendPower * 0.5);
-                    drive.rightHorizontalSlide.setPower(extendPower * 0.5);
+                    if(!(gamepad1.left_trigger > 0.05 || gamepad1.right_trigger > 0.05)){
+                        double extendPower = -gamepad2.left_stick_y;
+                        drive.leftHorizontalSlide.setPower(extendPower * 0.5);
+                        drive.rightHorizontalSlide.setPower(extendPower * 0.5);
+                    } else {
+                        if(gamepad1.left_trigger > 0.05){
+                            drive.leftHorizontalSlide.setPower(-gamepad1.left_trigger);
+                            drive.rightHorizontalSlide.setPower(-gamepad1.left_trigger);
+                        } else {
+                            drive.leftHorizontalSlide.setPower(gamepad1.right_trigger);
+                            drive.rightHorizontalSlide.setPower(gamepad1.right_trigger);
+                        }
+                    }
+
                     break;
                 case TRANSFER:
                     toggleClaw = "false";
