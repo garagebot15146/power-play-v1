@@ -391,10 +391,10 @@ public class teleOp extends OpMode {
                     setExtension(0);
                     intakeUp();
                     if (extensionPos < 10) {
-                        if (transfertime.seconds() > 0.2) {
-                            drive.clawAngle.setPosition(claw2 + 0.23);
-                        }
                         if (transfertime.seconds() > 0.3) {
+                            drive.clawAngle.setPosition(claw2 + 0.2);
+                        }
+                        if (transfertime.seconds() > 0.4) {
                             extendState = ExtendState.EXTEND_MANUAL;
                         }
                     } else {
