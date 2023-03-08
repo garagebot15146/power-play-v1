@@ -44,7 +44,7 @@ public class teleOp extends OpMode {
     // THRESHOLDS
     public static int highPole = 645;
     public static int midPole = 355;
-    public static int stabilizerVertical = 250;
+    public static int stabilizerVertical = 290;
 
     // SERVO POSITIONS
     public static double claw1 = 1;
@@ -52,11 +52,11 @@ public class teleOp extends OpMode {
 
     public static double clawAngle1 = 0.1;
     public static double clawAngle2 = 0.59;
-    public static double clawAngle3 = 0.22;
+    public static double clawAngle3 = 0.21;
 
     public static double intakeAngle1 = 1;
     public static double intakeAngle2 = 0.41;
-    public static double intakeAngle3 = 0.5;
+    public static double intakeAngle3 = 0.49;
 
 
     public static double clawRotate1 = 0;
@@ -76,7 +76,8 @@ public class teleOp extends OpMode {
         LIFT_AUTO,
         LIFT_AUTO_SLOW,
         LIFT_MANUAL,
-        CYCLE
+        CYCLE,
+        REST
     }
 
     public enum ExtendState {
@@ -99,6 +100,7 @@ public class teleOp extends OpMode {
     boolean clawLock = false;
     boolean intakeLock = false;
     boolean commandLock = false;
+    boolean transferLock = false;
     double pidLift = 0;
 
     // CLOCK
@@ -111,7 +113,7 @@ public class teleOp extends OpMode {
     PIDController liftController;
     public int liftMax = highPole;
     public int liftTarget = 0;
-    public static double pL = 0.03, iL = 0.001, dL = 0.0003;
+    public static double pL = 0.05, iL = 0.001, dL = 0.0005;
 
     PIDController extendController;
     public static int extendMax = 1000;
@@ -258,7 +260,7 @@ public class teleOp extends OpMode {
 
                 // Switch States
                 if (liftController.atSetPoint()) {
-                    liftState = LiftState.LIFT_MANUAL;
+                    liftState = LiftState.REST;
                     commandLock = false;
                 }
                 break;
@@ -269,7 +271,7 @@ public class teleOp extends OpMode {
                     commandLock = true;
                 }
 
-                if (commandtime.seconds() > 0.05) {
+                if (commandtime.seconds() > 0.09) {
                     drive.stabilizer.setPosition(stabilizer2);
                 }
 
@@ -277,8 +279,8 @@ public class teleOp extends OpMode {
                 liftController.setPID(0.015, 0.0001, 0.0001);
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
-                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.6);
-                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.6);
+                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
 
                 // Switch States
                 if (liftController.atSetPoint()) {
@@ -297,6 +299,16 @@ public class teleOp extends OpMode {
                     drive.leftVerticalSlide.setPower(liftPower * 0.6);
                     drive.rightVerticalSlide.setPower(liftPower * 0.6);
                 }
+
+                // STABILIZER
+                if (liftPos > stabilizerVertical) {
+                    drive.stabilizer.setPosition(stabilizer1);
+                } else {
+                    drive.stabilizer.setPosition(stabilizer2);
+                }
+                break;
+
+            case REST:
                 break;
 
             case CYCLE:
@@ -387,14 +399,19 @@ public class teleOp extends OpMode {
 
                     break;
                 case TRANSFER:
+                    if (!transferLock) {
+                        transfertime.reset();
+                        transferLock = true;
+                    }
                     toggleClaw = "false";
                     setExtension(0);
                     intakeUp();
                     if (extensionPos < 10) {
-                        if (transfertime.seconds() > 0.3) {
-                            drive.clawAngle.setPosition(claw2 + 0.2);
+                        if (transfertime.seconds() > 0.58) {
+                            drive.clawAngle.setPosition(claw2 + 0.15);
                         }
-                        if (transfertime.seconds() > 0.4) {
+                        if (transfertime.seconds() > 0.65) {
+                            transferLock = false;
                             extendState = ExtendState.EXTEND_MANUAL;
                         }
                     } else {
@@ -403,10 +420,15 @@ public class teleOp extends OpMode {
                     }
                     break;
                 case LOW_POLE:
+                    if (!transferLock) {
+                        transfertime.reset();
+                        transferLock = true;
+                    }
                     setExtension(0);
                     if (extensionPos < 40) {
                         lowPole();
                         if (transfertime.seconds() > 0.5) {
+                            transferLock = false;
                             extendState = ExtendState.EXTEND_MANUAL;
                         }
                     } else {
@@ -414,6 +436,10 @@ public class teleOp extends OpMode {
                     }
                     break;
             }
+        }
+
+        if(Math.abs(gamepad2.right_stick_y) > 0.01 && !(liftState == LiftState.LIFT_AUTO || liftState == LiftState.LIFT_AUTO_SLOW)){
+            liftState = LiftState.LIFT_MANUAL;
         }
         // Override the lift auto state
         if (gamepad2.right_trigger > 0.05) {
@@ -441,7 +467,7 @@ public class teleOp extends OpMode {
             extendState = ExtendState.EXTEND_MANUAL;
         }
 
-            // Bottom Pole
+        // Bottom Pole
         if (gamepad2.a) {
             drive.intakeAngle.setPosition(intakeAngle3);
             liftState = LiftState.LIFT_AUTO_SLOW;
@@ -498,19 +524,6 @@ public class teleOp extends OpMode {
         // LOW POLE
         if (gamepad1.y) {
             extendState = ExtendState.LOW_POLE;
-        }
-
-        // STABILIZER
-        if (liftState == LiftState.LIFT_MANUAL) {
-            if (-gamepad2.right_stick_y < 0.6) {
-                drive.stabilizer.setPosition(stabilizer2);
-            } else {
-                if (liftPos > stabilizerVertical) {
-                    drive.stabilizer.setPosition(stabilizer1);
-                } else {
-                    drive.stabilizer.setPosition(stabilizer2);
-                }
-            }
         }
 
         // FLIPPER
