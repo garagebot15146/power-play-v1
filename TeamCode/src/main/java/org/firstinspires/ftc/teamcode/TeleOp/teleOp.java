@@ -29,26 +29,19 @@ public class teleOp extends OpMode {
     Gamepad previousGamepad1 = new Gamepad();
     Gamepad previousGamepad2 = new Gamepad();
 
-    // STABILIZER
-
     // TOGGLE
     String toggleClaw = "init";
-    String toggleClawAngle = "init";
-    String toggleIntakeAngle = "init";
-    String toggleClawRotate = "init";
-    String toggleIntake = "init";
     String toggleFlipper = "init";
-    String toggleStabilizer = "init";
 
 
     // THRESHOLDS
-    public static int highPole = 645;
-    public static int midPole = 355;
-    public static int stabilizerVertical = 290;
+    public static int highPole = 600;
+    public static int midPole = 300;
+    public static int stabilizerVertical = 240;
 
     // SERVO POSITIONS
     public static double claw1 = 1;
-    public static double claw2 = 0.6;
+    public static double claw2 = 0.55;
 
     public static double clawAngle1 = 0.07;
     public static double clawAngle2 = 0.7;
@@ -56,7 +49,7 @@ public class teleOp extends OpMode {
 
     public static double intakeAngle1 = 0.07;
     public static double intakeAngle2 = 0.7;
-    public static double intakeAngle3 = 0.49;
+    public static double intakeAngle3 = 0.7;
 
 
     public static double clawRotate1 = 0;
@@ -69,7 +62,7 @@ public class teleOp extends OpMode {
     public static double rightFlipper2 = 0.5;
 
     public static double stabilizer1 = 0;
-    public static double stabilizer2 = 0.12;
+    public static double stabilizer2 = 0.115;
 
     // STATE MACHINES
     public enum LiftState {
@@ -88,8 +81,6 @@ public class teleOp extends OpMode {
     LiftState liftState = LiftState.LIFT_MANUAL;
     ExtendState extendState = ExtendState.EXTEND_MANUAL;
 
-    boolean clawLock = false;
-    boolean intakeLock = false;
     boolean commandLock = false;
     boolean transferLock = false;
     double pidLift = 0;
@@ -101,9 +92,8 @@ public class teleOp extends OpMode {
 
     //PID
     PIDController liftController;
-    public int liftMax = highPole;
-    public int liftTarget = 0;
-    public static double pL = 0.05, iL = 0.001, dL = 0.0005;
+    public int liftTarget;
+    public static double pL = 0.04, iL = 0.001, dL = 0.0004;
 
     @Override
     public void init() {
@@ -228,7 +218,6 @@ public class teleOp extends OpMode {
         // STATE MACHINES
         switch (liftState) {
             case LIFT_AUTO:
-
                 liftController.setPID(pL, iL, dL);
                 pidLift = liftController.calculate(liftPos, liftTarget);
                 lowPole();
@@ -238,7 +227,6 @@ public class teleOp extends OpMode {
                 // Switch States
                 if (liftController.atSetPoint()) {
                     liftState = LiftState.REST;
-                    commandLock = false;
                 }
                 break;
 
@@ -256,8 +244,8 @@ public class teleOp extends OpMode {
                 liftController.setPID(0.015, 0.0001, 0.0001);
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
-                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
-                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.5);
+                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.4);
+                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.4);
 
                 // Switch States
                 if (liftController.atSetPoint()) {
@@ -286,8 +274,11 @@ public class teleOp extends OpMode {
                 break;
 
             case REST:
+                drive.leftVerticalSlide.setPower(0);
+                drive.rightVerticalSlide.setPower(0);
                 break;
         }
+
         switch (extendState) {
             case EXTEND_MANUAL:
                 drive.leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -331,19 +322,17 @@ public class teleOp extends OpMode {
                 }
                 break;
             case LOW_POLE:
-                if (!transferLock) {
-                    transfertime.reset();
-                    transferLock = true;
-                }
                 setExtension(0);
                 if (extensionPos < 40) {
+                    if (!transferLock) {
+                        transfertime.reset();
+                        transferLock = true;
+                    }
                     lowPole();
                     if (transfertime.seconds() > 0.5) {
                         transferLock = false;
                         extendState = ExtendState.EXTEND_MANUAL;
                     }
-                } else {
-                    transfertime.reset();
                 }
                 break;
         }
@@ -358,7 +347,6 @@ public class teleOp extends OpMode {
 
         // INTAKE
         if (gamepad1.right_bumper) {
-            transfertime.reset();
             extendState = ExtendState.TRANSFER;
         } else if (gamepad2.dpad_down || gamepad1.a) {
             intakeDown();
@@ -373,13 +361,11 @@ public class teleOp extends OpMode {
             liftTarget = 0;
             // Mid Pole
         } else if (gamepad2.b) {
-            toggleClaw = "true";
             drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = midPole;
             // High Pole
         } else if (gamepad2.x) {
-            toggleClaw = "true";
             drive.stabilizer.setPosition(stabilizer1);
             liftState = LiftState.LIFT_AUTO;
             liftTarget = highPole;
@@ -417,25 +403,28 @@ public class teleOp extends OpMode {
         }
 
         // LOW POLE
-        if (gamepad1.y) {
-            extendState = ExtendState.LOW_POLE;
+        if (gamepad2.dpad_up) {
+            lowPole();
+//            drive.intakeAngle.setPosition(intakeAngle2);
+//            lowPole();
+//            extendState = ExtendState.LOW_POLE;
         }
 
         // FLIPPER
-        if (currentGamepad1.y && !previousGamepad1.y) {
-            if (toggleFlipper == "false" || toggleFlipper == "init") {
-                toggleFlipper = "true";
-            } else {
-                toggleFlipper = "false";
-            }
-        }
-        if (toggleFlipper == "true") {
-            drive.leftFlipper.setPosition(leftFlipper2);
-            drive.rightFlipper.setPosition(rightFlipper2);
-        } else if (toggleFlipper == "false") {
-            drive.leftFlipper.setPosition(leftFlipper1);
-            drive.rightFlipper.setPosition(rightFlipper1);
-        }
+//        if (currentGamepad1.y && !previousGamepad1.y) {
+//            if (toggleFlipper == "false" || toggleFlipper == "init") {
+//                toggleFlipper = "true";
+//            } else {
+//                toggleFlipper = "false";
+//            }
+//        }
+//        if (toggleFlipper == "true") {
+//            drive.leftFlipper.setPosition(leftFlipper2);
+//            drive.rightFlipper.setPosition(rightFlipper2);
+//        } else if (toggleFlipper == "false") {
+//            drive.leftFlipper.setPosition(leftFlipper1);
+//            drive.rightFlipper.setPosition(rightFlipper1);
+//        }
 
 //        // CLAW ANGLE
 //        if ((currentGamepad1.a && !previousGamepad1.a) || (currentGamepad1.a && !previousGamepad1.a)) {
@@ -457,21 +446,21 @@ public class teleOp extends OpMode {
 //        }
 //
         // INTAKE ANGLE
-        if ((currentGamepad1.b && !previousGamepad1.b) || (currentGamepad1.b && !previousGamepad1.b)) {
-            if (toggleIntakeAngle == "false" || toggleIntakeAngle == "init") {
-                toggleIntakeAngle = "true";
-            } else {
-                toggleIntakeAngle = "false";
-            }
-        }
-        if (toggleIntakeAngle == "true") {
-            drive.intakeAngle.setPosition(intakeAngle1);
-            telemetry.addData("Intake Angle", intakeAngle1);
-
-        } else if (toggleIntakeAngle == "false") {
-            drive.intakeAngle.setPosition(intakeAngle2);
-            telemetry.addData("Intake Angle", intakeAngle2);
-        }
+//        if ((currentGamepad1.b && !previousGamepad1.b) || (currentGamepad1.b && !previousGamepad1.b)) {
+//            if (toggleIntakeAngle == "false" || toggleIntakeAngle == "init") {
+//                toggleIntakeAngle = "true";
+//            } else {
+//                toggleIntakeAngle = "false";
+//            }
+//        }
+//        if (toggleIntakeAngle == "true") {
+//            drive.intakeAngle.setPosition(intakeAngle1);
+//            telemetry.addData("Intake Angle", intakeAngle1);
+//
+//        } else if (toggleIntakeAngle == "false") {
+//            drive.intakeAngle.setPosition(intakeAngle2);
+//            telemetry.addData("Intake Angle", intakeAngle2);
+//        }
 
         // TELEMETRY
         telemetry.addData("Lift State", liftState);
@@ -497,7 +486,6 @@ public class teleOp extends OpMode {
         drive.intakeAngle.setPosition(intakeAngle3);
         drive.clawRotate.setPosition(clawRotate1);
         drive.clawAngle.setPosition(clawAngle3);
-
     }
 
     public void intakeDown() {
@@ -510,19 +498,6 @@ public class teleOp extends OpMode {
         drive.intakeAngle.setPosition(intakeAngle2);
         drive.clawRotate.setPosition(clawRotate2);
         drive.clawAngle.setPosition(clawAngle2);
-    }
-
-    public void setLift(int target) {
-        liftController.setPID(pL, iL, dL);
-        if (liftTarget > liftMax) {
-            liftTarget = liftMax;
-        } else if (liftTarget < 0) {
-            liftTarget = 0;
-        }
-        pidLift = liftController.calculate(drive.rightVerticalSlide.getCurrentPosition(), target);
-
-        drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.85);
-        drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.85);
     }
 
     public void setExtension(int target) {
