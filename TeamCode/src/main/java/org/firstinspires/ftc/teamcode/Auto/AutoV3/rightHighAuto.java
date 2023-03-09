@@ -4,16 +4,13 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Commands.commands.cycleHighCommand;
-import org.firstinspires.ftc.teamcode.Commands.commands.extendCommand;
-import org.firstinspires.ftc.teamcode.Commands.commands.intakeCommand;
+import org.firstinspires.ftc.teamcode.Commands.commands.High.cycleHighCommand;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.commands.liftCommand;
@@ -85,7 +82,6 @@ public class rightHighAuto extends LinearOpMode {
         timer.reset();
         drive.followTrajectorySequence(toPole);
 
-        sleep(1000);
         CommandScheduler.getInstance().schedule(
                 new SequentialCommandGroup(
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),

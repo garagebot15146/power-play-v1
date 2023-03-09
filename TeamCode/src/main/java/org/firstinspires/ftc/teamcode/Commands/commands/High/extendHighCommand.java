@@ -1,18 +1,18 @@
-package org.firstinspires.ftc.teamcode.Commands.commands;
+package org.firstinspires.ftc.teamcode.Commands.commands.High;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 
-public class extendCommand extends CommandBase {
+public class extendHighCommand extends CommandBase {
 
     private final ExtendSubsystem extendSubsystem;
     private ElapsedTime timer;
     private double timeout;
     private int cones;
 
-    public extendCommand(ExtendSubsystem subsystem, int cones, double timeout) {
+    public extendHighCommand(ExtendSubsystem subsystem, int cones, double timeout) {
         this.cones = cones;
         this.timeout = timeout;
         extendSubsystem = subsystem;
