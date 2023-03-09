@@ -35,8 +35,8 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 600;
-    public static int midPole = 300;
+    public static int highPole = 655;
+    public static int midPole = 355;
     public static int stabilizerVertical = 240;
 
     // SERVO POSITIONS
@@ -354,6 +354,19 @@ public class teleOp extends OpMode {
             extendState = ExtendState.EXTEND_MANUAL;
         }
 
+        // LOW POLE
+        if (gamepad1.y) {
+            extendState = ExtendState.LOW_POLE;
+        }
+
+        if (gamepad1.b) {
+            lowPole();
+        }
+
+        if (gamepad1.x) {
+            drive.clawRotate.setPosition(clawRotate2);
+        }
+
         // Bottom Pole
         if (gamepad2.a) {
             drive.intakeAngle.setPosition(intakeAngle3);
@@ -400,14 +413,6 @@ public class teleOp extends OpMode {
         } else if (toggleClaw == "false") {
             clawClose();
             telemetry.addData("Claw", claw2);
-        }
-
-        // LOW POLE
-        if (gamepad2.dpad_up) {
-            lowPole();
-//            drive.intakeAngle.setPosition(intakeAngle2);
-//            lowPole();
-//            extendState = ExtendState.LOW_POLE;
         }
 
         // FLIPPER

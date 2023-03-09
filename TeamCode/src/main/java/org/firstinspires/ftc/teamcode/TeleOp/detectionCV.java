@@ -12,7 +12,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @TeleOp(name = "detectionCV", group = "Tests")
-//@Disabled
+@Disabled
 public class detectionCV extends LinearOpMode {
 
     OpenCvCamera camera;

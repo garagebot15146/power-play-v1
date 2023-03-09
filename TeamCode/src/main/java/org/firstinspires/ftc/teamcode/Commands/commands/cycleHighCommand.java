@@ -11,9 +11,7 @@ public class cycleHighCommand extends SequentialCommandGroup {
     public cycleHighCommand(IntakeSubsystem intakeSubsystem , LiftSubsystem liftSubsystem, ExtendSubsystem extendSubsystem, int cones) {
         super(
                 new depositCommand(intakeSubsystem, liftSubsystem, extendSubsystem, cones),
-                new WaitCommand(100),
-                new transferHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem),
-                new WaitCommand(500)
+                new transferHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem)
         );
     }
 }

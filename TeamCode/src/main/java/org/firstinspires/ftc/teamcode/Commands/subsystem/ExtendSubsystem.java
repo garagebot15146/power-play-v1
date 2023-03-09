@@ -35,8 +35,13 @@ public class ExtendSubsystem extends SubsystemBase {
         controller = new PIDController(pL, iL, dL);
         controller.setTolerance(5);
         double power = controller.calculate(leftHorizontalSlide.getCurrentPosition(), position);
-        leftHorizontalSlide.setPower(power);
-        rightHorizontalSlide.setPower(power);
+        if(position < 300){
+            leftHorizontalSlide.setPower(power);
+            rightHorizontalSlide.setPower(power);
+        } else {
+            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
+            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
+        }
     }
 
     public void setTarget(int target) {

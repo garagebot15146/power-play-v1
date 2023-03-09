@@ -14,12 +14,10 @@ public class LiftSubsystem extends SubsystemBase {
     public Servo stabilizer;
 
     PIDController controller;
-    private final int highPole = 645;
-    private final int midPole = 348;
     private int position = 0;
-    private final double pL = 0.07;
-    private final double iL = 0.0015;
-    private final double dL = 0.004;
+    private final double pL = 0.04;
+    private final double iL = 0.001;
+    private final double dL = 0.001;
 
     public LiftSubsystem(HardwareMap hardwareMap) {
         leftVerticalSlide = hardwareMap.get(DcMotorEx.class, "leftVerticalSlide");
@@ -44,24 +42,24 @@ public class LiftSubsystem extends SubsystemBase {
             leftVerticalSlide.setPower(power);
             rightVerticalSlide.setPower(power);
         } else {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.5);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.5);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
         }
     }
 
     public void setTarget(String pole) {
         switch (pole) {
             case "BOTTOM":
-                stabilizer.setPosition(0.1);
-                position = 6;
+                stabilizer.setPosition(0.08);
+                position = 5;
                 break;
             case "MEDIUM":
                 stabilizer.setPosition(0);
-                position = 340;
+                position = 350;
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 610;
+                position = 655;
                 break;
         }
     }

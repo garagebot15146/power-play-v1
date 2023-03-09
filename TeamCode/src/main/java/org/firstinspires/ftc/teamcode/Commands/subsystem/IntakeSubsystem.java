@@ -14,9 +14,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     //Servo angles for Elbow Joint of the claw subsystem
-    private static double[] elbowServoPickPos = {0.27, 0.86, 0.77, 0.675, 0.6, 0.55};
-    private static double elbowServoDropPos = 0.19;
-    private static double elbowServoLiftPos = 0.28;
+    private static double[] elbowServoPickPos = {0.63, 0.08, 0.15, 0.24, 0.29, 0.37};
+    private static double elbowServoDropPos = 0.74;
+    private static double elbowServoLiftPos = 0.63;
 
     //States for Elbow Joint of the claw subsystem
     public enum ElbowPos {
@@ -30,10 +30,10 @@ public class IntakeSubsystem extends SubsystemBase {
         LIFT_CONE
     }
 
-    public static double[] wristServoPickPos = {0.6, 0.08, 0.05, 0.04, 0.04, 0};
-    public static double wristServoDropPos = 0.69;
+    public static double[] wristServoPickPos = {0.3, 0.06, 0.06, 0.07, 0.05, 0.03};
+    public static double wristServoDropPos = 0.62;
     public static double wristServoMidPos = 0.54;
-    public static double wristServoLiftPos = 0.4;
+    public static double wristServoLiftPos = 0.3;
 
     public enum WristPos {
         INIT_POS,
@@ -47,8 +47,8 @@ public class IntakeSubsystem extends SubsystemBase {
         MID_CONE
     }
 
-    private static double claw_rotator_pick = 1;
-    private static double claw_rotator_drop = 0.23;
+    private static double claw_rotator_pick = 0;
+    private static double claw_rotator_drop = 1;
 
     public enum RotatorState {
         PICK,
@@ -56,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private static double claw_pos_open = 1;
-    private static double claw_pos_closed = 0.4;
+    private static double claw_pos_closed = 0.51;
 
     public enum ClawState {
         OPEN,
@@ -126,10 +126,11 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public void lift(){
+    public void lift() {
         update(WristPos.LIFT_CONE);
         update(ElbowPos.LIFT_CONE);
     }
+
     public void update(ElbowPos state) {
         switch (state) {
             case INIT_POS:
