@@ -18,19 +18,20 @@ import org.firstinspires.ftc.teamcode.Commands.subsystem.LiftSubsystem;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "rightMediumAuto", group = "auto")
+@Autonomous(name = "leftMediumAuto", group = "auto")
 @Config
 //@Disabled
-public class rightMediumAuto extends LinearOpMode {
+public class leftMediumAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 34;
-    public static double toPoleLineX = 30;
+    public static double toPoleLineX = -30;
     public static double toPoleLineY = -25;
-    public static double toPoleLineH = 12;
+    public static double toPoleLineH = 168;
 
-    public static double parkCenterLineX = 35;
+    public static double parkCenterLineX = -33;
     public static double parkCenterLineY = -16.5;
-    public static double parkCenterLineH = 0;
+    public static double parkCenterLineH = 180;
+
 
     public static double parkLeftMove = 23;
     public static double parkLeftTurn = 90;
@@ -48,7 +49,7 @@ public class rightMediumAuto extends LinearOpMode {
         ExtendSubsystem extendSubsystem = new ExtendSubsystem(hardwareMap);
         drive = new HWMap(hardwareMap);
 
-        Pose2d startPose = new Pose2d(34, -72 + (15.5 / 2), Math.toRadians(270));
+        Pose2d startPose = new Pose2d(-34, -72 + (15.5 / 2), Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence toPole = drive.trajectorySequenceBuilder(startPose)

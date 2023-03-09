@@ -3,12 +3,17 @@ package org.firstinspires.ftc.teamcode.Auto.AutoV3;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Commands.commands.High.cycleHighCommand;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.Commands.commands.liftCommand;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.LiftSubsystem;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequence;
@@ -54,9 +59,9 @@ public class leftHighAuto extends LinearOpMode {
 
         TrajectorySequence parkLeft = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .back(parkLeftMove)
+                .forward(parkLeftMove)
                 .turn(Math.toRadians(parkLeftTurn))
-                .back(10)
+                .forward(10)
                 .build();
 
         TrajectorySequence parkCenter = drive.trajectorySequenceBuilder(toPole.end())
@@ -67,9 +72,9 @@ public class leftHighAuto extends LinearOpMode {
 
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(toPole.end())
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .forward(parkRightMove)
+                .back(parkRightMove)
                 .turn(Math.toRadians(parkRightTurn))
-                .back(10)
+                .forward(10)
                 .build();
 
         CommandScheduler.getInstance().reset();
@@ -78,30 +83,28 @@ public class leftHighAuto extends LinearOpMode {
         timer.reset();
         drive.followTrajectorySequence(toPole);
 
-        sleep(1000);
+        CommandScheduler.getInstance().schedule(
+                new SequentialCommandGroup(
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 4),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 3),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
+                        new InstantCommand(() -> intakeSubsystem.down(0)),
+                        new WaitCommand(100),
+                        new liftCommand(liftSubsystem, "HIGH", 1200),
+                        new liftCommand(liftSubsystem, "BOTTOM", 1000)
+                )
+        );
 
-//        CommandScheduler.getInstance().schedule(
-//                new SequentialCommandGroup(
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 4),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 3),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
-//                        new InstantCommand(() -> intakeSubsystem.down(0)),
-//                        new WaitCommand(100),
-//                        new liftCommand(liftSubsystem, "HIGH", 1200),
-//                        new liftCommand(liftSubsystem, "BOTTOM", 1000)
-//                )
-//        );
-//
-//        while (opModeIsActive() && timer.seconds() < 25) {
-//            CommandScheduler.getInstance().run();
-//            liftSubsystem.loop();
-//            extendSubsystem.loop();
-//            telemetry.addData("Lift", liftSubsystem.position());
-//            telemetry.addData("Extend", extendSubsystem.position());
-//            telemetry.update();
-//        }
+        while (opModeIsActive() && timer.seconds() < 25) {
+            CommandScheduler.getInstance().run();
+            liftSubsystem.loop();
+            extendSubsystem.loop();
+            telemetry.addData("Lift", liftSubsystem.position());
+            telemetry.addData("Extend", extendSubsystem.position());
+            telemetry.update();
+        }
         drive.followTrajectorySequence(parkCenter);
 
     }
