@@ -99,7 +99,7 @@ public class rightHighAuto extends LinearOpMode {
                         )
         );
 
-        while (opModeIsActive() && timer.seconds() < 24.6) {
+        while (opModeIsActive() && timer.seconds() < 25) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();
