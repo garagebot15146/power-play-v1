@@ -95,12 +95,11 @@ public class rightHighAuto extends LinearOpMode {
                         new InstantCommand(() -> intakeSubsystem.down(0)),
                         new WaitCommand(100),
                         new liftCommand(liftSubsystem, "HIGH", 1200),
-                        new WaitCommand(100),
                         new liftCommand(liftSubsystem, "BOTTOM", 1000)
                         )
         );
 
-        while (opModeIsActive() && timer.seconds() < 26) {
+        while (opModeIsActive() && timer.seconds() < 24.6) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();

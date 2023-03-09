@@ -59,7 +59,7 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 655;
+                position = 647;
                 break;
         }
     }
