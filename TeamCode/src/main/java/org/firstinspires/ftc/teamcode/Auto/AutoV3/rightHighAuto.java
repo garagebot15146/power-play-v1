@@ -85,6 +85,7 @@ public class rightHighAuto extends LinearOpMode {
         timer.reset();
         drive.followTrajectorySequence(toPole);
 
+        sleep(1000);
         CommandScheduler.getInstance().schedule(
                 new SequentialCommandGroup(
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),
@@ -107,7 +108,7 @@ public class rightHighAuto extends LinearOpMode {
             telemetry.addData("Extend", extendSubsystem.position());
             telemetry.update();
         }
-        drive.followTrajectorySequence(parkRight);
+        drive.followTrajectorySequence(parkCenter);
 
     }
 

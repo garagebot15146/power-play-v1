@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Auto.AutoV3;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -89,13 +90,14 @@ public class leftHighAuto extends LinearOpMode {
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 3),
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
-                        new liftCommand(liftSubsystem, "HIGH", 1000),
-                        new WaitCommand(500),
+                        new InstantCommand(() -> intakeSubsystem.down(0)),
+                        new WaitCommand(100),
+                        new liftCommand(liftSubsystem, "HIGH", 1200),
                         new liftCommand(liftSubsystem, "BOTTOM", 1000)
                 )
         );
 
-        while (opModeIsActive() && timer.seconds() < 25.5) {
+        while (opModeIsActive() && timer.seconds() < 25) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();
@@ -103,7 +105,7 @@ public class leftHighAuto extends LinearOpMode {
             telemetry.addData("Extend", extendSubsystem.position());
             telemetry.update();
         }
-//        drive.followTrajectorySequence(parkCenter);
+        drive.followTrajectorySequence(parkRight);
 
     }
 
