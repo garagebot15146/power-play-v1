@@ -24,7 +24,7 @@ public class extendHighCommand extends CommandBase {
     public void initialize() {
         switch (cones) {
             case 0:
-                extendSubsystem.setTarget(5);
+                extendSubsystem.setTarget(10);
                 break;
             case 1:
                 extendSubsystem.setTarget(1020);
