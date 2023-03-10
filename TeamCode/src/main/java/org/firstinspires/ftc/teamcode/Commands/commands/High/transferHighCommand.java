@@ -13,13 +13,18 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 
 public class transferHighCommand extends ParallelCommandGroup {
-    public transferHighCommand(IntakeSubsystem intakeSubsystem, LiftSubsystem liftSubsystem, ExtendSubsystem extendSubsystem) {
+    public transferHighCommand(IntakeSubsystem intakeSubsystem, LiftSubsystem liftSubsystem, ExtendSubsystem extendSubsystem, DistanceSensorSubsystem distanceSensorSubsystem) {
         super(
                 new SequentialCommandGroup(
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.ClawState.CLOSED)),
                         new WaitCommand(300),
                         new extendHighCommand(extendSubsystem, 6, 1300),
                         new WaitCommand(100),
+
+                        //Apply Correction
+                        new extendHighCommand(extendSubsystem, 6, distanceSensorSubsystem.getPosInTicks()),
+                        new WaitCommand(50),
+                        
                         new InstantCommand(() -> intakeSubsystem.lift()),
                         new WaitCommand(300),
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.RotatorState.DROP)),

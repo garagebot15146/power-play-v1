@@ -47,6 +47,8 @@ public class leftHighAuto extends LinearOpMode {
         IntakeSubsystem intakeSubsystem = new IntakeSubsystem(hardwareMap);
         LiftSubsystem liftSubsystem = new LiftSubsystem(hardwareMap);
         ExtendSubsystem extendSubsystem = new ExtendSubsystem(hardwareMap);
+
+        DistanceSensorSubsystem distanceSensorSubsystem = new DistanceSensorSubsystem(hardwareMap);
         drive = new HWMap(hardwareMap);
 
         Pose2d startPose = new Pose2d(-34, -72 + (15.5 / 2), Math.toRadians(270));
@@ -85,11 +87,11 @@ public class leftHighAuto extends LinearOpMode {
 
         CommandScheduler.getInstance().schedule(
                 new SequentialCommandGroup(
-                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),
-                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 4),
-                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 3),
-                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
-                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, distanceSensorSubsystem, 5),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, distanceSensorSubsystem, 4),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, distanceSensorSubsystem, 3),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, distanceSensorSubsystem, 2),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, distanceSensorSubsystem, 1),
                         new InstantCommand(() -> intakeSubsystem.down(0)),
                         new WaitCommand(100),
                         new liftCommand(liftSubsystem, "HIGH", 1200),
