@@ -11,6 +11,9 @@ import com.qualcomm.robotcore.util.Range;
 public class ExtendSubsystem extends SubsystemBase {
     public DcMotorEx leftHorizontalSlide, rightHorizontalSlide;
 
+    private DistanceSensor ds = null;
+    boolean use_ds = false;
+
     PIDController controller;
     private int position = 0;
     private final double pL = 0.02;
@@ -20,6 +23,8 @@ public class ExtendSubsystem extends SubsystemBase {
     public ExtendSubsystem(HardwareMap hardwareMap) {
         leftHorizontalSlide = hardwareMap.get(DcMotorEx.class, "leftHorizontalSlide");
         rightHorizontalSlide = hardwareMap.get(DcMotorEx.class, "rightHorizontalSlide");
+
+        ds = ahwMap.get(DistanceSensor.class, "distanceSensor");
 
         leftHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -46,6 +51,7 @@ public class ExtendSubsystem extends SubsystemBase {
 
     public void setTarget(int target) {
         position = target;
+        use_ds   = false;
     }
 
     public int position() {
@@ -53,7 +59,32 @@ public class ExtendSubsystem extends SubsystemBase {
     }
 
 
-    public boolean isReached() {
-        return Math.abs(position - leftHorizontalSlide.getCurrentPosition()) < 5;
+    public boolean  isReached () {
+        boolean reached = false;
+
+        if (use_ds == false) {
+            //Coarse level measurement
+            reached = Math.abs(position - leftHorizontalSlide.getCurrentPosition()) < 5;
+            if (reached == true) {
+                //switch to fine level measurements of using distance sensor
+                use_ds = true;
+
+                //if you are retracting then dont use distance sensor
+                if (position == 0) {
+                    use_ds  = false;
+                }
+            }
+        }
+        if (use_ds == true) {
+            //Check the distance sensor
+            double dist = ds.getDistance(DistanceUnit.INCH);
+            if (dist < 0.5) {
+                reached = true;
+            } else {
+                reached = false;
+            }
+        }
+
+        return reached;
     }
 }
