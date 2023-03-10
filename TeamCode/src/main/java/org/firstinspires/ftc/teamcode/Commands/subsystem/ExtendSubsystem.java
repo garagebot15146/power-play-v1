@@ -33,11 +33,15 @@ public class ExtendSubsystem extends SubsystemBase {
 
     public void loop() {
         controller = new PIDController(pL, iL, dL);
-        controller.setTolerance(5);
+        if(position < 300){
+            controller.setTolerance(10);
+        } else {
+            controller.setTolerance(5);
+        }
         double power = controller.calculate(leftHorizontalSlide.getCurrentPosition(), position);
         if(position < 300){
-            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
-            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
+            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
+            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
         } else {
             leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
             rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);

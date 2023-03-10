@@ -42,8 +42,8 @@ public class LiftSubsystem extends SubsystemBase {
             leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.95);
             rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.95);
         } else {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.8);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.8);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
         }
     }
 
@@ -59,7 +59,7 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 645;
+                position = 637;
                 break;
         }
     }

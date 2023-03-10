@@ -24,8 +24,8 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 public class rightHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
-    public static double toPoleLineX = 34;
-    public static double toPoleLineY = -6;
+    public static double toPoleLineX = 32.5;
+    public static double toPoleLineY = -4.5;
     public static double toPoleLineH = -16;
 
     public static double parkCenterLineX = 33;
@@ -92,6 +92,7 @@ public class rightHighAuto extends LinearOpMode {
                         new InstantCommand(() -> intakeSubsystem.down(0)),
                         new WaitCommand(100),
                         new liftCommand(liftSubsystem, "HIGH", 1200),
+                        new WaitCommand(100),
                         new liftCommand(liftSubsystem, "BOTTOM", 1000)
                         )
         );
