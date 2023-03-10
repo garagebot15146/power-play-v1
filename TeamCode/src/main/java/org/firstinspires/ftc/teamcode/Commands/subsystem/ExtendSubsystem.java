@@ -13,7 +13,7 @@ public class ExtendSubsystem extends SubsystemBase {
 
     PIDController controller;
     private int position = 0;
-    private final double pL = 0.04;
+    private final double pL = 0.03;
     private final double iL = 0.001;
     private final double dL = 0.0004;
 
