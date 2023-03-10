@@ -28,7 +28,7 @@ public class rightHighAuto extends LinearOpMode {
     public static double toPoleLineY = -6;
     public static double toPoleLineH = -16;
 
-    public static double parkCenterLineX = 35;
+    public static double parkCenterLineX = 33;
     public static double parkCenterLineY = -16.5;
     public static double parkCenterLineH = 0;
 

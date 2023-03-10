@@ -39,11 +39,11 @@ public class LiftSubsystem extends SubsystemBase {
         controller.setTolerance(10);
         double power = controller.calculate(leftVerticalSlide.getCurrentPosition(), position);
         if (power > 0) {
-            leftVerticalSlide.setPower(power);
-            rightVerticalSlide.setPower(power);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.95);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.95);
         } else {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.8);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.8);
         }
     }
 
@@ -59,7 +59,7 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 647;
+                position = 645;
                 break;
         }
     }

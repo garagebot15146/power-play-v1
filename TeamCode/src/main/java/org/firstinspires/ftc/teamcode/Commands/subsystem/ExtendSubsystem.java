@@ -13,9 +13,9 @@ public class ExtendSubsystem extends SubsystemBase {
 
     PIDController controller;
     private int position = 0;
-    private final double pL = 0.02;
-    private final double iL = 0;
-    private final double dL = 0.0001;
+    private final double pL = 0.04;
+    private final double iL = 0.001;
+    private final double dL = 0.0004;
 
     public ExtendSubsystem(HardwareMap hardwareMap) {
         leftHorizontalSlide = hardwareMap.get(DcMotorEx.class, "leftHorizontalSlide");
@@ -36,8 +36,8 @@ public class ExtendSubsystem extends SubsystemBase {
         controller.setTolerance(5);
         double power = controller.calculate(leftHorizontalSlide.getCurrentPosition(), position);
         if(position < 300){
-            leftHorizontalSlide.setPower(power);
-            rightHorizontalSlide.setPower(power);
+            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
+            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
         } else {
             leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
             rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
@@ -54,6 +54,6 @@ public class ExtendSubsystem extends SubsystemBase {
 
 
     public boolean isReached() {
-        return Math.abs(position - leftHorizontalSlide.getCurrentPosition()) < 5;
+        return Math.abs(position - leftHorizontalSlide.getCurrentPosition()) < 10;
     }
 }

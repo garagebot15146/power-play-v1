@@ -14,7 +14,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     //Servo angles for Elbow Joint of the claw subsystem
-    private static double[] elbowServoPickPos = {0.63, 0.08, 0.15, 0.24, 0.29, 0.37};
+    private static double[] elbowServoPickPos = {0.66, 0.08, 0.15, 0.24, 0.29, 0.345};
     private static double elbowServoDropPos = 0.74;
     private static double elbowServoLiftPos = 0.63;
 
@@ -30,7 +30,7 @@ public class IntakeSubsystem extends SubsystemBase {
         LIFT_CONE
     }
 
-    public static double[] wristServoPickPos = {0.3, 0.06, 0.06, 0.07, 0.05, 0.03};
+    public static double[] wristServoPickPos = {0.45, 0.06, 0.06, 0.07, 0.05, 0.03};
     public static double wristServoDropPos = 0.62;
     public static double wristServoMidPos = 0.54;
     public static double wristServoLiftPos = 0.3;
@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
         DROP,
     }
 
-    private static double claw_pos_open = 1;
+    private static double claw_pos_open = 0.8;
     private static double claw_pos_closed = 0.51;
 
     public enum ClawState {
@@ -71,7 +71,7 @@ public class IntakeSubsystem extends SubsystemBase {
         clawServo = hardwareMap.get(Servo.class, "claw");         //
 
         //Initialize the claw subsystem to a default state
-        update(RotatorState.DROP);
+        update(RotatorState.PICK);
         update(ElbowPos.INIT_POS);
         update(WristPos.INIT_POS);
 

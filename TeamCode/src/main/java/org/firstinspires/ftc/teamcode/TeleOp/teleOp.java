@@ -93,7 +93,7 @@ public class teleOp extends OpMode {
     //PID
     PIDController liftController;
     public int liftTarget;
-    public static double pL = 0.04, iL = 0.001, dL = 0.0004;
+    public static double pL = 0.02, iL = 0.001, dL = 0.0004;
 
     @Override
     public void init() {
