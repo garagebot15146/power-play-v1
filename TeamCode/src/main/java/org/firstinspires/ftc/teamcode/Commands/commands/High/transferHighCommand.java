@@ -17,10 +17,10 @@ public class transferHighCommand extends ParallelCommandGroup {
         super(
                 new SequentialCommandGroup(
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.ClawState.CLOSED)),
-                        new WaitCommand(300),
+                        new WaitCommand(250),
                         new extendHighCommand(extendSubsystem, 6, 400),
                         new InstantCommand(() -> intakeSubsystem.lift()),
-                        new WaitCommand(400),
+                        new WaitCommand(370),
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.RotatorState.DROP)),
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.ElbowPos.DROP_CONE)),
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.WristPos.MID_CONE)),
@@ -28,11 +28,10 @@ public class transferHighCommand extends ParallelCommandGroup {
                 ),
                 new SequentialCommandGroup(
                         new WaitUntilCommand(() -> extendSubsystem.position() < 8),
-                        new WaitCommand(200),
                         new intakeCommand(intakeSubsystem, 6),
                         new WaitCommand(200),
                         new InstantCommand(() -> intakeSubsystem.update(IntakeSubsystem.ClawState.OPEN)),
-                        new WaitCommand(300)
+                        new WaitCommand(280)
                 ),
                 new liftCommand(liftSubsystem, "BOTTOM", 900)
         );

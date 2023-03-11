@@ -50,7 +50,7 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkRightMove = 23;
     public static double parkRightTurn = 90;
 
-    public static double goPark = 25;
+    public static double goPark = 26.6;
 
     private ElapsedTime timer = new ElapsedTime();;
 
@@ -117,11 +117,9 @@ public class rightHighAuto extends LinearOpMode {
         TrajectorySequence parkLeft = drive.trajectorySequenceBuilder(toPole.end())
                 .setAccelConstraint(drive.getAccelerationConstraint(50))
                 .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
-                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .back(parkLeftMove)
                 .setTurnConstraint(40, 40)
-                .turn(Math.toRadians(parkLeftTurn))
-                .back(10)
+                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX - parkLeftMove, parkCenterLineY, Math.toRadians(parkLeftTurn)))
                 .build();
 
         TrajectorySequence parkCenter = drive.trajectorySequenceBuilder(toPole.end())
@@ -133,11 +131,9 @@ public class rightHighAuto extends LinearOpMode {
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(toPole.end())
                 .setAccelConstraint(drive.getAccelerationConstraint(50))
                 .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
-                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .forward(parkRightMove)
                 .setTurnConstraint(40, 40)
-                .turn(Math.toRadians(parkRightTurn))
-                .back(10)
+                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX + parkRightMove, parkCenterLineY, Math.toRadians(parkRightTurn)))
                 .build();
 
         CommandScheduler.getInstance().reset();
