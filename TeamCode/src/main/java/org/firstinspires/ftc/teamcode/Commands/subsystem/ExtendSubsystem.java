@@ -68,6 +68,7 @@ public class ExtendSubsystem extends SubsystemBase {
     public void pullIn(){
         position = 10;
     }
+
     public double distance() {
         return distanceSensor.getDistance(DistanceUnit.INCH);
     }
@@ -91,10 +92,10 @@ public class ExtendSubsystem extends SubsystemBase {
         if (use_ds == true) {
             //Check the distance sensor
             double dist = distanceSensor.getDistance(DistanceUnit.INCH);
-            if (dist < 0.5) {
+            if (dist < 0.90 || position > 935) {
                 reached = true;
             } else {
-                position += 1;
+                position += 18;
                 reached = false;
             }
         }

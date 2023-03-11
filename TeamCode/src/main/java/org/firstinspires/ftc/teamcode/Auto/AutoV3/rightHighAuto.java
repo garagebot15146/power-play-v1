@@ -25,8 +25,8 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 public class rightHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
-    public static double toPoleLineX = 32.5;
-    public static double toPoleLineY = -4.5;
+    public static double toPoleLineX = 35.5;
+    public static double toPoleLineY = -6.3;
     public static double toPoleLineH = -16;
 
     public static double parkCenterLineX = 33;
@@ -39,7 +39,7 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkRightMove = 23;
     public static double parkRightTurn = 90;
 
-    public static int goPark = 25;
+    public static int goPark = 27;
 
     private ElapsedTime timer = new ElapsedTime();;
 
@@ -68,9 +68,7 @@ public class rightHighAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence parkCenter = drive.trajectorySequenceBuilder(toPole.end())
-                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .turn(Math.toRadians(90))
-                .back(10)
+                .lineToLinearHeading(new Pose2d(32.5, -25, Math.toRadians(270)))
                 .build();
 
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(toPole.end())
@@ -108,10 +106,15 @@ public class rightHighAuto extends LinearOpMode {
             colorSubsystem.color();
             telemetry.addData("Lift", liftSubsystem.position());
             telemetry.addData("Extend", extendSubsystem.position());
+            telemetry.addData("Distance", extendSubsystem.distance());
             telemetry.update();
         }
-        liftSubsystem.pullDown();
-        extendSubsystem.pullIn();
+        while(opModeIsActive() && timer.seconds() < goPark + 0.6){
+            liftSubsystem.pullDown();
+            extendSubsystem.pullIn();
+            liftSubsystem.loop();
+            extendSubsystem.loop();
+        }
         drive.followTrajectorySequence(parkCenter);
 
     }

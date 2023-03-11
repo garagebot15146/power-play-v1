@@ -55,10 +55,10 @@ public class teleOp extends OpMode {
     public static double clawRotate2 = 1;
 
     public static double leftFlipper1 = 0;
-    public static double leftFlipper2 = 0.5;
+    public static double leftFlipper2 = 0.3;
 
     public static double rightFlipper1 = 1;
-    public static double rightFlipper2 = 0.5;
+    public static double rightFlipper2 = 0.7;
 
     public static double stabilizer1 = 0;
     public static double stabilizer2 = 0.115;
@@ -404,7 +404,7 @@ public class teleOp extends OpMode {
         }
 
         // FLIPPER
-        if (currentGamepad1.b && !previousGamepad1.b) {
+        if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left) {
             if (toggleFlipper == "false" || toggleFlipper == "init") {
                 toggleFlipper = "true";
             } else {
