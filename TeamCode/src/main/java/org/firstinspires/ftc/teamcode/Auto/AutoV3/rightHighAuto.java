@@ -36,8 +36,8 @@ import java.util.ArrayList;
 public class rightHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
-    public static double toPoleLineX = 35;
-    public static double toPoleLineY = -5;
+    public static double toPoleLineX = 34;
+    public static double toPoleLineY = -4;
     public static double toPoleLineH = -18;
 
     public static double parkCenterLineX = 33;

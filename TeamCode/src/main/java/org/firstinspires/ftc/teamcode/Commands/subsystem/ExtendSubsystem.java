@@ -37,23 +37,19 @@ public class ExtendSubsystem extends SubsystemBase {
 
         leftHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        controller = new PIDController(pL, iL, dL);
     }
 
     public void loop() {
-        controller = new PIDController(pL, iL, dL);
-        if (position < 300) {
+        if(position > 50){
             controller.setTolerance(5);
         } else {
-            controller.setTolerance(5);
+            controller.setTolerance(0);
         }
         double power = controller.calculate(leftHorizontalSlide.getCurrentPosition(), position);
-        if (position < 300) {
-            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 1);
-            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 1);
-        } else {
-            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
-            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
-        }
+        leftHorizontalSlide.setPower(power);
+        rightHorizontalSlide.setPower(power);
     }
 
     public void setTarget(int target) {

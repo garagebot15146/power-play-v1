@@ -16,8 +16,8 @@ public class LiftSubsystem extends SubsystemBase {
     PIDController controller;
     private int position = 0;
     private final double pL = 0.04;
-    private final double iL = 0.00005;
-    private final double dL = 0.004;
+    private final double iL = 0.001;
+    private final double dL = 0.0004;
 
     public LiftSubsystem(HardwareMap hardwareMap) {
         leftVerticalSlide = hardwareMap.get(DcMotorEx.class, "leftVerticalSlide");
@@ -34,14 +34,25 @@ public class LiftSubsystem extends SubsystemBase {
         rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         stabilizer.setPosition(0.15);
+
+        controller = new PIDController(pL, iL, dL);
+        controller.setTolerance(5);
     }
 
     public void loop() {
-        controller = new PIDController(pL, iL, dL);
-        controller.setTolerance(10);
+        if(position > 50){
+//            controller.setPID(pL, iL, dL);
+        } else {
+            controller.setPID(0.015, 0.0001, 0.0001);
+        }
         double power = controller.calculate(leftVerticalSlide.getCurrentPosition(), position);
-        leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.88);
-        rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.88);
+        if(position > 50){
+            leftVerticalSlide.setPower(power);
+            rightVerticalSlide.setPower(power);
+        } else {
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.6);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.6);
+        }
     }
 
     public void setTarget(String pole) {
@@ -56,7 +67,7 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 627;
+                position = 640;
                 break;
         }
     }

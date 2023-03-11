@@ -100,7 +100,7 @@ public class teleOp extends OpMode {
 
         //PID
         liftController = new PIDController(pL, iL, dL);
-        liftController.setTolerance(20);
+        liftController.setTolerance(5);
 
         //DASHBOARD
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -237,11 +237,12 @@ public class teleOp extends OpMode {
                 }
 
                 // Slows lift PID
-                liftController.setPID(0.015, 0.0001, 0.0001);
+                liftController.setPID(pL, iL, dL);
+//                liftController.setPID(0.015, 0.0001, 0.0001);
                 pidLift = liftController.calculate(liftPos, liftTarget);
 
-                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.4);
-                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.4);
+                drive.leftVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.6);
+                drive.rightVerticalSlide.setPower(Range.clip(pidLift, -1, 1) * 0.6);
 
                 // Switch States
                 if (liftController.atSetPoint()) {
