@@ -95,7 +95,7 @@ public class ExtendSubsystem extends SubsystemBase {
             if (dist < 0.9 || position >= 970) {
                 reached = true;
             } else {
-                position += 10;
+                position += 14;
                 reached = false;
             }
         }
