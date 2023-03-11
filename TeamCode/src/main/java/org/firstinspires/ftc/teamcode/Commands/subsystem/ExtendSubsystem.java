@@ -20,7 +20,7 @@ public class ExtendSubsystem extends SubsystemBase {
     PIDController controller;
     private int position = 0;
     private final double pL = 0.02;
-    private final double iL = 0;
+    private final double iL = 0.001;
     private final double dL = 0.0001;
 
     public ExtendSubsystem(HardwareMap hardwareMap) {
@@ -42,17 +42,17 @@ public class ExtendSubsystem extends SubsystemBase {
     public void loop() {
         controller = new PIDController(pL, iL, dL);
         if (position < 300) {
-            controller.setTolerance(10);
+            controller.setTolerance(5);
         } else {
             controller.setTolerance(5);
         }
         double power = controller.calculate(leftHorizontalSlide.getCurrentPosition(), position);
         if (position < 300) {
+            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 1);
+            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 1);
+        } else {
             leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
             rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
-        } else {
-            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
-            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
         }
     }
 
@@ -92,10 +92,10 @@ public class ExtendSubsystem extends SubsystemBase {
         if (use_ds == true) {
             //Check the distance sensor
             double dist = distanceSensor.getDistance(DistanceUnit.INCH);
-            if (dist < 0.90 || position > 935) {
+            if (dist < 0.9 || position >= 970) {
                 reached = true;
             } else {
-                position += 18;
+                position += 10;
                 reached = false;
             }
         }

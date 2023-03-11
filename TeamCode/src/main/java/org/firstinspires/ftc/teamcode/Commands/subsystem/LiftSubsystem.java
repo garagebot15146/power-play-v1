@@ -16,7 +16,7 @@ public class LiftSubsystem extends SubsystemBase {
     PIDController controller;
     private int position = 0;
     private final double pL = 0.04;
-    private final double iL = 0.001;
+    private final double iL = 0.0001;
     private final double dL = 0.001;
 
     public LiftSubsystem(HardwareMap hardwareMap) {
@@ -32,6 +32,8 @@ public class LiftSubsystem extends SubsystemBase {
 
         leftVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightVerticalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        stabilizer.setPosition(0.15);
     }
 
     public void loop() {
@@ -39,18 +41,18 @@ public class LiftSubsystem extends SubsystemBase {
         controller.setTolerance(10);
         double power = controller.calculate(leftVerticalSlide.getCurrentPosition(), position);
         if (power > 0) {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.95);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.95);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.98);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.98);
         } else {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.65);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
         }
     }
 
     public void setTarget(String pole) {
         switch (pole) {
             case "BOTTOM":
-                stabilizer.setPosition(0.08);
+                stabilizer.setPosition(0.15);
                 position = 5;
                 break;
             case "MEDIUM":
@@ -59,7 +61,7 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 635;
+                position = 627;
                 break;
         }
     }

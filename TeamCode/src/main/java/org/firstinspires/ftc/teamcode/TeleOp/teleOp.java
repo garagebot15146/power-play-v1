@@ -43,12 +43,12 @@ public class teleOp extends OpMode {
     public static double claw2 = 0.52;
 
     public static double clawAngle1 = 0.07;
-    public static double clawAngle2 = 0.7;
-    public static double clawAngle3 = 0.21;
+    public static double clawAngle2 = 0.64;
+    public static double clawAngle3 = 0.23;
 
-    public static double intakeAngle1 = 0.07;
-    public static double intakeAngle2 = 0.7;
-    public static double intakeAngle3 = 0.7;
+    public static double intakeAngle1 = 0.04;
+    public static double intakeAngle2 = 0.66;
+    public static double intakeAngle3 = 0.65;
 
 
     public static double clawRotate1 = 0;

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Auto.AutoV3;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -25,9 +26,9 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 public class rightHighAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 48;
-    public static double toPoleLineX = 35.5;
-    public static double toPoleLineY = -6.3;
-    public static double toPoleLineH = -16;
+    public static double toPoleLineX = 35;
+    public static double toPoleLineY = -5;
+    public static double toPoleLineH = -18;
 
     public static double parkCenterLineX = 33;
     public static double parkCenterLineY = -16.5;
@@ -39,10 +40,9 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkRightMove = 23;
     public static double parkRightTurn = 90;
 
-    public static int goPark = 27;
+    public static double goPark = 26;
 
     private ElapsedTime timer = new ElapsedTime();;
-
 
     @Override
     public void runOpMode() {
@@ -61,8 +61,11 @@ public class rightHighAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence parkLeft = drive.trajectorySequenceBuilder(toPole.end())
+                .setAccelConstraint(drive.getAccelerationConstraint(50))
+                .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .back(parkLeftMove)
+                .setTurnConstraint(40, 40)
                 .turn(Math.toRadians(parkLeftTurn))
                 .back(10)
                 .build();
@@ -72,8 +75,11 @@ public class rightHighAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(toPole.end())
+                .setAccelConstraint(drive.getAccelerationConstraint(50))
+                .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .forward(parkRightMove)
+                .setTurnConstraint(40, 40)
                 .turn(Math.toRadians(parkRightTurn))
                 .back(10)
                 .build();
@@ -92,7 +98,6 @@ public class rightHighAuto extends LinearOpMode {
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
                         new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
                         new InstantCommand(() -> intakeSubsystem.down(0)),
-                        new WaitCommand(100),
                         new liftCommand(liftSubsystem, "HIGH", 1200),
                         new WaitCommand(100),
                         new liftCommand(liftSubsystem, "BOTTOM", 1000)
@@ -109,13 +114,14 @@ public class rightHighAuto extends LinearOpMode {
             telemetry.addData("Distance", extendSubsystem.distance());
             telemetry.update();
         }
-        while(opModeIsActive() && timer.seconds() < goPark + 0.6){
+        while(opModeIsActive() && timer.seconds() < goPark + 0.5){
             liftSubsystem.pullDown();
             extendSubsystem.pullIn();
             liftSubsystem.loop();
             extendSubsystem.loop();
+            intakeSubsystem.down(0);
         }
-        drive.followTrajectorySequence(parkCenter);
+        drive.followTrajectorySequence(parkRight);
 
     }
 
