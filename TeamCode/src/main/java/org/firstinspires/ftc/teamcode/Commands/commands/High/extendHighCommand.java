@@ -27,19 +27,19 @@ public class extendHighCommand extends CommandBase {
                 extendSubsystem.setTarget(10);
                 break;
             case 1:
-                extendSubsystem.setTarget(1055);
+                extendSubsystem.setTarget(900);
                 break;
             case 2:
-                extendSubsystem.setTarget(1045);
+                extendSubsystem.setTarget(900);
                 break;
             case 3:
-                extendSubsystem.setTarget(1035);
+                extendSubsystem.setTarget(900);
                 break;
             case 4:
-                extendSubsystem.setTarget(1025);
+                extendSubsystem.setTarget(900);
                 break;
             case 5:
-                extendSubsystem.setTarget(1020);
+                extendSubsystem.setTarget(900);
                 break;
             case 6:
                 extendSubsystem.setTarget(extendSubsystem.position() - 100);

@@ -5,21 +5,29 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class ExtendSubsystem extends SubsystemBase {
     public DcMotorEx leftHorizontalSlide, rightHorizontalSlide;
 
+    private DistanceSensor ds = null;
+    boolean use_ds = false;
+
     PIDController controller;
     private int position = 0;
-    private final double pL = 0.03;
-    private final double iL = 0.001;
-    private final double dL = 0.0004;
+    private final double pL = 0.02;
+    private final double iL = 0;
+    private final double dL = 0.0001;
 
     public ExtendSubsystem(HardwareMap hardwareMap) {
         leftHorizontalSlide = hardwareMap.get(DcMotorEx.class, "leftHorizontalSlide");
         rightHorizontalSlide = hardwareMap.get(DcMotorEx.class, "rightHorizontalSlide");
+
+        ds = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
         leftHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHorizontalSlide.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -33,15 +41,15 @@ public class ExtendSubsystem extends SubsystemBase {
 
     public void loop() {
         controller = new PIDController(pL, iL, dL);
-        if(position < 300){
+        if (position < 300) {
             controller.setTolerance(10);
         } else {
             controller.setTolerance(5);
         }
         double power = controller.calculate(leftHorizontalSlide.getCurrentPosition(), position);
-        if(position < 300){
-            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
-            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
+        if (position < 300) {
+            leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
+            rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.9);
         } else {
             leftHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
             rightHorizontalSlide.setPower(Range.clip(power, -1, 1) * 0.72);
@@ -50,14 +58,44 @@ public class ExtendSubsystem extends SubsystemBase {
 
     public void setTarget(int target) {
         position = target;
+        use_ds = false;
     }
 
     public int position() {
         return leftHorizontalSlide.getCurrentPosition();
     }
 
+    public double distance() {
+        return ds.getDistance(DistanceUnit.INCH);
+    }
 
     public boolean isReached() {
-        return Math.abs(position - leftHorizontalSlide.getCurrentPosition()) < 10;
+        boolean reached = false;
+
+        if (use_ds == false) {
+            //Coarse level measurement
+            reached = Math.abs(position - leftHorizontalSlide.getCurrentPosition()) < 5;
+            if (reached == true) {
+                //switch to fine level measurements of using distance sensor
+                use_ds = true;
+
+                //if you are retracting then dont use distance sensor
+                if (position < 300) {
+                    use_ds = false;
+                }
+            }
+        }
+        if (use_ds == true) {
+            //Check the distance sensor
+            double dist = ds.getDistance(DistanceUnit.INCH);
+            if (dist < 0.5) {
+                reached = true;
+            } else {
+                position += 1;
+                reached = false;
+            }
+        }
+
+        return reached;
     }
 }
