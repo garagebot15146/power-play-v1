@@ -8,11 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
 @Config
@@ -41,7 +39,7 @@ public class teleOp extends OpMode {
 
     // SERVO POSITIONS
     public static double claw1 = 1;
-    public static double claw2 = 0.55;
+    public static double claw2 = 0.52;
 
     public static double clawAngle1 = 0.07;
     public static double clawAngle2 = 0.7;
@@ -55,10 +53,10 @@ public class teleOp extends OpMode {
     public static double clawRotate1 = 0;
     public static double clawRotate2 = 1;
 
-    public static double leftFlipper1 = 1;
+    public static double leftFlipper1 = 0;
     public static double leftFlipper2 = 0.5;
 
-    public static double rightFlipper1 = 0;
+    public static double rightFlipper1 = 1;
     public static double rightFlipper2 = 0.5;
 
     public static double stabilizer1 = 0;
@@ -359,14 +357,6 @@ public class teleOp extends OpMode {
             extendState = ExtendState.LOW_POLE;
         }
 
-        if (gamepad1.b) {
-            lowPole();
-        }
-
-        if (gamepad1.x) {
-            drive.clawRotate.setPosition(clawRotate2);
-        }
-
         // Bottom Pole
         if (gamepad2.a) {
             drive.intakeAngle.setPosition(intakeAngle3);
@@ -416,56 +406,22 @@ public class teleOp extends OpMode {
         }
 
         // FLIPPER
-//        if (currentGamepad1.y && !previousGamepad1.y) {
-//            if (toggleFlipper == "false" || toggleFlipper == "init") {
-//                toggleFlipper = "true";
-//            } else {
-//                toggleFlipper = "false";
-//            }
-//        }
-//        if (toggleFlipper == "true") {
-//            drive.leftFlipper.setPosition(leftFlipper2);
-//            drive.rightFlipper.setPosition(rightFlipper2);
-//        } else if (toggleFlipper == "false") {
-//            drive.leftFlipper.setPosition(leftFlipper1);
-//            drive.rightFlipper.setPosition(rightFlipper1);
-//        }
-
-//        // CLAW ANGLE
-//        if ((currentGamepad1.a && !previousGamepad1.a) || (currentGamepad1.a && !previousGamepad1.a)) {
-//            if (toggleClawAngle == "false" || toggleClawAngle == "init") {
-//                toggleClawAngle = "true";
-//            } else {
-//                toggleClawAngle = "false";
-//            }
-//        }
-//        if (liftState != LiftState.CYCLE) {
-//            if (toggleClawAngle == "true") {
-//                drive.clawAngle.setPosition(clawAngle1);
-//                telemetry.addData("Claw Angle", clawAngle1);
-//
-//            } else if (toggleClawAngle == "false") {
-//                drive.clawAngle.setPosition(clawAngle2);
-//                telemetry.addData("Claw Angle", clawAngle2);
-//            }
-//        }
-//
-        // INTAKE ANGLE
-//        if ((currentGamepad1.b && !previousGamepad1.b) || (currentGamepad1.b && !previousGamepad1.b)) {
-//            if (toggleIntakeAngle == "false" || toggleIntakeAngle == "init") {
-//                toggleIntakeAngle = "true";
-//            } else {
-//                toggleIntakeAngle = "false";
-//            }
-//        }
-//        if (toggleIntakeAngle == "true") {
-//            drive.intakeAngle.setPosition(intakeAngle1);
-//            telemetry.addData("Intake Angle", intakeAngle1);
-//
-//        } else if (toggleIntakeAngle == "false") {
-//            drive.intakeAngle.setPosition(intakeAngle2);
-//            telemetry.addData("Intake Angle", intakeAngle2);
-//        }
+        if (currentGamepad1.b && !previousGamepad1.b) {
+            if (toggleFlipper == "false" || toggleFlipper == "init") {
+                toggleFlipper = "true";
+            } else {
+                toggleFlipper = "false";
+            }
+        }
+        if (toggleFlipper == "true") {
+            drive.leftFlipper.setPosition(leftFlipper2);
+            drive.rightFlipper.setPosition(rightFlipper2);
+            telemetry.addData("Left Flipper", leftFlipper2);
+        } else if (toggleFlipper == "false") {
+            drive.leftFlipper.setPosition(leftFlipper1);
+            drive.rightFlipper.setPosition(rightFlipper1);
+            telemetry.addData("Left Flipper", leftFlipper1);
+        }
 
         // TELEMETRY
         telemetry.addData("Lift State", liftState);
