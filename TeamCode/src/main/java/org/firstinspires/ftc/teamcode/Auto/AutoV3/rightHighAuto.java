@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Commands.commands.High.cycleHighCommand;
+import org.firstinspires.ftc.teamcode.Commands.subsystem.ColorSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.commands.liftCommand;
@@ -38,6 +39,8 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkRightMove = 23;
     public static double parkRightTurn = 90;
 
+    public static int goPark = 25;
+
     private ElapsedTime timer = new ElapsedTime();;
 
 
@@ -46,6 +49,7 @@ public class rightHighAuto extends LinearOpMode {
         IntakeSubsystem intakeSubsystem = new IntakeSubsystem(hardwareMap);
         LiftSubsystem liftSubsystem = new LiftSubsystem(hardwareMap);
         ExtendSubsystem extendSubsystem = new ExtendSubsystem(hardwareMap);
+        ColorSubsystem colorSubsystem = new ColorSubsystem(hardwareMap);
         drive = new HWMap(hardwareMap);
 
         Pose2d startPose = new Pose2d(34, -72 + (15.5 / 2), Math.toRadians(270));
@@ -97,14 +101,17 @@ public class rightHighAuto extends LinearOpMode {
                         )
         );
 
-        while (opModeIsActive() && timer.seconds() < 25) {
+        while (opModeIsActive() && timer.seconds() < goPark) {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();
+            colorSubsystem.color();
             telemetry.addData("Lift", liftSubsystem.position());
             telemetry.addData("Extend", extendSubsystem.position());
             telemetry.update();
         }
+        liftSubsystem.pullDown();
+        extendSubsystem.pullIn();
         drive.followTrajectorySequence(parkCenter);
 
     }

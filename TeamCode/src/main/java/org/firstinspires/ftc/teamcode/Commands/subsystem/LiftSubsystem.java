@@ -68,6 +68,9 @@ public class LiftSubsystem extends SubsystemBase {
         return leftVerticalSlide.getCurrentPosition();
     }
 
+    public void pullDown(){
+        position = 10;
+    }
 
     public boolean isReached() {
         return Math.abs(position - leftVerticalSlide.getCurrentPosition()) < 10;

@@ -32,7 +32,7 @@ public class rightParkRight {
                         drive.trajectorySequenceBuilder(new Pose2d(34, -72 + (15.5 / 2), Math.toRadians(270)))
                                 .back(toPoleBack)
                                 .lineToLinearHeading(new Pose2d(toPoleLineX, toPoleLineY, Math.toRadians(toPoleLineH)))
-                                .lineToLinearHeading(new Pose2d(35, -25, Math.toRadians(270)))
+                                .lineToLinearHeading(new Pose2d(50, -10, Math.toRadians(0)))
                                 .build()
                 );
 

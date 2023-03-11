@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @TeleOp(name="detectionAT", group="Tests")
-@Disabled
+//@Disabled
 public class detectionAT extends LinearOpMode
 {
     OpenCvCamera camera;
@@ -33,7 +33,7 @@ public class detectionAT extends LinearOpMode
     public void runOpMode()
     {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 15146"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagPipeline();
 
         camera.setPipeline(aprilTagDetectionPipeline);

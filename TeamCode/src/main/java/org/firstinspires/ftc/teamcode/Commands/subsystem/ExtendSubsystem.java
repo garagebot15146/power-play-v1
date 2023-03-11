@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class ExtendSubsystem extends SubsystemBase {
     public DcMotorEx leftHorizontalSlide, rightHorizontalSlide;
 
-    private DistanceSensor distanceSensor = null;
+    private DistanceSensor distanceSensor;
     boolean use_ds = false;
 
     PIDController controller;
@@ -65,6 +65,9 @@ public class ExtendSubsystem extends SubsystemBase {
         return leftHorizontalSlide.getCurrentPosition();
     }
 
+    public void pullIn(){
+        position = 10;
+    }
     public double distance() {
         return distanceSensor.getDistance(DistanceUnit.INCH);
     }

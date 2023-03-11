@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
 @Config
@@ -96,9 +97,6 @@ public class teleOp extends OpMode {
     @Override
     public void init() {
         drive = new HWMap(hardwareMap);
-
-        //COLOR SENSOR
-//        drive.colorSensor.enableLed(true);
 
         //PID
         liftController = new PIDController(pL, iL, dL);
@@ -428,6 +426,7 @@ public class teleOp extends OpMode {
         telemetry.addData("Extend State", extendState);
         telemetry.addData("Lift Pos", liftPos);
         telemetry.addData("Extend Pos", extensionPos);
+        telemetry.addData("Distance", drive.distanceSensor.getDistance(DistanceUnit.INCH));
 
     }
 
