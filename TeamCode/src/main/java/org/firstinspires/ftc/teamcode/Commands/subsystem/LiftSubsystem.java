@@ -16,8 +16,8 @@ public class LiftSubsystem extends SubsystemBase {
     PIDController controller;
     private int position = 0;
     private final double pL = 0.04;
-    private final double iL = 0.0001;
-    private final double dL = 0.001;
+    private final double iL = 0.00005;
+    private final double dL = 0.004;
 
     public LiftSubsystem(HardwareMap hardwareMap) {
         leftVerticalSlide = hardwareMap.get(DcMotorEx.class, "leftVerticalSlide");
@@ -40,13 +40,8 @@ public class LiftSubsystem extends SubsystemBase {
         controller = new PIDController(pL, iL, dL);
         controller.setTolerance(10);
         double power = controller.calculate(leftVerticalSlide.getCurrentPosition(), position);
-        if (power > 0) {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.98);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.98);
-        } else {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.75);
-        }
+        leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.88);
+        rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.88);
     }
 
     public void setTarget(String pole) {

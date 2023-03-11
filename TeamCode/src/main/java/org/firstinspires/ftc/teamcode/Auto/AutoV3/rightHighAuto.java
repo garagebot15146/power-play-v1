@@ -50,7 +50,7 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkRightMove = 23;
     public static double parkRightTurn = 90;
 
-    public static double goPark = 26.6;
+    public static double goPark = 25.5;
 
     private ElapsedTime timer = new ElapsedTime();;
 
