@@ -359,13 +359,13 @@ public class teleOp extends OpMode {
             extendState = ExtendState.LOW_POLE;
         }
 
-//        if (gamepad1.b) {
-//            lowPole();
-//        }
-//
-//        if (gamepad1.x) {
-//            drive.clawRotate.setPosition(clawRotate2);
-//        }
+        if (gamepad1.b) {
+            lowPole();
+        }
+
+        if (gamepad1.x) {
+            drive.clawRotate.setPosition(clawRotate2);
+        }
 
         // Bottom Pole
         if (gamepad2.a) {
@@ -416,20 +416,20 @@ public class teleOp extends OpMode {
         }
 
         // FLIPPER
-        if (currentGamepad1.b && !previousGamepad1.b) {
-            if (toggleFlipper == "false" || toggleFlipper == "init") {
-                toggleFlipper = "true";
-            } else {
-                toggleFlipper = "false";
-            }
-        }
-        if (toggleFlipper == "true") {
-            drive.leftFlipper.setPosition(leftFlipper2);
-            drive.rightFlipper.setPosition(rightFlipper2);
-        } else if (toggleFlipper == "false") {
-            drive.leftFlipper.setPosition(leftFlipper1);
-            drive.rightFlipper.setPosition(rightFlipper1);
-        }
+//        if (currentGamepad1.y && !previousGamepad1.y) {
+//            if (toggleFlipper == "false" || toggleFlipper == "init") {
+//                toggleFlipper = "true";
+//            } else {
+//                toggleFlipper = "false";
+//            }
+//        }
+//        if (toggleFlipper == "true") {
+//            drive.leftFlipper.setPosition(leftFlipper2);
+//            drive.rightFlipper.setPosition(rightFlipper2);
+//        } else if (toggleFlipper == "false") {
+//            drive.leftFlipper.setPosition(leftFlipper1);
+//            drive.rightFlipper.setPosition(rightFlipper1);
+//        }
 
 //        // CLAW ANGLE
 //        if ((currentGamepad1.a && !previousGamepad1.a) || (currentGamepad1.a && !previousGamepad1.a)) {
