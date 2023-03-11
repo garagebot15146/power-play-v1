@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Commands.commands.High.cycleHighCommand;
 import org.firstinspires.ftc.teamcode.Commands.commands.High.extendHighCommand;
+import org.firstinspires.ftc.teamcode.Commands.commands.intakeCommand;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.commands.liftCommand;
@@ -30,6 +31,8 @@ public class extendAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         ExtendSubsystem extendSubsystem = new ExtendSubsystem(hardwareMap);
+        IntakeSubsystem intakeSubsystem = new IntakeSubsystem(hardwareMap);
+
         drive = new HWMap(hardwareMap);
 
         CommandScheduler.getInstance().reset();
@@ -39,6 +42,8 @@ public class extendAuto extends LinearOpMode {
 
         CommandScheduler.getInstance().schedule(
                 new SequentialCommandGroup(
+                        new intakeCommand(intakeSubsystem, 1),
+                        new WaitCommand(500),
                         new extendHighCommand(extendSubsystem, 5, 10000),
                         new WaitCommand(500),
                         new extendHighCommand(extendSubsystem, 0, 2000)
