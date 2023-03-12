@@ -12,8 +12,8 @@ public class depositMediumCommand extends ParallelCommandGroup {
     public depositMediumCommand(IntakeSubsystem intakeSubsystem, LiftSubsystem liftSubsystem, ExtendSubsystem extendSubsystem, int cones) {
         super(
                 new intakeCommand(intakeSubsystem, cones),
-                new liftCommand(liftSubsystem, "MEDIUM", 1000),
-                new extendMediumCommand(extendSubsystem, cones, 1100)
+                new liftCommand(liftSubsystem, "MEDIUM", 1100),
+                new extendMediumCommand(extendSubsystem, cones, 3000)
         );
     }
 }

@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,11 +17,10 @@ import org.firstinspires.ftc.teamcode.Settings.drive.HWMap;
 
 @Autonomous(name = "extendAuto", group = "auto")
 @Config
-//@Disabled
+@Disabled
 public class extendAuto extends LinearOpMode {
     HWMap drive;
     private ElapsedTime timer = new ElapsedTime();;
-
 
     @Override
     public void runOpMode() {
