@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Auto.AutoV3;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -47,7 +46,7 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkLeftTurn = 90;
 
     public static double parkRightMove = 23;
-    public static double parkRightTurn = 90;
+    public static double parkRightTurn = 180;
 
     public static double goPark = 25.5;
 
