@@ -75,7 +75,6 @@ public class rightMediumAuto extends LinearOpMode {
                 .createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         // Loading Pipeline
-        OpenCVPipeline visionPipeline = new OpenCVPipeline();
         AprilTagPipeline aprilTagDetectionPipeline = new AprilTagPipeline();
 
         // Start Streaming
@@ -135,11 +134,6 @@ public class rightMediumAuto extends LinearOpMode {
 
         // Start Auto
         while (!isStarted() && !isStopRequested()) {
-            camera.setPipeline(visionPipeline);
-            telemetry.addData("CV Position", visionPipeline.getPosition());
-            telemetry.addData("CV Analysis", visionPipeline.getAnalysis());
-            sleep(300);
-
             camera.setPipeline(aprilTagDetectionPipeline);
             ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
             if(ATLock){
@@ -166,8 +160,6 @@ public class rightMediumAuto extends LinearOpMode {
             telemetry.update();
         }
 
-        CVconePos = visionPipeline.getPosition().name();
-
         if(ATconePos == "NOT_SET"){
             conePos = CVconePos;
         } else {
@@ -175,7 +167,6 @@ public class rightMediumAuto extends LinearOpMode {
         }
 
         telemetry.addData("Cone Vision", conePos);
-        telemetry.addData("Analysis", visionPipeline.getAnalysis());
         telemetry.update();
         FtcDashboard.getInstance().stopCameraStream();
 

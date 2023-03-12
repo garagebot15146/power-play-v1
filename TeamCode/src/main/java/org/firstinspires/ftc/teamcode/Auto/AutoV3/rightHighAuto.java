@@ -76,7 +76,6 @@ public class rightHighAuto extends LinearOpMode {
                 .createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         // Loading Pipeline
-        OpenCVPipeline visionPipeline = new OpenCVPipeline();
         AprilTagPipeline aprilTagDetectionPipeline = new AprilTagPipeline();
 
         // Start Streaming
@@ -117,6 +116,7 @@ public class rightHighAuto extends LinearOpMode {
                 .setTurnConstraint(40, 40)
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
                 .lineToLinearHeading(new Pose2d(parkCenterLineX - parkLeftMove, parkCenterLineY, Math.toRadians(parkLeftTurn)))
+                .forward(4)
                 .build();
 
         TrajectorySequence parkCenter = drive.trajectorySequenceBuilder(toPole.end())
@@ -131,17 +131,13 @@ public class rightHighAuto extends LinearOpMode {
                 .setTurnConstraint(40, 40)
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY + 4, Math.toRadians(parkCenterLineH)))
                 .lineToLinearHeading(new Pose2d(parkCenterLineX + parkRightMove + 2, parkCenterLineY + 3, Math.toRadians(parkRightTurn)))
+                .forward(4)
                 .build();
 
         CommandScheduler.getInstance().reset();
 
         // Start Auto
         while (!isStarted() && !isStopRequested()) {
-            camera.setPipeline(visionPipeline);
-            telemetry.addData("CV Position", visionPipeline.getPosition());
-            telemetry.addData("CV Analysis", visionPipeline.getAnalysis());
-            sleep(300);
-
             camera.setPipeline(aprilTagDetectionPipeline);
             ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
             if(ATLock){
@@ -168,8 +164,6 @@ public class rightHighAuto extends LinearOpMode {
             telemetry.update();
         }
 
-        CVconePos = visionPipeline.getPosition().name();
-
         if(ATconePos == "NOT_SET"){
             conePos = CVconePos;
         } else {
@@ -177,7 +171,6 @@ public class rightHighAuto extends LinearOpMode {
         }
 
         telemetry.addData("Cone Vision", conePos);
-        telemetry.addData("Analysis", visionPipeline.getAnalysis());
         telemetry.update();
         FtcDashboard.getInstance().stopCameraStream();
 

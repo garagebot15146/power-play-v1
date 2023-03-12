@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Settings.trajectorysequence.TrajectorySequ
 
 @Autonomous(name = "leftMediumAuto", group = "auto")
 @Config
-//@Disabled
+@Disabled
 public class leftMediumAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 34;
