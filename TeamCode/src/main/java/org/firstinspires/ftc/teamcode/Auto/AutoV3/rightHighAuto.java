@@ -46,7 +46,7 @@ public class rightHighAuto extends LinearOpMode {
     public static double parkLeftTurn = 90;
 
     public static double parkRightMove = 23;
-    public static double parkRightTurn = 180;
+    public static double parkRightTurn = 270;
 
     public static double goPark = 25.5;
 

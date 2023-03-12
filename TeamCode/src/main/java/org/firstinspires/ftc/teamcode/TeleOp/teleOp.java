@@ -35,8 +35,8 @@ public class teleOp extends OpMode {
 
     // THRESHOLDS
     public static int highPole = 870;
-    public static int midPole = 520;
-    public static int stabilizerVertical = 240;
+    public static int midPole = 524;
+    public static int stabilizerVertical = 500;
 
     // SERVO POSITIONS
     public static double claw1 = 1;
@@ -263,11 +263,11 @@ public class teleOp extends OpMode {
                 }
 
                 // STABILIZER
-//                if (liftPos > stabilizerVertical) {
-//                    drive.stabilizer.setPosition(stabilizer1);
-//                } else {
-//                    drive.stabilizer.setPosition(stabilizer2);
-//                }
+                if (liftPos > stabilizerVertical) {
+                    drive.stabilizer.setPosition(stabilizer1);
+                } else {
+                    drive.stabilizer.setPosition(stabilizer2);
+                }
                 break;
 
             case REST:
@@ -358,6 +358,9 @@ public class teleOp extends OpMode {
 
         // Bottom Pole
         if (gamepad2.a) {
+            toggleFlipper = "false";
+            drive.leftFlipper.setPosition(leftFlipper1);
+            drive.rightFlipper.setPosition(rightFlipper1);
             drive.intakeAngle.setPosition(intakeAngle3);
             liftState = LiftState.LIFT_AUTO_SLOW;
             liftTarget = 0;
@@ -405,7 +408,12 @@ public class teleOp extends OpMode {
         }
 
         // FLIPPER
-        if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left) {
+        if(-gamepad2.right_stick_y < 0.2 && liftPos < 400){
+            toggleFlipper = "false";
+            drive.leftFlipper.setPosition(leftFlipper1);
+            drive.rightFlipper.setPosition(rightFlipper1);
+        }
+        if (currentGamepad1.b && !previousGamepad1.b) {
             if (toggleFlipper == "false" || toggleFlipper == "init") {
                 toggleFlipper = "true";
             } else {
