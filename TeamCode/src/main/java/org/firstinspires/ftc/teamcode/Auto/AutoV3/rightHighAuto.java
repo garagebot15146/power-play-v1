@@ -131,7 +131,7 @@ public class rightHighAuto extends LinearOpMode {
                 .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
                 .setTurnConstraint(40, 40)
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY + 4, Math.toRadians(parkCenterLineH)))
-                .lineToLinearHeading(new Pose2d(parkCenterLineX + parkRightMove, parkCenterLineY + 3, Math.toRadians(parkRightTurn)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX + parkRightMove + 2, parkCenterLineY + 3, Math.toRadians(parkRightTurn)))
                 .build();
 
         CommandScheduler.getInstance().reset();
