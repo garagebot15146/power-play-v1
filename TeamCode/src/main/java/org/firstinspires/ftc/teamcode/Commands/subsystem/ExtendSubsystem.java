@@ -88,7 +88,7 @@ public class ExtendSubsystem extends SubsystemBase {
         if (use_ds == true) {
             //Check the distance sensor
             double dist = distanceSensor.getDistance(DistanceUnit.INCH);
-            if (dist < 0.9 || position >= 970) {
+            if (dist < 0.9 || position >= 1070) {
                 reached = true;
             } else {
                 position += 10;

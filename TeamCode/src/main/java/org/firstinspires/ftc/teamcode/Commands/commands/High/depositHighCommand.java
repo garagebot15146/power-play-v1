@@ -12,8 +12,8 @@ public class depositHighCommand extends ParallelCommandGroup {
     public depositHighCommand(IntakeSubsystem intakeSubsystem, LiftSubsystem liftSubsystem, ExtendSubsystem extendSubsystem, int cones) {
         super(
                 new intakeCommand(intakeSubsystem, cones),
-                new liftCommand(liftSubsystem, "HIGH", 2000),
-                new extendHighCommand(extendSubsystem, cones, 3000)
+                new liftCommand(liftSubsystem, "HIGH", 1500),
+                new extendHighCommand(extendSubsystem, cones, 2700)
         );
     }
 }

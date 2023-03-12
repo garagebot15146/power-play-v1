@@ -15,9 +15,7 @@ public class LiftSubsystem extends SubsystemBase {
 
     PIDController controller;
     private int position = 0;
-    private final double pL = 0.04;
-    private final double iL = 0.001;
-    private final double dL = 0.0004;
+    public static double pL = 0.03, iL = 0.001, dL = 0.0004;
 
     public LiftSubsystem(HardwareMap hardwareMap) {
         leftVerticalSlide = hardwareMap.get(DcMotorEx.class, "leftVerticalSlide");
@@ -50,8 +48,8 @@ public class LiftSubsystem extends SubsystemBase {
             leftVerticalSlide.setPower(power);
             rightVerticalSlide.setPower(power);
         } else {
-            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.6);
-            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.6);
+            leftVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.8);
+            rightVerticalSlide.setPower(Range.clip(power, -1, 1) * 0.8);
         }
     }
 
@@ -63,11 +61,11 @@ public class LiftSubsystem extends SubsystemBase {
                 break;
             case "MEDIUM":
                 stabilizer.setPosition(0);
-                position = 350;
+                position = 520;
                 break;
             case "HIGH":
                 stabilizer.setPosition(0);
-                position = 640;
+                position = 876;
                 break;
         }
     }

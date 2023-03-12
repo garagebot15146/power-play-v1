@@ -34,8 +34,8 @@ public class teleOp extends OpMode {
 
 
     // THRESHOLDS
-    public static int highPole = 655;
-    public static int midPole = 365;
+    public static int highPole = 870;
+    public static int midPole = 520;
     public static int stabilizerVertical = 240;
 
     // SERVO POSITIONS
@@ -92,7 +92,7 @@ public class teleOp extends OpMode {
     //PID
     PIDController liftController;
     public int liftTarget;
-    public static double pL = 0.02, iL = 0.001, dL = 0.0004;
+    public static double pL = 0.03, iL = 0.001, dL = 0.0004;
 
     @Override
     public void init() {
@@ -263,11 +263,11 @@ public class teleOp extends OpMode {
                 }
 
                 // STABILIZER
-                if (liftPos > stabilizerVertical) {
-                    drive.stabilizer.setPosition(stabilizer1);
-                } else {
-                    drive.stabilizer.setPosition(stabilizer2);
-                }
+//                if (liftPos > stabilizerVertical) {
+//                    drive.stabilizer.setPosition(stabilizer1);
+//                } else {
+//                    drive.stabilizer.setPosition(stabilizer2);
+//                }
                 break;
 
             case REST:

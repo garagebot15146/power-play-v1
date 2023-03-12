@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Commands.commands.High.cycleHighCommand;
-import org.firstinspires.ftc.teamcode.Commands.subsystem.ColorSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.ExtendSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.subsystem.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.Commands.commands.liftCommand;
@@ -103,7 +102,6 @@ public class rightHighAuto extends LinearOpMode {
         IntakeSubsystem intakeSubsystem = new IntakeSubsystem(hardwareMap);
         LiftSubsystem liftSubsystem = new LiftSubsystem(hardwareMap);
         ExtendSubsystem extendSubsystem = new ExtendSubsystem(hardwareMap);
-        ColorSubsystem colorSubsystem = new ColorSubsystem(hardwareMap);
         drive = new HWMap(hardwareMap);
 
         Pose2d startPose = new Pose2d(34, -72 + (15.5 / 2), Math.toRadians(270));
@@ -132,8 +130,8 @@ public class rightHighAuto extends LinearOpMode {
                 .setAccelConstraint(drive.getAccelerationConstraint(50))
                 .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
                 .setTurnConstraint(40, 40)
-                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY, Math.toRadians(parkCenterLineH)))
-                .lineToLinearHeading(new Pose2d(parkCenterLineX + parkRightMove, parkCenterLineY, Math.toRadians(parkRightTurn)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY + 4, Math.toRadians(parkCenterLineH)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX + parkRightMove, parkCenterLineY + 3, Math.toRadians(parkRightTurn)))
                 .build();
 
         CommandScheduler.getInstance().reset();
@@ -205,7 +203,6 @@ public class rightHighAuto extends LinearOpMode {
             CommandScheduler.getInstance().run();
             liftSubsystem.loop();
             extendSubsystem.loop();
-            colorSubsystem.color();
             telemetry.addData("Lift", liftSubsystem.position());
             telemetry.addData("Extend", extendSubsystem.position());
             telemetry.addData("Distance", extendSubsystem.distance());
