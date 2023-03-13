@@ -56,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private static double claw_pos_open = 0.8;
-    private static double claw_pos_closed = 0.51;
+    private static double claw_pos_closed = 0.48;
 
     public enum ClawState {
         OPEN,

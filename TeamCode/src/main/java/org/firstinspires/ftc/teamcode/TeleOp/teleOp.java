@@ -35,7 +35,8 @@ public class teleOp extends OpMode {
 
     // THRESHOLDS
     public static int highPole = 870;
-    public static int midPole = 524;
+    public int midPole = 520;
+    public static int midPoleInc = 40;
     public static int stabilizerVertical = 500;
 
     // SERVO POSITIONS
@@ -82,6 +83,7 @@ public class teleOp extends OpMode {
 
     boolean commandLock = false;
     boolean transferLock = false;
+    boolean mediumLock = false;
     double pidLift = 0;
 
     // CLOCK
@@ -214,7 +216,11 @@ public class teleOp extends OpMode {
         // STATE MACHINES
         switch (liftState) {
             case LIFT_AUTO:
-                liftController.setPID(pL, iL, dL);
+                if(liftPos == midPole){
+                    liftController.setPID(0.012, 0.001, 0.0005);
+                } else {
+                    liftController.setPID(pL, iL, dL);
+                }
                 pidLift = liftController.calculate(liftPos, liftTarget);
                 lowPole();
                 drive.leftVerticalSlide.setPower(pidLift);
@@ -390,6 +396,21 @@ public class teleOp extends OpMode {
             drive.rightHorizontalSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
+        //MEDIUM POLE
+        if(gamepad2.dpad_left){
+            if (!mediumLock) {
+                midPole -= midPoleInc;
+                mediumLock = true;
+            }
+        } else if(gamepad2.dpad_right){
+            if (!mediumLock) {
+                midPole += midPoleInc;
+                mediumLock = true;
+            }
+        } else {
+            mediumLock = false;
+        }
+
         // CLAW
         if ((currentGamepad1.left_bumper && !previousGamepad1.left_bumper)) {
             if (toggleClaw == "false" || toggleClaw == "init") {
@@ -435,6 +456,7 @@ public class teleOp extends OpMode {
         telemetry.addData("Extend State", extendState);
         telemetry.addData("Lift Pos", liftPos);
         telemetry.addData("Extend Pos", extensionPos);
+        telemetry.addData("Mid Pole", midPole);
         telemetry.addData("Distance", drive.distanceSensor.getDistance(DistanceUnit.INCH));
 
     }

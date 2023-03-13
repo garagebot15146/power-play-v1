@@ -116,7 +116,7 @@ public class leftHighAuto extends LinearOpMode {
                 .setVelConstraint(drive.getVelocityConstraint(50, 40, 13.6))
                 .setTurnConstraint(40, 40)
                 .lineToLinearHeading(new Pose2d(parkCenterLineX, parkCenterLineY + 6, Math.toRadians(parkCenterLineH)))
-                .lineToLinearHeading(new Pose2d(parkCenterLineX - parkLeftMove - 2, parkCenterLineY + 2, Math.toRadians(parkLeftTurn)))
+                .lineToLinearHeading(new Pose2d(parkCenterLineX - parkLeftMove - 2, parkCenterLineY, Math.toRadians(parkLeftTurn)))
                 .build();
 
         TrajectorySequence parkCenter = drive.trajectorySequenceBuilder(toPole.end())
@@ -176,36 +176,36 @@ public class leftHighAuto extends LinearOpMode {
         timer.reset();
         drive.followTrajectorySequence(toPole);
 
-//        CommandScheduler.getInstance().schedule(
-//                new SequentialCommandGroup(
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 4),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 3),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
-//                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
-//                        new InstantCommand(() -> intakeSubsystem.down(0)),
-//                        new liftCommand(liftSubsystem, "HIGH", 1200),
-//                        new WaitCommand(100),
-//                        new liftCommand(liftSubsystem, "BOTTOM", 1000)
-//                )
-//        );
-//
-//        while (opModeIsActive() && timer.seconds() < goPark) {
-//            CommandScheduler.getInstance().run();
-//            liftSubsystem.loop();
-//            extendSubsystem.loop();
-//            telemetry.addData("Lift", liftSubsystem.position());
-//            telemetry.addData("Extend", extendSubsystem.position());
-//            telemetry.addData("Distance", extendSubsystem.distance());
-//            telemetry.update();
-//        }
-//        while(opModeIsActive() && timer.seconds() < goPark + 0.5){
-//            liftSubsystem.pullDown();
-//            extendSubsystem.pullIn();
-//            liftSubsystem.loop();
-//            extendSubsystem.loop();
-//            intakeSubsystem.down(0);
-//        }
+        CommandScheduler.getInstance().schedule(
+                new SequentialCommandGroup(
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 5),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 4),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 3),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 2),
+                        new cycleHighCommand(intakeSubsystem, liftSubsystem, extendSubsystem, 1),
+                        new InstantCommand(() -> intakeSubsystem.down(0)),
+                        new liftCommand(liftSubsystem, "HIGH", 1200),
+                        new WaitCommand(100),
+                        new liftCommand(liftSubsystem, "BOTTOM", 1000)
+                )
+        );
+
+        while (opModeIsActive() && timer.seconds() < goPark) {
+            CommandScheduler.getInstance().run();
+            liftSubsystem.loop();
+            extendSubsystem.loop();
+            telemetry.addData("Lift", liftSubsystem.position());
+            telemetry.addData("Extend", extendSubsystem.position());
+            telemetry.addData("Distance", extendSubsystem.distance());
+            telemetry.update();
+        }
+        while(opModeIsActive() && timer.seconds() < goPark + 0.5){
+            liftSubsystem.pullDown();
+            extendSubsystem.pullIn();
+            liftSubsystem.loop();
+            extendSubsystem.loop();
+            intakeSubsystem.down(0);
+        }
 
         switch (conePos) {
             case "LEFT":
