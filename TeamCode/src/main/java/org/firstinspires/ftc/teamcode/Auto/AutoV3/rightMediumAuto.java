@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 
 @Autonomous(name = "rightMediumAuto", group = "auto")
 @Config
-//@Disabled
+@Disabled
 public class rightMediumAuto extends LinearOpMode {
     HWMap drive;
     public static double toPoleBack = 43;

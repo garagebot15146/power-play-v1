@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @TeleOp(name="detectionAT", group="Tests")
-//@Disabled
+@Disabled
 public class detectionAT extends LinearOpMode
 {
     OpenCvCamera camera;
